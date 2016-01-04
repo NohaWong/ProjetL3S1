@@ -13,6 +13,7 @@ int main(int argc, char **argv) {
     init_systable();
     FILE *file = fopen(argv[1], "rb");
     elf_header header;
+    header.version = 0;
 
     print_elf_header(file, &header);
 
@@ -31,10 +32,10 @@ int main(int argc, char **argv) {
     }
     printf("\n");
 
-    printf("> Type de fichier : ");
-    if (header.word_size == 1) {
+    printf("> Taille d'un word : ");
+    if (header.word_size == ELFCLASS32) {
         printf("ELF32\n");
-    } else if (header.word_size == 2) {
+    } else if (header.word_size == ELFCLASS64) {
         printf("ELF64\n");
     } else {
         printf("Taille invalide");
@@ -42,9 +43,9 @@ int main(int argc, char **argv) {
     }
 
     printf("> Endianess : ");
-    if (header.endianess == 1) {
+    if (header.endianess == ELFDATA2LSB) {
         printf("Little endian\n");
-    } else if (header.endianess == 2) {
+    } else if (header.endianess == ELFDATA2MSB) {
         printf("Big endian\n");
     } else {
         printf("Endianess invalide");
@@ -52,15 +53,28 @@ int main(int argc, char **argv) {
     }
 
     printf("> Version ELF : ");
-    if (header.version == EV_CURRENT) {
-        printf("%d\n", EV_CURRENT);
+    if (header.version >= EV_CURRENT) {
+        printf("%d (current)\n", header.version);
     } else if (header.version == EV_NONE) {
-        printf("%d\n", EV_NONE);
+        printf("%d\n", header.version);
         return ERROR_INVALID_VERSION;
     }
 
     printf("> OS/ABI : ");
     printf("%s\n", sys_table[header.sys_type]);
+
+    printf("> Type de fichier : ");
+    if (header.file_type == ET_NONE) {
+        printf("Aucun\n");
+    } else if (header.file_type == ET_REL) {
+        printf("Repositionnable (REL)\n");
+    } else if (header.file_type == ET_EXEC) {
+        printf("Exécutable (EXEC)\n");
+    } else if (header.file_type == ET_DYN) {
+        printf("Dyanmique (partagé)");
+    } else if (header.file_type == ET_CORE) {
+        printf("Fichier core (CORE)");
+    }
 
     printf("\n");
 

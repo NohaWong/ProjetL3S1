@@ -7,8 +7,13 @@ void print_elf_header(FILE *file, elf_header *header) {
     fread(header->magic_number, sizeof(int8_t), 4, file);
     fread(&header->word_size, sizeof(int8_t), 1, file);
     fread(&header->endianess, sizeof(int8_t), 1, file);
-    fread(&header->version, sizeof(int8_t), 1, file);
+    fread(&header->version, sizeof(int16_t), 1, file);
     fread(&header->sys_type, sizeof(int8_t), 1, file);
+    // padding
+    fseek(file, 6, SEEK_CUR);
+    // size of 'identification' field
+    fseek(file, 2, SEEK_CUR);
+    fread(&header->file_type, sizeof(Elf32_Half), 1, file);
 }
 
 void init_systable() {

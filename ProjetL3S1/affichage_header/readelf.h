@@ -11,9 +11,9 @@ struct elf_header {
     int8_t magic_number[4];
     Elf32_Half word_size;
     Elf32_Half endianess;
-    Elf32_Half file_type;
-    Elf32_Half version;
+    Elf32_Word version;
     Elf32_Half sys_type;
+    Elf32_Half file_type;
 };
 
 enum { ERROR_MAGIC_NUMBERS = 1, ERROR_MISSING_ARG, ERROR_WRONG_WORD_SIZE, ERROR_WRONG_ENDIAN,
