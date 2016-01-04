@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <elf.h>
 
 typedef struct elf_header elf_header;
@@ -16,23 +17,9 @@ enum { ERROR_MAGIC_NUMBERS = 1, ERROR_MISSING_ARG, ERROR_WRONG_WORD_SIZE, ERROR_
        ERROR_INVALID_VERSION };
 
 void print_elf_header(FILE *file, elf_header *header);
+void init_systable();
 
-char sys_table[][32] = {
-    "UNIX System V",
-    "HP-UX",
-    "NetBSD",
-    "Linux",
-    "Sun Solaris",
-    "IBM AIX",
-    "SGI Irix",
-    "FreeBSD",
-    "Compaq TRU64",
-    "Novell Modesto",
-    "OpenBSD",
-    "ARM EABI",
-    "ARM",
-    "Standalone"
-};
+char sys_table[256][32];
 
 int main(int argc, char **argv) {
     printf("--- Affichage du header ELF ---\n\n");
@@ -42,6 +29,7 @@ int main(int argc, char **argv) {
         return ERROR_MISSING_ARG;
     }
 
+    init_systable();
     FILE *file = fopen(argv[1], "rb");
     elf_header header;
 
@@ -91,50 +79,7 @@ int main(int argc, char **argv) {
     }
 
     printf("> OS/ABI : ");
-    switch (header.sys_type) {
-        case 0:
-            printf("%s", sys_table[0]);
-            break;
-        case 1:
-            printf("%s", sys_table[1]);
-            break;
-        case 2:
-            printf("%s", sys_table[2]);
-            break;
-        case 3:
-            printf("%s", sys_table[3]);
-            break;
-        case 6:
-            printf("%s", sys_table[4]);
-            break;
-        case 7:
-            printf("%s", sys_table[5]);
-            break;
-        case 8:
-            printf("%s", sys_table[6]);
-            break;
-        case 9:
-            printf("%s", sys_table[7]);
-            break;
-        case 10:
-            printf("%s", sys_table[8]);
-            break;
-        case 11:
-            printf("%s", sys_table[9]);
-            break;
-        case 12:
-            printf("%s", sys_table[10]);
-            break;
-        case 64:
-            printf("%s", sys_table[11]);
-            break;
-        case 97:
-            printf("%s", sys_table[12]);
-            break;
-        case 255:
-            printf("%s", sys_table[13]);
-            break;
-    }
+    printf("%s\n", sys_table[header.sys_type]);
 
     printf("\n");
 
@@ -148,4 +93,21 @@ void print_elf_header(FILE *file, elf_header *header) {
     fread(&header->endianess, sizeof(int8_t), 1, file);
     fread(&header->version, sizeof(int8_t), 1, file);
     fread(&header->sys_type, sizeof(int8_t), 1, file);
+}
+
+void init_systable() {
+    strcpy(sys_table[0], "UNIX System V");
+    strcpy(sys_table[1], "HP-UX");
+    strcpy(sys_table[2], "NetBSD");
+    strcpy(sys_table[3], "Linux");
+    strcpy(sys_table[6], "Sun Solaris");
+    strcpy(sys_table[7], "IBM AIX");
+    strcpy(sys_table[8], "SGI Irix");
+    strcpy(sys_table[9], "FreeBSD");
+    strcpy(sys_table[10], "Compaq TRU64");
+    strcpy(sys_table[11], "Novell Modesto");
+    strcpy(sys_table[12], "OpenBSD");
+    strcpy(sys_table[64], "ARM EABI");
+    strcpy(sys_table[97], "ARM");
+    strcpy(sys_table[255], "Standalone");
 }
