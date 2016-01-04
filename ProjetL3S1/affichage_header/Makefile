@@ -1,11 +1,11 @@
 CC=gcc
 CFLAGS=-Wall -Werror -g
 
-all: main.o
-	$(CC) $(CFLAGS) -o affichage_header main.o
+all: main.o readelf.o
+	$(CC) $(CFLAGS) -o affichage_header main.o readelf.o
 
 clean:
 	rm -f *.o
 
-main.o: main.c
+%.o: %.c %.h
 	$(CC) $(CFLAGS) -c $<
