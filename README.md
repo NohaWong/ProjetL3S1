@@ -1,5 +1,7 @@
 # ProjetL3S1
 
+Journal de projet LaTeX : https://fr.sharelatex.com/project/568bbf3349dd7d9b38a09cc6
+
 Le programme <i>affichage_header</i> permet l'affichage de l'en-tête d'un fichier au format ELF 32 bits.
 
 Valeurs de retour du programme :
