@@ -17,40 +17,35 @@ void print_elf_header(FILE *file, elf_header *header) {
     // size of 'identification' field
     fseek(file, 2, SEEK_CUR);
     fread(&header->file_type, sizeof(Elf32_Half), 1, file);
-    // swap endianness, file is encoded in little endian
-    header->file_type = htobe16(header->file_type);
     fread(&header->sys_target, sizeof(Elf32_Half), 1, file);
-    // swap endianness, file is encoded in little endian
-    header->sys_target = htobe16(header->sys_target);
     fread(&header->sys_version, sizeof(Elf32_Word), 1, file);
-    // swap endianness, file is encoded in little endian
-    header->sys_version = htobe32(header->sys_version);
-
     fread(&header->entry_point, sizeof(Elf32_Addr), 1, file);
-    header->entry_point = htobe32(header->entry_point);
-
     fread(&header->header_table_offset, sizeof(Elf32_Off), 1, file);
-    header->header_table_offset = htobe32(header->header_table_offset);
     fread(&header->section_table_offset, sizeof(Elf32_Off), 1, file);
-    header->section_table_offset = htobe32(header->section_table_offset);
-
     fread(&header->flags, sizeof(Elf32_Word), 1, file);
-    header->flags  = htobe32(header->flags);
-
     fread(&header->header_size, sizeof(Elf32_Half), 1, file);
-    header->header_size = htobe16(header->header_size);
-
     fread(&header->header_entry_size, sizeof(Elf32_Half), 1, file);
-    header->header_entry_size = htobe16(header->header_entry_size);
-
     fread(&header->header_entry_count, sizeof(Elf32_Half), 1, file);
-    header->header_entry_count = htobe16(header->header_entry_count);
-
     fread(&header->section_entry_size, sizeof(Elf32_Half), 1, file);
-    header->section_entry_size = htobe16(header->section_entry_size);
-
     fread(&header->section_entry_count, sizeof(Elf32_Half), 1, file);
-    header->section_entry_count = htobe16(header->section_entry_count);
+
+    if (header->endianness == ELFDATA2MSB) {
+        // swap endianness, file is encoded in little endian
+        header->file_type = htobe16(header->file_type);
+        // swap endianness, file is encoded in little endian
+        header->sys_target = htobe16(header->sys_target);
+        // swap endianness, file is encoded in little endian
+        header->sys_version = htobe32(header->sys_version);
+        header->entry_point = htobe32(header->entry_point);
+        header->header_table_offset = htobe32(header->header_table_offset);
+        header->section_table_offset = htobe32(header->section_table_offset);
+        header->flags  = htobe32(header->flags);
+        header->header_size = htobe16(header->header_size);
+        header->header_entry_size = htobe16(header->header_entry_size);
+        header->header_entry_count = htobe16(header->header_entry_count);
+        header->section_entry_size = htobe16(header->section_entry_size);
+        header->section_entry_count = htobe16(header->section_entry_count);
+    }
 }
 
 void init_systable() {
