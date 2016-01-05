@@ -1,7 +1,7 @@
 #include "readelf.h"
 
 extern char sys_table[256][32];
-extern char sys_target[64][32];
+extern char sys_target[193][32];
 
 int main(int argc, char **argv) {
     printf("--- Affichage du header ELF ---\n\n");
@@ -16,13 +16,14 @@ int main(int argc, char **argv) {
     FILE *file = fopen(argv[1], "rb");
     elf_header header;
     header.version = 0;
+    header.sys_version = 0;
 
     print_elf_header(file, &header);
 
-    if (    header.magic_number[0] != ELFMAG0
-        ||  header.magic_number[1] != ELFMAG1
-        ||  header.magic_number[2] != ELFMAG2
-        ||  header.magic_number[3] != ELFMAG3) {
+    if (    header.magic_number[EI_MAG0] != ELFMAG0
+        ||  header.magic_number[EI_MAG1] != ELFMAG1
+        ||  header.magic_number[EI_MAG2] != ELFMAG2
+        ||  header.magic_number[EI_MAG3] != ELFMAG3) {
             printf("Erreur : Les nombres magiques ne sont pas corrects.\n");
             return ERROR_MAGIC_NUMBERS;
     }
@@ -80,6 +81,9 @@ int main(int argc, char **argv) {
 
     printf("> Machine cible : ");
     printf("%s\n", sys_target[header.sys_target]);
+
+    printf("> Version : ");
+    printf("0x%x\n", header.sys_version);
 
     printf("\n");
 

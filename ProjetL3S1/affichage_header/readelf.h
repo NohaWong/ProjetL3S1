@@ -15,6 +15,7 @@ struct elf_header {
     Elf32_Half sys_type;
     Elf32_Half sys_target;
     Elf32_Half file_type;
+    Elf32_Word sys_version;
 };
 
 enum { ERROR_MAGIC_NUMBERS = 1, ERROR_MISSING_ARG, ERROR_WRONG_WORD_SIZE, ERROR_WRONG_ENDIAN,
