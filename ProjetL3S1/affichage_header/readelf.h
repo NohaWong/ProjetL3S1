@@ -30,8 +30,14 @@ struct elf_header {
 enum { ERROR_MAGIC_NUMBERS = 1, ERROR_MISSING_ARG, ERROR_WRONG_WORD_SIZE, ERROR_WRONG_ENDIAN,
        ERROR_INVALID_VERSION };
 
+
+// fonctions lecture header fichier
 void read_elf_header(FILE *file, elf_header *header);
 void init_systable();
 void init_systarget();
+
+// fonctions lecture header sections
+Elf32_Shdr *read_elf_section_header(FILE *file, elf_header *header);
+
 
 #endif

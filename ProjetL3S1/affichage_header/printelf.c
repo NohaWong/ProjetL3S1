@@ -84,3 +84,20 @@ int print_elf_header(elf_header header)
 
     return EXIT_SUCCESS;
 }
+
+
+void print_elf_section_header(elf_header header, Elf32_Shdr * table_entetes_section) {
+    uint8_t i;
+    for (i=0; i<header.section_entry_count; i++) {
+        printf("Nom : 0x%x\n", table_entetes_section[i].sh_name);
+        printf("Type : 0x%x\n", table_entetes_section[i].sh_type);
+        printf("Flag : 0x%x\n", table_entetes_section[i].sh_flags);
+        printf("Adresse : 0x%x\n", table_entetes_section[i].sh_addr);
+        printf("Decalage : 0x%x\n", table_entetes_section[i].sh_offset);
+        printf("Taille : 0x%x\n", table_entetes_section[i].sh_size);
+        printf("Lien : 0x%x\n", table_entetes_section[i].sh_link);
+        printf("Alignement : 0x%x\n", table_entetes_section[i].sh_addralign);
+        printf("Entsize : 0x%x\n", table_entetes_section[i].sh_entsize);
+        printf("\n\n");
+    }
+}

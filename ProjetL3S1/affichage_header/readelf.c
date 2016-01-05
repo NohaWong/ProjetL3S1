@@ -1,5 +1,9 @@
+
+
 #include "readelf.h"
 #include <endian.h>
+
+// -------------- lecture header fichier -------------- //
 
 char sys_table[256][32];
 // 193 targets, according to elf.h
@@ -78,3 +82,44 @@ void init_systarget() {
     strcpy(sys_target[EM_IA_64], "Intel IA64");
     strcpy(sys_target[EM_X86_64], "x64");
 }
+
+// -------------- lecture section header -------------- //
+
+Elf32_Shdr *read_elf_section_header(FILE *file, elf_header *header) {
+    uint32_t i;
+    Elf32_Shdr * table_entetes_section;
+
+    table_entetes_section = (Elf32_Shdr*) malloc(sizeof(Elf32_Shdr) * (header->section_entry_count));
+
+    fseek(file, header->section_table_offset, SEEK_SET);
+    for (i=0;i<header->section_entry_count;i++) {
+        fread(&(table_entetes_section[i].sh_name), sizeof(Elf32_Word), 1, file);
+        fread(&(table_entetes_section[i].sh_type), sizeof(Elf32_Word), 1, file);
+        fread(&(table_entetes_section[i].sh_flags), sizeof(Elf32_Word), 1, file);
+        fread(&(table_entetes_section[i].sh_addr), sizeof(Elf32_Addr), 1, file);
+        fread(&(table_entetes_section[i].sh_offset), sizeof(Elf32_Off ), 1, file);
+        fread(&(table_entetes_section[i].sh_size), sizeof(Elf32_Word), 1, file);
+        fread(&(table_entetes_section[i].sh_link), sizeof(Elf32_Word), 1, file);
+        fread(&(table_entetes_section[i].sh_info), sizeof(Elf32_Word), 1, file);
+        fread(&(table_entetes_section[i].sh_addralign), sizeof(Elf32_Word), 1, file);
+        fread(&(table_entetes_section[i].sh_entsize), sizeof(Elf32_Word), 1, file);
+
+        // changer en little endian
+        if (header->endianness == ELFDATA2MSB) {
+            table_entetes_section[i].sh_name = htobe32(table_entetes_section[i].sh_name);
+            table_entetes_section[i].sh_type = htobe32(table_entetes_section[i].sh_type);
+            table_entetes_section[i].sh_flags = htobe32(table_entetes_section[i].sh_flags);
+            table_entetes_section[i].sh_addr = htobe32(table_entetes_section[i].sh_addr);
+            table_entetes_section[i].sh_offset = htobe32(table_entetes_section[i].sh_offset);
+            table_entetes_section[i].sh_size = htobe32(table_entetes_section[i].sh_size);
+            table_entetes_section[i].sh_link = htobe32(table_entetes_section[i].sh_link);
+            table_entetes_section[i].sh_info = htobe32(table_entetes_section[i].sh_info);
+            table_entetes_section[i].sh_addralign = htobe32(table_entetes_section[i].sh_addralign);
+            table_entetes_section[i].sh_entsize = htobe32(table_entetes_section[i].sh_entsize);
+        }
+    }
+    return table_entetes_section;
+}
+
+// -------------- lecture section content -------------- //
+//

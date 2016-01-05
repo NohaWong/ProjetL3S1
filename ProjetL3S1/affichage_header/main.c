@@ -13,11 +13,22 @@ int main(int argc, char **argv) {
     init_systarget();
     FILE *file = fopen(argv[1], "rb");
     elf_header header;
+    Elf32_Shdr * table_entetes_section;
+
 
     read_elf_header(file, &header);
     int value = print_elf_header(header);
+    if (value) {
+        printf("Le programme s'est terminé avec le code %d.\n", value);
+        return value;
+    }
 
-    printf("Le programme s'est terminé avec le code %d.\n", value);
+    // lecture de l'entete des sections
+    table_entetes_section = read_elf_section_header(file, &header);
 
-    return value;
+
+    // affichage de l'entete des sections
+    print_elf_section_header(header, table_entetes_section);
+
+    return EXIT_SUCCESS;
 }
