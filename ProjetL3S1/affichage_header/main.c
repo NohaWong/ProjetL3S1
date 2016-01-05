@@ -29,7 +29,7 @@ int main(int argc, char **argv) {
 
 
     // affichage de l'entete des sections
-    print_elf_section_header(header, table_entetes_section);
+    print_elf_section_header(file, header, table_entetes_section);
     free(table_entetes_section);
 
     return EXIT_SUCCESS;

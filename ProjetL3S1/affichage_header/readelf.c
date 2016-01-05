@@ -27,6 +27,7 @@ void read_elf_header(FILE *file, Elf32_Ehdr *header) {
         header->e_phnum = htobe16(header->e_phnum);
         header->e_shentsize = htobe16(header->e_shentsize);
         header->e_shnum = htobe16(header->e_shnum);
+        header->e_shstrndx = htobe16(header->e_shstrndx);
     }
 }
 
