@@ -66,7 +66,7 @@ void init_systarget() {
 
 Elf32_Shdr *read_elf_section_header(FILE *file, Elf32_Ehdr *header) {
     uint32_t i;
-    Elf32_Shdr * table_entetes_section;
+    Elf32_Shdr *table_entetes_section;
 
     table_entetes_section = (Elf32_Shdr*) malloc(sizeof(Elf32_Shdr) * (header->e_shnum));
     fseek(file, header->e_shoff, SEEK_SET);
@@ -75,7 +75,7 @@ Elf32_Shdr *read_elf_section_header(FILE *file, Elf32_Ehdr *header) {
 
     if (header->e_ident[EI_DATA] == ELFDATA2MSB) {
         for (i = 0; i < header->e_shnum; i++) {
-        // changer en little endian
+            // changer en little endian
             table_entetes_section[i].sh_name = htobe32(table_entetes_section[i].sh_name);
             table_entetes_section[i].sh_type = htobe32(table_entetes_section[i].sh_type);
             table_entetes_section[i].sh_flags = htobe32(table_entetes_section[i].sh_flags);
@@ -88,8 +88,52 @@ Elf32_Shdr *read_elf_section_header(FILE *file, Elf32_Ehdr *header) {
             table_entetes_section[i].sh_entsize = htobe32(table_entetes_section[i].sh_entsize);
         }
     }
+
     return table_entetes_section;
 }
 
 // -------------- lecture section content -------------- //
-//
+
+Elf32_Sym *read_symbol_table(FILE *file, Elf32_Shdr *section_headers, Elf32_Half shnum, uint16_t *symbols_count) {
+    Elf32_Half symtable_index = 0;
+    int i = 0;
+    for (i = 0; i < shnum; ++i) {
+        if (section_headers[i].sh_type == SHT_SYMTAB) {
+            symtable_index = i;
+            break;
+        }
+    }
+
+    Elf32_Sym *symbols = (Elf32_Sym*)malloc(sizeof(Elf32_Sym) * shnum);
+    fread(symbols, sizeof(Elf32_Sym), section_headers[symtable_index].sh_link, file);
+    *symbols_count = section_headers[symtable_index].sh_link;
+
+    for (i = 0; i < *symbols_count; ++i) {
+        symbols[i].st_name = htobe32(symbols[i].st_name);
+        symbols[i].st_value = htobe32(symbols[i].st_value);
+        printf("Sym %d -> name: 0x%x, value: 0x%x, type: ", i, symbols[i].st_name, symbols[i].st_value);
+
+        switch (symbols[i].st_info) {
+            case STT_NOTYPE:
+            default:
+                printf("NOTYPE");
+                break;
+            case STT_OBJECT:
+                printf("OBJECT");
+                break;
+            case STT_FUNC:
+                printf("FUNC");
+                break;
+            case STT_SECTION:
+                printf("SECTION");
+                break;
+            case STT_FILE:
+                printf("FILE");
+                break;
+        }
+
+        printf("\n");
+    }
+
+    return symbols;
+}
