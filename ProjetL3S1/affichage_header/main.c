@@ -19,5 +19,5 @@ int main(int argc, char **argv) {
 
     printf("Le programme s'est terminé avec le code %d.\n", value);
 
-    return EXIT_SUCCESS;
+    return value;
 }
