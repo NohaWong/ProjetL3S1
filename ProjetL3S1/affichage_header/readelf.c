@@ -9,46 +9,24 @@ char sys_table[256][32];
 // 193 targets, according to elf.h
 char sys_target[193][32];
 
-void read_elf_header(FILE *file, elf_header *header) {
+void read_elf_header(FILE *file, Elf32_Ehdr *header) {
     fseek(file, 0, SEEK_SET);
-    fread(header->magic_number, sizeof(uint8_t), 4, file);
-    fread(&header->word_size, sizeof(uint8_t), 1, file);
-    fread(&header->endianness, sizeof(uint8_t), 1, file);
-    fread(&header->version, sizeof(uint8_t), 1, file);
-    fread(&header->sys_type, sizeof(uint8_t), 1, file);
-    // padding
-    fseek(file, 6, SEEK_CUR);
-    // size of 'identification' field
-    fseek(file, 2, SEEK_CUR);
-    fread(&header->file_type, sizeof(Elf32_Half), 1, file);
-    fread(&header->sys_target, sizeof(Elf32_Half), 1, file);
-    fread(&header->sys_version, sizeof(Elf32_Word), 1, file);
-    fread(&header->entry_point, sizeof(Elf32_Addr), 1, file);
-    fread(&header->header_table_offset, sizeof(Elf32_Off), 1, file);
-    fread(&header->section_table_offset, sizeof(Elf32_Off), 1, file);
-    fread(&header->flags, sizeof(Elf32_Word), 1, file);
-    fread(&header->header_size, sizeof(Elf32_Half), 1, file);
-    fread(&header->header_entry_size, sizeof(Elf32_Half), 1, file);
-    fread(&header->header_entry_count, sizeof(Elf32_Half), 1, file);
-    fread(&header->section_entry_size, sizeof(Elf32_Half), 1, file);
-    fread(&header->section_entry_count, sizeof(Elf32_Half), 1, file);
+    fread(header, sizeof(Elf32_Ehdr), 1, file);
 
-    if (header->endianness == ELFDATA2MSB) {
+    if (header->e_ident[EI_DATA] == ELFDATA2MSB) {
         // swap endianness, file is encoded in little endian
-        header->file_type = htobe16(header->file_type);
+        header->e_machine = htobe16(header->e_machine);
         // swap endianness, file is encoded in little endian
-        header->sys_target = htobe16(header->sys_target);
-        // swap endianness, file is encoded in little endian
-        header->sys_version = htobe32(header->sys_version);
-        header->entry_point = htobe32(header->entry_point);
-        header->header_table_offset = htobe32(header->header_table_offset);
-        header->section_table_offset = htobe32(header->section_table_offset);
-        header->flags  = htobe32(header->flags);
-        header->header_size = htobe16(header->header_size);
-        header->header_entry_size = htobe16(header->header_entry_size);
-        header->header_entry_count = htobe16(header->header_entry_count);
-        header->section_entry_size = htobe16(header->section_entry_size);
-        header->section_entry_count = htobe16(header->section_entry_count);
+        header->e_version = htobe32(header->e_version);
+        header->e_entry = htobe32(header->e_entry);
+        header->e_phoff = htobe32(header->e_phoff);
+        header->e_shoff = htobe32(header->e_shoff);
+        header->e_flags  = htobe32(header->e_flags);
+        header->e_ehsize = htobe16(header->e_ehsize);
+        header->e_phentsize = htobe16(header->e_phentsize);
+        header->e_phnum = htobe16(header->e_phnum);
+        header->e_shentsize = htobe16(header->e_shentsize);
+        header->e_shnum = htobe16(header->e_shnum);
     }
 }
 
@@ -85,27 +63,18 @@ void init_systarget() {
 
 // -------------- lecture section header -------------- //
 
-Elf32_Shdr *read_elf_section_header(FILE *file, elf_header *header) {
+Elf32_Shdr *read_elf_section_header(FILE *file, Elf32_Ehdr *header) {
     uint32_t i;
     Elf32_Shdr * table_entetes_section;
 
-    table_entetes_section = (Elf32_Shdr*) malloc(sizeof(Elf32_Shdr) * (header->section_entry_count));
+    table_entetes_section = (Elf32_Shdr*) malloc(sizeof(Elf32_Shdr) * (header->e_shnum));
+    fseek(file, header->e_shoff, SEEK_SET);
 
-    fseek(file, header->section_table_offset, SEEK_SET);
-    for (i=0;i<header->section_entry_count;i++) {
-        fread(&(table_entetes_section[i].sh_name), sizeof(Elf32_Word), 1, file);
-        fread(&(table_entetes_section[i].sh_type), sizeof(Elf32_Word), 1, file);
-        fread(&(table_entetes_section[i].sh_flags), sizeof(Elf32_Word), 1, file);
-        fread(&(table_entetes_section[i].sh_addr), sizeof(Elf32_Addr), 1, file);
-        fread(&(table_entetes_section[i].sh_offset), sizeof(Elf32_Off ), 1, file);
-        fread(&(table_entetes_section[i].sh_size), sizeof(Elf32_Word), 1, file);
-        fread(&(table_entetes_section[i].sh_link), sizeof(Elf32_Word), 1, file);
-        fread(&(table_entetes_section[i].sh_info), sizeof(Elf32_Word), 1, file);
-        fread(&(table_entetes_section[i].sh_addralign), sizeof(Elf32_Word), 1, file);
-        fread(&(table_entetes_section[i].sh_entsize), sizeof(Elf32_Word), 1, file);
+    fread(table_entetes_section, sizeof(Elf32_Shdr), header->e_shnum, file);
 
+    if (header->e_ident[EI_DATA] == ELFDATA2MSB) {
+        for (i = 0; i < header->e_shnum; i++) {
         // changer en little endian
-        if (header->endianness == ELFDATA2MSB) {
             table_entetes_section[i].sh_name = htobe32(table_entetes_section[i].sh_name);
             table_entetes_section[i].sh_type = htobe32(table_entetes_section[i].sh_type);
             table_entetes_section[i].sh_flags = htobe32(table_entetes_section[i].sh_flags);

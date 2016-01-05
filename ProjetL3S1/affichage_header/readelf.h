@@ -6,38 +6,17 @@
 #include <string.h>
 #include <elf.h>
 
-typedef struct elf_header elf_header;
-struct elf_header {
-    uint8_t magic_number[4];
-    uint8_t word_size;
-    uint8_t endianness;
-    uint8_t version;
-    uint8_t sys_type;
-    Elf32_Half sys_target;
-    Elf32_Half file_type;
-    Elf32_Word sys_version;
-    Elf32_Addr entry_point;
-    Elf32_Word flags;
-    Elf32_Half header_size;
-    Elf32_Half header_entry_size;
-    Elf32_Half header_entry_count;
-    Elf32_Half section_entry_size;
-    Elf32_Half section_entry_count;
-    Elf32_Off header_table_offset;
-    Elf32_Off section_table_offset;
-};
-
 enum { ERROR_MAGIC_NUMBERS = 1, ERROR_MISSING_ARG, ERROR_WRONG_WORD_SIZE, ERROR_WRONG_ENDIAN,
        ERROR_INVALID_VERSION };
 
 
 // fonctions lecture header fichier
-void read_elf_header(FILE *file, elf_header *header);
+void read_elf_header(FILE *file, Elf32_Ehdr *header);
 void init_systable();
 void init_systarget();
 
 // fonctions lecture header sections
-Elf32_Shdr *read_elf_section_header(FILE *file, elf_header *header);
+Elf32_Shdr *read_elf_section_header(FILE *file, Elf32_Ehdr *header);
 
 
 #endif
