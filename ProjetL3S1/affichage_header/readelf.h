@@ -1,5 +1,5 @@
-#ifndef MAIN_H
-#define MAIN_H
+#ifndef READELF_H
+#define READELF_H
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -30,7 +30,7 @@ struct elf_header {
 enum { ERROR_MAGIC_NUMBERS = 1, ERROR_MISSING_ARG, ERROR_WRONG_WORD_SIZE, ERROR_WRONG_ENDIAN,
        ERROR_INVALID_VERSION };
 
-void print_elf_header(FILE *file, elf_header *header);
+void read_elf_header(FILE *file, elf_header *header);
 void init_systable();
 void init_systarget();
 

@@ -5,7 +5,7 @@ char sys_table[256][32];
 // 193 targets, according to elf.h
 char sys_target[193][32];
 
-void print_elf_header(FILE *file, elf_header *header) {
+void read_elf_header(FILE *file, elf_header *header) {
     fseek(file, 0, SEEK_SET);
     fread(header->magic_number, sizeof(uint8_t), 4, file);
     fread(&header->word_size, sizeof(uint8_t), 1, file);
