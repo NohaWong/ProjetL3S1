@@ -7,11 +7,11 @@ char sys_target[193][32];
 
 void print_elf_header(FILE *file, elf_header *header) {
     fseek(file, 0, SEEK_SET);
-    fread(header->magic_number, sizeof(int8_t), 4, file);
-    fread(&header->word_size, sizeof(int8_t), 1, file);
-    fread(&header->endianess, sizeof(int8_t), 1, file);
-    fread(&header->version, sizeof(int8_t), 1, file);
-    fread(&header->sys_type, sizeof(int8_t), 1, file);
+    fread(header->magic_number, sizeof(uint8_t), 4, file);
+    fread(&header->word_size, sizeof(uint8_t), 1, file);
+    fread(&header->endianness, sizeof(uint8_t), 1, file);
+    fread(&header->version, sizeof(uint8_t), 1, file);
+    fread(&header->sys_type, sizeof(uint8_t), 1, file);
     // padding
     fseek(file, 6, SEEK_CUR);
     // size of 'identification' field
@@ -25,6 +25,18 @@ void print_elf_header(FILE *file, elf_header *header) {
     fread(&header->sys_version, sizeof(Elf32_Word), 1, file);
     // swap endianness, file is encoded in little endian
     header->sys_version = htobe32(header->sys_version);
+
+    fread(&header->entry_point, sizeof(Elf32_Addr), 1, file);
+    header->entry_point = htobe32(header->entry_point);
+
+    // skip offsets
+    fseek(file, 8, SEEK_CUR);
+
+    fread(&header->flags, sizeof(Elf32_Word), 1, file);
+    header->flags  = htobe32(header->flags);
+
+    fread(&header->header_size, sizeof(Elf32_Half), 1, file);
+    header->header_size = htobe16(header->header_size);
 }
 
 void init_systable() {
