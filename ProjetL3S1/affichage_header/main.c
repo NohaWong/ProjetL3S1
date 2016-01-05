@@ -1,6 +1,7 @@
 #include "readelf.h"
 
 extern char sys_table[256][32];
+extern char sys_target[64][32];
 
 int main(int argc, char **argv) {
     printf("--- Affichage du header ELF ---\n\n");
@@ -11,6 +12,7 @@ int main(int argc, char **argv) {
     }
 
     init_systable();
+    init_systarget();
     FILE *file = fopen(argv[1], "rb");
     elf_header header;
     header.version = 0;
@@ -75,6 +77,9 @@ int main(int argc, char **argv) {
     } else if (header.file_type == ET_CORE) {
         printf("Fichier core (CORE)");
     }
+
+    printf("> Machine cible : ");
+    printf("%s\n", sys_target[header.sys_target]);
 
     printf("\n");
 
