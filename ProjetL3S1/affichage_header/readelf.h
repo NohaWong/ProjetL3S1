@@ -19,6 +19,12 @@ struct elf_header {
     Elf32_Addr entry_point;
     Elf32_Word flags;
     Elf32_Half header_size;
+    Elf32_Half header_entry_size;
+    Elf32_Half header_entry_count;
+    Elf32_Half section_entry_size;
+    Elf32_Half section_entry_count;
+    Elf32_Off header_table_offset;
+    Elf32_Off section_table_offset;
 };
 
 enum { ERROR_MAGIC_NUMBERS = 1, ERROR_MISSING_ARG, ERROR_WRONG_WORD_SIZE, ERROR_WRONG_ENDIAN,

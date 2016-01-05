@@ -82,7 +82,16 @@ int main(int argc, char **argv) {
     printf("  Version : 0x%x\n", header.sys_version);
     printf("  Point d'entrée : 0x%x\n", header.entry_point);
     printf("  Flags : 0x%x\n", header.flags);
+    printf("-- Décalages des tables\n");
+    printf("  Décalage de la table d'en-tête du programme : 0x%x\n", header.header_table_offset);
+    printf("  Décalage de la table de sections : 0x%x\n", header.section_table_offset);
+    printf("-- Informations sur l'en-tête\n");
     printf("  Taille de l'en-tête ELF : %d octets\n", header.header_size);
+    printf("  Taille d'une entrée de l'en-tête du programme : %d octets\n", header.header_entry_size);
+    printf("  Nombre d'entrées de l'en-tête du programme : %d\n", header.header_entry_count);
+    printf("-- Informations sur les sections\n");
+    printf("  Taille d'une entrée de la table de sections : %d octets\n", header.section_entry_size);
+    printf("  Nombre d'entrées de la table de sections : %d\n", header.section_entry_count);
 
     printf("\n");
 

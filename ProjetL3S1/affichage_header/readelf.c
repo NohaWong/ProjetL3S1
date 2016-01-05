@@ -29,14 +29,28 @@ void print_elf_header(FILE *file, elf_header *header) {
     fread(&header->entry_point, sizeof(Elf32_Addr), 1, file);
     header->entry_point = htobe32(header->entry_point);
 
-    // skip offsets
-    fseek(file, 8, SEEK_CUR);
+    fread(&header->header_table_offset, sizeof(Elf32_Off), 1, file);
+    header->header_table_offset = htobe32(header->header_table_offset);
+    fread(&header->section_table_offset, sizeof(Elf32_Off), 1, file);
+    header->section_table_offset = htobe32(header->section_table_offset);
 
     fread(&header->flags, sizeof(Elf32_Word), 1, file);
     header->flags  = htobe32(header->flags);
 
     fread(&header->header_size, sizeof(Elf32_Half), 1, file);
     header->header_size = htobe16(header->header_size);
+
+    fread(&header->header_entry_size, sizeof(Elf32_Half), 1, file);
+    header->header_entry_size = htobe16(header->header_entry_size);
+
+    fread(&header->header_entry_count, sizeof(Elf32_Half), 1, file);
+    header->header_entry_count = htobe16(header->header_entry_count);
+
+    fread(&header->section_entry_size, sizeof(Elf32_Half), 1, file);
+    header->section_entry_size = htobe16(header->section_entry_size);
+
+    fread(&header->section_entry_count, sizeof(Elf32_Half), 1, file);
+    header->section_entry_count = htobe16(header->section_entry_count);
 }
 
 void init_systable() {
