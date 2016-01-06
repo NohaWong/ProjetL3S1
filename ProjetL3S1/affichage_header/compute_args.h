@@ -7,5 +7,6 @@
 int compute_multiple_args (int argc, char **argv);
 int compute_no_args (const char *filename);
 void print_help();
+int is_numeric (const char * s);
 
 #endif

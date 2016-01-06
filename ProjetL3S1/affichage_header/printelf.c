@@ -5,14 +5,7 @@ extern char sys_target[193][32];
 
 int print_elf_header(Elf32_Ehdr header)
 {
-    printf("<EN-TÊTE ELF>\n");
-    if (    header.e_ident[EI_MAG0] != ELFMAG0
-        ||  header.e_ident[EI_MAG1] != ELFMAG1
-        ||  header.e_ident[EI_MAG2] != ELFMAG2
-        ||  header.e_ident[EI_MAG3] != ELFMAG3) {
-            printf("Erreur : Les nombres magiques ne sont pas corrects.\n");
-            return ERROR_MAGIC_NUMBERS;
-    }
+    printf(BOLDWHITE "<EN-TÊTE ELF>\n" RESET);
 
     int i = 0;
     printf("  Magique : ");
@@ -26,6 +19,7 @@ int print_elf_header(Elf32_Ehdr header)
         printf("ELF32\n");
     } else if (header.e_ident[EI_CLASS] == ELFCLASS64) {
         printf("ELF64\n");
+        printf("Les fichiers 64-bits ne sont pas supportés.\n");
         return ERROR_WRONG_WORD_SIZE;
     } else {
         printf("Taille invalide %d\n", header.e_ident[EI_CLASS]);
@@ -46,7 +40,7 @@ int print_elf_header(Elf32_Ehdr header)
     if (header.e_ident[EI_VERSION] >= EV_CURRENT) {
         printf("%d (current)\n", header.e_ident[EI_VERSION]);
     } else if (header.e_ident[EI_VERSION] == EV_NONE) {
-        printf("%d\n", header.e_ident[EI_VERSION]);
+        printf("La version n'est pas valide : %d\n", header.e_ident[EI_VERSION]);
         return ERROR_INVALID_VERSION;
     }
 
@@ -64,6 +58,8 @@ int print_elf_header(Elf32_Ehdr header)
         printf("Dyanmique (partagé)");
     } else if (header.e_type == ET_CORE) {
         printf("Fichier core (CORE)");
+    } else {
+        printf("Type inconnu");
     }
 
     printf("  Machine cible : %s\n", sys_target[header.e_machine]);
@@ -89,7 +85,7 @@ int print_elf_header(Elf32_Ehdr header)
 
 void print_elf_section_header(Elf32_Ehdr header, Elf32_Shdr * table_entetes_section, char *secname) {
     uint8_t i;
-    printf("<SECTIONS DU FICHIER>\n");
+    printf(BOLDWHITE "<SECTIONS DU FICHIER>\n" RESET);
     printf("#     Nom                 Type        Flags   Adresse              Taille  Lien    Alignement Entsize \n");
     printf("------------------------------------------------------------------------------------------------------\n");
 
@@ -119,7 +115,7 @@ void print_elf_symbol_table(Elf32_Sym *symbols, Elf32_Half shnum) {
     char type[16];
     char info[16];
     //char info[16];
-    printf("<TABLE DES SYMBOLES>\n");
+    printf(BOLDWHITE "<TABLE DES SYMBOLES>\n" RESET);
     printf("#      Nom    Valeur Type      Portée  \n");
     printf("---------------------------------------\n");
     for (i = 0; i < shnum; ++i) {
