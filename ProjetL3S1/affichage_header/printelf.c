@@ -99,21 +99,26 @@ char* print_elf_section_header(FILE* file, Elf32_Ehdr header, Elf32_Shdr * table
         return 0;
     }
     fread(c, sizeof(char), table_entetes_section[header.e_shstrndx].sh_size, file);
+
+    printf("<SECTIONS DU FICHIER>\n");
+    printf("#     Nom                 Type        Flags   Adresse              Taille  Lien    Alignement Entsize \n");
+    printf("------------------------------------------------------------------------------------------------------\n");
     for (i=0; i < header.e_shnum; i++) {
-        printf("Nom : %s", &(c[table_entetes_section[i].sh_name]));
-        if (c[table_entetes_section[i].sh_name] == 0) {
-            printf("NULL");
-        }
-        printf("\n");
-        printf("Type : 0x%x\n", table_entetes_section[i].sh_type);
-        printf("Flag : 0x%x\n", table_entetes_section[i].sh_flags);
-        printf("Adresse : 0x%x décalé de 0x%x\n", table_entetes_section[i].sh_addr, table_entetes_section[i].sh_offset);
-        printf("Taille : 0x%x\n", table_entetes_section[i].sh_size);
-        printf("Lien : 0x%x\n", table_entetes_section[i].sh_link);
-        printf("Alignement : 0x%x\n", table_entetes_section[i].sh_addralign);
-        printf("Entsize : 0x%x\n", table_entetes_section[i].sh_entsize);
+        printf("%-6d%-20s%#-12x%#-8x%#-8x(+ %#-8x) %#-8x%#-8x%#-11x%#-8x", i,
+                           &(c[table_entetes_section[i].sh_name]),
+                           table_entetes_section[i].sh_type,
+                           table_entetes_section[i].sh_flags,
+                           table_entetes_section[i].sh_addr,
+                           table_entetes_section[i].sh_offset,
+                           table_entetes_section[i].sh_size,
+                           table_entetes_section[i].sh_link,
+                           table_entetes_section[i].sh_addralign,
+                           table_entetes_section[i].sh_entsize
+              );
+
         printf("\n");
     }
+    printf("\n");
 
     fseek(file, pos_curs, SEEK_SET);
     return c;
@@ -125,8 +130,8 @@ void print_elf_symbol_table(Elf32_Sym *symbols, Elf32_Half shnum) {
     char info[16];
     //char info[16];
     printf("<TABLE DES SYMBOLES>\n");
-    printf("#      Nom    Valeur Type    Portée  \n");
-    printf("-------------------------------------\n");
+    printf("#      Nom    Valeur Type      Portée  \n");
+    printf("---------------------------------------\n");
     for (i = 0; i < shnum; ++i) {
         switch (ELF32_ST_TYPE(symbols[i].st_info)) {
             case STT_NOTYPE:
@@ -167,7 +172,7 @@ void print_elf_symbol_table(Elf32_Sym *symbols, Elf32_Half shnum) {
                 break;
         }
 
-        printf("%-7d%#-7x%#-7x%-8s%-8s", i, symbols[i].st_name, symbols[i].st_value, type, info);
+        printf("%-7d%#-7x%#-7x%-10s%-8s", i, symbols[i].st_name, symbols[i].st_value, type, info);
         printf("\n");
     }
 }
