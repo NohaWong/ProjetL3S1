@@ -86,35 +86,35 @@ int print_elf_header(Elf32_Ehdr header)
 }
 
 
-void print_elf_section_header(FILE* file, Elf32_Ehdr header, Elf32_Shdr * table_entetes_section) {
+char* print_elf_section_header(FILE* file, Elf32_Ehdr header, Elf32_Shdr * table_entetes_section) {
     uint8_t i;
     Elf32_Addr addr_debut_nom_section = table_entetes_section[header.e_shstrndx].sh_addr + table_entetes_section[header.e_shstrndx].sh_offset;
     uint64_t pos_curs = ftell(file);
-    uint32_t offset = 0;
-    char c;
+    char* c;
 
+    // recuperation de la table des noms
+    fseek(file, addr_debut_nom_section, SEEK_SET);
+    c = malloc(sizeof(char) * table_entetes_section[header.e_shstrndx].sh_size);
+    if (c == NULL) {
+        return 0;
+    }
+    fread(c, sizeof(char), table_entetes_section[header.e_shstrndx].sh_size, file);
     for (i=0; i < header.e_shnum; i++) {
-        // On recupere le nom
-        offset = (addr_debut_nom_section) + (table_entetes_section[i].sh_name);
-        printf("Nom : ");
-        fseek(file, offset, SEEK_SET);
-        fread(&c, sizeof(char), 1, file);
-        while (c != '\0') {
-            printf("%c", c);
-            fread(&c, sizeof(char), 1, file);
+        printf("Nom : %s", &(c[table_entetes_section[i].sh_name]));
+        if (c[table_entetes_section[i].sh_name] == 0) {
+            printf("NULL");
         }
-
         printf("\n");
         printf("Type : 0x%x\n", table_entetes_section[i].sh_type);
         printf("Flag : 0x%x\n", table_entetes_section[i].sh_flags);
-        printf("Adresse : 0x%x\n", table_entetes_section[i].sh_addr);
-        printf("Decalage : 0x%x\n", table_entetes_section[i].sh_offset);
+        printf("Adresse : 0x%x décalé de 0x%x\n", table_entetes_section[i].sh_addr, table_entetes_section[i].sh_offset);
         printf("Taille : 0x%x\n", table_entetes_section[i].sh_size);
         printf("Lien : 0x%x\n", table_entetes_section[i].sh_link);
         printf("Alignement : 0x%x\n", table_entetes_section[i].sh_addralign);
         printf("Entsize : 0x%x\n", table_entetes_section[i].sh_entsize);
-        printf("\n\n");
+        printf("\n");
     }
 
     fseek(file, pos_curs, SEEK_SET);
+    return c;
 }
