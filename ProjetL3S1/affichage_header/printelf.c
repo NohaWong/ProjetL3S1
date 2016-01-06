@@ -5,6 +5,7 @@ extern char sys_target[193][32];
 
 int print_elf_header(Elf32_Ehdr header)
 {
+    printf("<EN-TÊTE ELF>\n");
     if (    header.e_ident[EI_MAG0] != ELFMAG0
         ||  header.e_ident[EI_MAG1] != ELFMAG1
         ||  header.e_ident[EI_MAG2] != ELFMAG2
@@ -164,4 +165,5 @@ void print_elf_symbol_table(Elf32_Sym *symbols, Elf32_Half shnum) {
         printf("%-7d%#-7x%#-7x%-10s%-8s", i, symbols[i].st_name, symbols[i].st_value, type, info);
         printf("\n");
     }
+    printf("\n");
 }

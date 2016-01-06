@@ -89,7 +89,6 @@ Elf32_Shdr *read_elf_section_header(FILE *file, Elf32_Ehdr *header, char **c) {
             table_entetes_section[i].sh_entsize = htobe32(table_entetes_section[i].sh_entsize);
         }
     }
-    printf("tesyt");
     // recuperation de la table des noms
     *c = malloc(sizeof(char) * table_entetes_section[header->e_shstrndx].sh_size);
     if (c == NULL) {
