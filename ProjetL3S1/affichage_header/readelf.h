@@ -34,4 +34,10 @@ Elf32_Rela * read_rela_table();
 
 
 
+// prend un nom de section en argument et retourne le numeros associé
+int section_name_to_number (char* nom, Elf32_Shdr * section_headers, char* table_noms, Elf32_Ehdr *header);
+
+// lecture du contenu des tables
+uint8_t** read_section_content(FILE* file, Elf32_Shdr *section_headers, Elf32_Ehdr *header);
+/* renvoie un tableau de contenant l'ensemble des contenus de chaque section */
 #endif
