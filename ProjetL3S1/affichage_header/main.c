@@ -34,6 +34,9 @@ int main(int argc, char **argv) {
     Elf32_Sym *symbols = read_symbol_table(file, table_entetes_section, header.e_shnum, &symbols_count);
     print_elf_symbol_table(symbols, symbols_count);
 
+    TableRel * tab = read_rel_table(file,table_entetes_section,header.e_shnum);
+    print_elf_rel_tab(tab);
+
     free(table_entetes_section);
     free(symbols);
     free(table_nom_sections);

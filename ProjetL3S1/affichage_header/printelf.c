@@ -165,3 +165,9 @@ void print_elf_symbol_table(Elf32_Sym *symbols, Elf32_Half shnum) {
         printf("\n");
     }
 }
+void print_elf_rel_tab(TableRel * tab ){
+    int i=0;
+    for(i=0;i<tab->nb_elem;i++){
+        printf("Entrée numero %d : r_offset = %x r_info = %x \n",i,tab->tab[i].r_offset,tab->tab[i].r_info );
+    }
+}
