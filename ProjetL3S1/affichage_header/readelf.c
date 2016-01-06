@@ -160,9 +160,40 @@ TableRel * read_rel_table(FILE *file, Elf32_Shdr *section_headers, Elf32_Half sh
 }
 
 
-Elf32_Rela * read_rela_table(){
+TableRela * read_rela_table(FILE *file, Elf32_Shdr *section_headers, Elf32_Half shnum){
 
-    return NULL;
+    int i=0;
+    int compteur =0;
+    for (i=0; i< shnum;i++){
+        if (section_headers[i].sh_type == SHT_RELA) {
+            compteur += section_headers[i].sh_size/sizeof(Elf32_Rela);
+        }
+    }
+
+    TableRela *table = (TableRela*) malloc(sizeof(TableRela));
+    table->tab = malloc (compteur * sizeof(Elf32_Rel));
+    table->nb_elem=compteur;
+
+    int k=0;
+    for (i=0; i< shnum;i++){
+
+        if (section_headers[i].sh_type == SHT_REL) {
+            int j=0;
+            fseek(file, section_headers[i].sh_offset, SEEK_SET);
+            for(j=0;j<section_headers[i].sh_size/sizeof(Elf32_Rel);j++){
+                    
+                fread(&table->tab[k].r_offset, sizeof(Elf32_Addr),1, file);
+                fread(&table->tab[k].r_info, sizeof(Elf32_Word),1, file);
+                fread(&table->tab[k].r_addend, sizeof(Elf32_Sword),1, file);
+                table->tab[k].r_offset = htobe32(table->tab[k].r_offset);
+                table->tab[k].r_info = htobe32(table->tab[k].r_info);
+                table->tab[k].r_addend = htobe32(table->tab[k].r_addend);
+                k++;
+            }
+        
+        }
+    }
+    return table;
 }
 
 

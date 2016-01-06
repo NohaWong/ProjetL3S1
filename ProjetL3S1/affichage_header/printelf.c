@@ -188,3 +188,9 @@ void print_elf_rel_tab(TableRel * tab ){
         printf("Entrée numero %d : r_offset = %x r_info = %x \n",i,tab->tab[i].r_offset,tab->tab[i].r_info );
     }
 }
+void print_elf_rela_tab(TableRela * tab ){
+    int i=0;
+    for(i=0;i<tab->nb_elem;i++){
+        printf("Entrée numero %d : r_offset = %x r_info = %x r_addend = %x \n",i,tab->tab[i].r_offset,tab->tab[i].r_info,tab->tab[i].r_addend );
+    }
+}

@@ -39,6 +39,7 @@ int compute_multiple_args (int argc, char **argv) {
     Elf32_Sym *symbols = read_symbol_table(file, table_entetes_section, header.e_shnum, &symbols_count);
     section_content = read_section_content(file, table_entetes_section, &header);
     TableRel * table_rel= read_rel_table(file, table_entetes_section, header.e_shnum);
+    TableRela * table_rela= read_rela_table(file, table_entetes_section, header.e_shnum);
 
     int i;
     for (i = 1; i < argc - 1; ++i) {
@@ -72,6 +73,12 @@ int compute_multiple_args (int argc, char **argv) {
                     case 'r':
                     {
                         print_elf_rel_tab(table_rel);
+                        // print rel table
+                        break;
+                    }
+                     case 'R':
+                    {
+                        print_elf_rela_tab(table_rela);
                         // print rel table
                         break;
                     }

@@ -19,6 +19,14 @@ struct TableRel
     Elf32_Rel * tab;
 
 };
+typedef struct TableRela TableRela;
+struct TableRela
+
+{
+	int num_section;
+	int nb_elem;
+    Elf32_Rela * tab;
+};
 
 
 // fonctions lecture header fichier
@@ -30,7 +38,7 @@ void init_systarget();
 Elf32_Shdr *read_elf_section_header(FILE *file, Elf32_Ehdr *header, char** c);
 Elf32_Sym *read_symbol_table(FILE *file, Elf32_Shdr *section_headers, Elf32_Half shnum, uint16_t *symbols_count);
 TableRel * read_rel_table(FILE *file, Elf32_Shdr *section_headers, Elf32_Half shnum);
-Elf32_Rela * read_rela_table();
+TableRela * read_rela_table(FILE *file, Elf32_Shdr *section_headers, Elf32_Half shnum);
 
 
 
