@@ -126,6 +126,48 @@ Elf32_Sym *read_symbol_table(FILE *file, Elf32_Shdr *section_headers, Elf32_Half
 
     return symbols;
 }
+TableRel * read_rel_table(FILE *file, Elf32_Shdr *section_headers, Elf32_Half shnum){
+    int i=0;
+    int compteur =0;
+    for (i=0; i< shnum;i++){
+        if (section_headers[i].sh_type == SHT_REL) {
+            compteur += section_headers[i].sh_size/sizeof(Elf32_Rel);
+        }
+    }
+
+    TableRel *table = (TableRel*) malloc(sizeof(TableRel));
+    table->tab = malloc (compteur * sizeof(Elf32_Rel));
+    table->nb_elem=compteur;
+
+    int k=0;
+    for (i=0; i< shnum;i++){
+
+        if (section_headers[i].sh_type == SHT_REL) {
+            int j=0;
+            fseek(file, section_headers[i].sh_offset, SEEK_SET);
+            for(j=0;j<section_headers[i].sh_size/sizeof(Elf32_Rel);j++){
+                    
+                    fread(&table->tab[k].r_offset, sizeof(Elf32_Addr),1, file);
+                    fread(&table->tab[k].r_info, sizeof(Elf32_Word),1, file);
+                    table->tab[k].r_offset = htobe32(table->tab[k].r_offset);
+                    table->tab[k].r_info = htobe32(table->tab[k].r_info);
+                    k++;
+            }
+        
+        }
+    }
+    return table;
+}
+
+
+Elf32_Rela * read_rela_table(){
+
+    return NULL;
+}
+
+
+
+
 
 
 int section_name_to_number (char* nom, Elf32_Shdr * section_headers, char* table_noms, Elf32_Ehdr *header) {
