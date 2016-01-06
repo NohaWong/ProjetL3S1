@@ -12,6 +12,11 @@ int compute_multiple_args (int argc, char **argv) {
     init_systable();
     init_systarget();
     FILE *file = fopen(argv[argc - 1], "rb");
+    if (file == NULL) {
+        printf("Le fichier n'existe pas.\n");
+        return EXIT_FAILURE;
+    }
+
     Elf32_Ehdr header;
     Elf32_Shdr *table_entetes_section = NULL;
     char *table_nom_sections = NULL;
