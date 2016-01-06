@@ -1,7 +1,10 @@
-#include "compute_args.h"
+#include "readelf.h"
+#include "printelf.h"
 
 int main(int argc, char **argv) {
-    int return_value = EXIT_SUCCESS;
+    printf("En-tête ELF:\n");
+
+        int return_value = EXIT_SUCCESS;
 
     if (argc < 2) {
         print_help();
@@ -10,6 +13,25 @@ int main(int argc, char **argv) {
 
     if (argc >= 3) {
         return_value = compute_multiple_args(argc, argv);
+    }
+    if (argc != 2) {
+        printf("Utilisation : affichage_header fichier\n");
+        return ERROR_MISSING_ARG;
+    }
+
+    init_systable();
+    init_systarget();
+    FILE *file = fopen(argv[1], "rb");
+    Elf32_Ehdr header;
+    Elf32_Shdr *table_entetes_section = NULL;
+    char *table_nom_sections = NULL;
+//    int16_t i;
+
+    read_elf_header(file, &header);
+    int value = 0;//print_elf_header(header);
+    if (value) {
+        printf("Le programme s'est terminé avec le code %d.\n", value);
+        return value;
     }
     print_elf_header(header);
 
@@ -29,6 +51,5 @@ int main(int argc, char **argv) {
     free(symbols);
     free(table_nom_sections);
 
-
-    return return_value;
+    return EXIT_SUCCESS;
 }
