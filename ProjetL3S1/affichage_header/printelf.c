@@ -168,7 +168,8 @@ void print_elf_symbol_table(Elf32_Sym *symbols, Elf32_Half shnum) {
 
 void print_elf_section_content(uint8_t** secContent, int number, Elf32_Shdr *section_headers, char *secname) {
     printf(BOLDWHITE "<CONTENU DE LA SECTION %s>" RESET, secname);
-    uint8_t i;
+    uint32_t i;
+    
     for (i = 0; i < (section_headers[number].sh_size); i++) {
         if (!(i%4)) {
             printf(" ");
@@ -178,6 +179,6 @@ void print_elf_section_content(uint8_t** secContent, int number, Elf32_Shdr *sec
         }
 
         printf("%02x", secContent[number][i]);
-    }
+    } 
     printf("\n");
 }
