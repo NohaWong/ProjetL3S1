@@ -86,26 +86,15 @@ int print_elf_header(Elf32_Ehdr header)
 }
 
 
-char* print_elf_section_header(FILE* file, Elf32_Ehdr header, Elf32_Shdr * table_entetes_section) {
+void print_elf_section_header(Elf32_Ehdr header, Elf32_Shdr * table_entetes_section, char *secname) {
     uint8_t i;
-    Elf32_Addr addr_debut_nom_section = table_entetes_section[header.e_shstrndx].sh_addr + table_entetes_section[header.e_shstrndx].sh_offset;
-    uint64_t pos_curs = ftell(file);
-    char* c;
-
-    // recuperation de la table des noms
-    fseek(file, addr_debut_nom_section, SEEK_SET);
-    c = malloc(sizeof(char) * table_entetes_section[header.e_shstrndx].sh_size);
-    if (c == NULL) {
-        return 0;
-    }
-    fread(c, sizeof(char), table_entetes_section[header.e_shstrndx].sh_size, file);
-
     printf("<SECTIONS DU FICHIER>\n");
     printf("#     Nom                 Type        Flags   Adresse              Taille  Lien    Alignement Entsize \n");
     printf("------------------------------------------------------------------------------------------------------\n");
+
     for (i=0; i < header.e_shnum; i++) {
         printf("%-6d%-20s%#-12x%#-8x%#-8x(+ %#-8x) %#-8x%#-8x%#-11x%#-8x", i,
-                           &(c[table_entetes_section[i].sh_name]),
+                           &(secname[table_entetes_section[i].sh_name]),
                            table_entetes_section[i].sh_type,
                            table_entetes_section[i].sh_flags,
                            table_entetes_section[i].sh_addr,
@@ -118,11 +107,11 @@ char* print_elf_section_header(FILE* file, Elf32_Ehdr header, Elf32_Shdr * table
 
         printf("\n");
     }
-    printf("\n");
 
-    fseek(file, pos_curs, SEEK_SET);
-    return c;
+    printf("\n");
 }
+
+
 
 void print_elf_symbol_table(Elf32_Sym *symbols, Elf32_Half shnum) {
     int i = 0;
