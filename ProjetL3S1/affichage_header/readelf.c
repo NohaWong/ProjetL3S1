@@ -16,7 +16,6 @@ void read_elf_header(FILE *file, Elf32_Ehdr *header) {
     if (header->e_ident[EI_DATA] == ELFDATA2MSB) {
         // swap endianness, file is encoded in little endian
         header->e_machine = htobe16(header->e_machine);
-        // swap endianness, file is encoded in little endian
         header->e_version = htobe32(header->e_version);
         header->e_entry = htobe32(header->e_entry);
         header->e_phoff = htobe32(header->e_phoff);
@@ -89,7 +88,6 @@ Elf32_Shdr *read_elf_section_header(FILE *file, Elf32_Ehdr *header, char **c) {
             table_entetes_section[i].sh_entsize = htobe32(table_entetes_section[i].sh_entsize);
         }
     }
-    printf("tesyt");
     // recuperation de la table des noms
     *c = malloc(sizeof(char) * table_entetes_section[header->e_shstrndx].sh_size);
     if (c == NULL) {
@@ -130,3 +128,44 @@ Elf32_Sym *read_symbol_table(FILE *file, Elf32_Shdr *section_headers, Elf32_Half
 }
 
 
+int section_name_to_number (char* nom, Elf32_Shdr * section_headers, char* table_noms, Elf32_Ehdr *header) {
+    int i;
+
+    for (i=0; i<header->e_shnum ; i++) {
+        if (!(strcmp(nom, &table_noms[section_headers[i].sh_name]))) {
+            return i;
+        }
+    }
+    return -1;
+
+}
+
+
+uint8_t ** read_section_content(FILE* file, Elf32_Shdr *section_headers, Elf32_Ehdr *header) {
+    Elf32_Half nbSections = header->e_shnum;
+    uint8_t i;
+    uint8_t **resultat = malloc(sizeof(uint8_t*) * nbSections);
+
+    uint32_t pos_curs = ftell(file);
+
+    for (i=0;i<nbSections;i++) {
+
+        // verification que la section contient bien quelque chose
+        if (section_headers[i].sh_size==0 ||
+            section_headers[i].sh_type==SHT_NOBITS ||
+            section_headers[i].sh_type==SHT_NULL) { // ne contient rien
+            resultat[i] = NULL;
+        }
+        else { // contient qqc
+            resultat[i] = malloc(sizeof(char) * section_headers[i].sh_size);
+            if (resultat[i] == NULL) {
+                return NULL;
+            }
+            fseek(file, section_headers[i].sh_offset, section_headers[i].sh_addr);
+            fread(resultat[i], sizeof(char), section_headers[i].sh_size, file);
+        }
+    }
+    fseek(file, 0, pos_curs);
+
+    return resultat;
+}

@@ -19,4 +19,10 @@ void init_systarget();
 Elf32_Shdr *read_elf_section_header(FILE *file, Elf32_Ehdr *header, char** c);
 Elf32_Sym *read_symbol_table(FILE *file, Elf32_Shdr *section_headers, Elf32_Half shnum, uint16_t *symbols_count);
 
+// prend un nom de section en argument et retourne le numeros associé
+int section_name_to_number (char* nom, Elf32_Shdr * section_headers, char* table_noms, Elf32_Ehdr *header);
+
+// lecture du contenu des tables
+uint8_t** read_section_content(FILE* file, Elf32_Shdr *section_headers, Elf32_Ehdr *header);
+/* renvoie un tableau de contenant l'ensemble des contenus de chaque section */
 #endif

@@ -15,6 +15,7 @@ int main(int argc, char **argv) {
     Elf32_Ehdr header;
     Elf32_Shdr *table_entetes_section = NULL;
     char *table_nom_sections = NULL;
+    uint8_t **sectionContent;
 //    int16_t i;
 
     read_elf_header(file, &header);
@@ -34,9 +35,17 @@ int main(int argc, char **argv) {
     Elf32_Sym *symbols = read_symbol_table(file, table_entetes_section, header.e_shnum, &symbols_count);
     print_elf_symbol_table(symbols, symbols_count);
 
+
+    sectionContent = read_section_content(file, table_entetes_section, &header);
+    print_elf_section_content(sectionContent, 2, table_entetes_section);
+
+    // printf("%d\n", section_name_to_number(".text", table_entetes_section, table_nom_sections, &header));
+
     free(table_entetes_section);
     free(symbols);
     free(table_nom_sections);
+    free(sectionContent);
+
 
     return EXIT_SUCCESS;
 }
