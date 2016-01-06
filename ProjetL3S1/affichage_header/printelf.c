@@ -111,12 +111,13 @@ void print_elf_section_header(Elf32_Ehdr header, Elf32_Shdr * table_entetes_sect
 void print_elf_symbol_table(Elf32_Sym *symbols, Elf32_Half shnum) {
     int i = 0;
     char type[16];
+    char info[16];
     //char info[16];
     printf("<TABLE DES SYMBOLES>\n");
-    printf("#      Name   Value  Type    \n");
-    printf("-----------------------------\n");
+    printf("#      Nom    Valeur Type    Portée  \n");
+    printf("-------------------------------------\n");
     for (i = 0; i < shnum; ++i) {
-        switch (symbols[i].st_info) {
+        switch (ELF32_ST_TYPE(symbols[i].st_info)) {
             case STT_NOTYPE:
             default:
                 strcpy(type, "NOTYPE");
@@ -135,7 +136,27 @@ void print_elf_symbol_table(Elf32_Sym *symbols, Elf32_Half shnum) {
                 break;
         }
 
-        printf("%-7d%#-7x%#-7x%-8s", i, symbols[i].st_name, symbols[i].st_value, type);
+        //bind
+        switch(ELF32_ST_BIND(symbols[i].st_info))
+        {
+            case STB_LOCAL:
+                strcpy(info, "LOCAL");
+                break;
+            case STB_GLOBAL:
+                strcpy(info, "GLOBAL");
+                break;
+            case STB_WEAK:
+                strcpy(info, "WEAK");
+                break;
+            case STB_NUM:
+                strcpy(info, "NUM");
+                break;
+            default:
+                strcpy(info, "OTHER");
+                break;
+        }
+
+        printf("%-7d%#-7x%#-7x%-8s%-8s", i, symbols[i].st_name, symbols[i].st_value, type, info);
         printf("\n");
     }
 }
