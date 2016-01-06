@@ -64,12 +64,13 @@ void init_systarget() {
 
 // -------------- lecture section header -------------- //
 
-Elf32_Shdr *read_elf_section_header(FILE *file, Elf32_Ehdr *header) {
+Elf32_Shdr *read_elf_section_header(FILE *file, Elf32_Ehdr *header, char **c) {
     uint32_t i;
     Elf32_Shdr *table_entetes_section;
 
     table_entetes_section = (Elf32_Shdr*) malloc(sizeof(Elf32_Shdr) * (header->e_shnum));
     fseek(file, header->e_shoff, SEEK_SET);
+
 
     fread(table_entetes_section, sizeof(Elf32_Shdr), header->e_shnum, file);
 
@@ -88,6 +89,16 @@ Elf32_Shdr *read_elf_section_header(FILE *file, Elf32_Ehdr *header) {
             table_entetes_section[i].sh_entsize = htobe32(table_entetes_section[i].sh_entsize);
         }
     }
+    printf("tesyt");
+    // recuperation de la table des noms
+    *c = malloc(sizeof(char) * table_entetes_section[header->e_shstrndx].sh_size);
+    if (c == NULL) {
+        return 0;
+    }
+    i = ftell(file);
+    fseek(file, table_entetes_section[header->e_shstrndx].sh_offset, SEEK_SET);
+    fread(*c, sizeof(char), table_entetes_section[header->e_shstrndx].sh_size, file);
+    fseek(file, 0, i);
 
     return table_entetes_section;
 }
@@ -117,3 +128,5 @@ Elf32_Sym *read_symbol_table(FILE *file, Elf32_Shdr *section_headers, Elf32_Half
 
     return symbols;
 }
+
+

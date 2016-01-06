@@ -13,9 +13,9 @@ int main(int argc, char **argv) {
     init_systarget();
     FILE *file = fopen(argv[1], "rb");
     Elf32_Ehdr header;
-    Elf32_Shdr *table_entetes_section;
-    char *table_nom_sections;
-
+    Elf32_Shdr *table_entetes_section = NULL;
+    char *table_nom_sections = NULL;
+//    int16_t i;
 
     read_elf_header(file, &header);
     int value = 0;//print_elf_header(header);
@@ -26,9 +26,9 @@ int main(int argc, char **argv) {
     print_elf_header(header);
 
     // lecture de l'entete des sections
-    table_entetes_section = read_elf_section_header(file, &header);
+    table_entetes_section = read_elf_section_header(file, &header, &table_nom_sections);
     // affichage de l'entete des sections
-    table_nom_sections = print_elf_section_header(file, header, table_entetes_section);
+    print_elf_section_header(header, table_entetes_section, table_nom_sections);
     // table des symboles
     uint16_t symbols_count = 0;
     Elf32_Sym *symbols = read_symbol_table(file, table_entetes_section, header.e_shnum, &symbols_count);

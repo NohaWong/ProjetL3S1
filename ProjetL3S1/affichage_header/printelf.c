@@ -86,19 +86,9 @@ int print_elf_header(Elf32_Ehdr header)
 }
 
 
-char* print_elf_section_header(FILE* file, Elf32_Ehdr header, Elf32_Shdr * table_entetes_section) {
+void print_elf_section_header(Elf32_Ehdr header, Elf32_Shdr * table_entetes_section, char *c) {
     uint8_t i;
-    Elf32_Addr addr_debut_nom_section = table_entetes_section[header.e_shstrndx].sh_addr + table_entetes_section[header.e_shstrndx].sh_offset;
-    uint64_t pos_curs = ftell(file);
-    char* c;
 
-    // recuperation de la table des noms
-    fseek(file, addr_debut_nom_section, SEEK_SET);
-    c = malloc(sizeof(char) * table_entetes_section[header.e_shstrndx].sh_size);
-    if (c == NULL) {
-        return 0;
-    }
-    fread(c, sizeof(char), table_entetes_section[header.e_shstrndx].sh_size, file);
     for (i=0; i < header.e_shnum; i++) {
         printf("Nom : %s", &(c[table_entetes_section[i].sh_name]));
         if (c[table_entetes_section[i].sh_name] == 0) {
@@ -114,10 +104,9 @@ char* print_elf_section_header(FILE* file, Elf32_Ehdr header, Elf32_Shdr * table
         printf("Entsize : 0x%x\n", table_entetes_section[i].sh_entsize);
         printf("\n");
     }
-
-    fseek(file, pos_curs, SEEK_SET);
-    return c;
 }
+
+
 
 void print_elf_symbol_table(Elf32_Sym *symbols, Elf32_Half shnum) {
     int i = 0;

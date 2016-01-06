@@ -16,7 +16,7 @@ void init_systable();
 void init_systarget();
 
 // fonctions lecture header sections
-Elf32_Shdr *read_elf_section_header(FILE *file, Elf32_Ehdr *header);
+Elf32_Shdr *read_elf_section_header(FILE *file, Elf32_Ehdr *header, char** c);
 Elf32_Sym *read_symbol_table(FILE *file, Elf32_Shdr *section_headers, Elf32_Half shnum, uint16_t *symbols_count);
 
 #endif
