@@ -1,8 +1,8 @@
 CC=gcc
 CFLAGS=-Wall -Werror -g
 
-all: main.o readelf.o printelf.o
-	$(CC) $(CFLAGS) -o affichage_header main.o readelf.o printelf.o
+all: main.o readelf.o printelf.o compute_args.o
+	$(CC) $(CFLAGS) -o affichage_header main.o readelf.o printelf.o compute_args.o
 
 clean:
 	rm -f *.o

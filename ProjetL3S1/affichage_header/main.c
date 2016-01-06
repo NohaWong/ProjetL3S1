@@ -1,51 +1,16 @@
-#include "readelf.h"
-#include "printelf.h"
+#include "compute_args.h"
 
 int main(int argc, char **argv) {
-    printf("En-tête ELF:\n");
+    int return_value = EXIT_SUCCESS;
 
-    if (argc != 2) {
-        printf("Utilisation : affichage_header fichier\n");
+    if (argc < 2) {
+        print_help();
         return ERROR_MISSING_ARG;
     }
 
-    init_systable();
-    init_systarget();
-    FILE *file = fopen(argv[1], "rb");
-    Elf32_Ehdr header;
-    Elf32_Shdr *table_entetes_section = NULL;
-    char *table_nom_sections = NULL;
-    uint8_t **sectionContent;
-//    int16_t i;
-
-    read_elf_header(file, &header);
-    int value = 0;//print_elf_header(header);
-    if (value) {
-        printf("Le programme s'est terminé avec le code %d.\n", value);
-        return value;
+    if (argc >= 3) {
+        return_value = compute_multiple_args(argc, argv);
     }
-    print_elf_header(header);
 
-    // lecture de l'entete des sections
-    table_entetes_section = read_elf_section_header(file, &header, &table_nom_sections);
-    // affichage de l'entete des sections
-    print_elf_section_header(header, table_entetes_section, table_nom_sections);
-    // table des symboles
-    uint16_t symbols_count = 0;
-    Elf32_Sym *symbols = read_symbol_table(file, table_entetes_section, header.e_shnum, &symbols_count);
-    print_elf_symbol_table(symbols, symbols_count);
-
-
-    sectionContent = read_section_content(file, table_entetes_section, &header);
-    print_elf_section_content(sectionContent, 2, table_entetes_section);
-
-    // printf("%d\n", section_name_to_number(".text", table_entetes_section, table_nom_sections, &header));
-
-    free(table_entetes_section);
-    free(symbols);
-    free(table_nom_sections);
-    free(sectionContent);
-
-
-    return EXIT_SUCCESS;
+    return return_value;
 }
