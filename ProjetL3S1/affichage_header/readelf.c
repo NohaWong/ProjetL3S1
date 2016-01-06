@@ -111,28 +111,8 @@ Elf32_Sym *read_symbol_table(FILE *file, Elf32_Shdr *section_headers, Elf32_Half
     for (i = 0; i < *symbols_count; ++i) {
         symbols[i].st_name = htobe32(symbols[i].st_name);
         symbols[i].st_value = htobe32(symbols[i].st_value);
-        printf("Sym %d -> name: 0x%x, value: 0x%x, type: ", i, symbols[i].st_name, symbols[i].st_value);
-
-        switch (symbols[i].st_info) {
-            case STT_NOTYPE:
-            default:
-                printf("NOTYPE");
-                break;
-            case STT_OBJECT:
-                printf("OBJECT");
-                break;
-            case STT_FUNC:
-                printf("FUNC");
-                break;
-            case STT_SECTION:
-                printf("SECTION");
-                break;
-            case STT_FILE:
-                printf("FILE");
-                break;
-        }
-
-        printf("\n");
+        symbols[i].st_shndx = htobe32(symbols[i].st_shndx);
+        symbols[i].st_size = htobe32(symbols[i].st_size);
     }
 
     return symbols;

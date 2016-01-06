@@ -32,6 +32,7 @@ int main(int argc, char **argv) {
     // table des symboles
     uint16_t symbols_count = 0;
     Elf32_Sym *symbols = read_symbol_table(file, table_entetes_section, header.e_shnum, &symbols_count);
+    print_elf_symbol_table(symbols, symbols_count);
 
     free(table_entetes_section);
     free(symbols);

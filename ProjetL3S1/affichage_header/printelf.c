@@ -66,12 +66,12 @@ int print_elf_header(Elf32_Ehdr header)
     }
 
     printf("  Machine cible : %s\n", sys_target[header.e_machine]);
-    printf("  Version : 0x%x\n", header.e_version);
-    printf("  Point d'entrée : 0x%x\n", header.e_entry);
-    printf("  Flags : 0x%x\n", header.e_flags);
+    printf("  Version : %#x\n", header.e_version);
+    printf("  Point d'entrée : %#x\n", header.e_entry);
+    printf("  Flags : %#x\n", header.e_flags);
     printf("-- Décalages des tables\n");
-    printf("  Décalage de la table d'en-tête du programme : 0x%x\n", header.e_phoff);
-    printf("  Décalage de la table de sections : 0x%x\n", header.e_shoff);
+    printf("  Décalage de la table d'en-tête du programme : %#x\n", header.e_phoff);
+    printf("  Décalage de la table de sections : %#x\n", header.e_shoff);
     printf("-- Informations sur l'en-tête\n");
     printf("  Taille de l'en-tête ELF : %d octets\n", header.e_ehsize);
     printf("  Taille d'une entrée de l'en-tête du programme : %d octets\n", header.e_phentsize);
@@ -105,16 +105,48 @@ void print_elf_section_header(FILE* file, Elf32_Ehdr header, Elf32_Shdr * table_
         }
 
         printf("\n");
-        printf("Type : 0x%x\n", table_entetes_section[i].sh_type);
-        printf("Flag : 0x%x\n", table_entetes_section[i].sh_flags);
-        printf("Adresse : 0x%x\n", table_entetes_section[i].sh_addr);
-        printf("Decalage : 0x%x\n", table_entetes_section[i].sh_offset);
-        printf("Taille : 0x%x\n", table_entetes_section[i].sh_size);
-        printf("Lien : 0x%x\n", table_entetes_section[i].sh_link);
-        printf("Alignement : 0x%x\n", table_entetes_section[i].sh_addralign);
-        printf("Entsize : 0x%x\n", table_entetes_section[i].sh_entsize);
+        printf("Type : %#x\n", table_entetes_section[i].sh_type);
+        printf("Flag : %#x\n", table_entetes_section[i].sh_flags);
+        printf("Adresse : %#x\n", table_entetes_section[i].sh_addr);
+        printf("Decalage : %#x\n", table_entetes_section[i].sh_offset);
+        printf("Taille : %#x\n", table_entetes_section[i].sh_size);
+        printf("Lien : %#x\n", table_entetes_section[i].sh_link);
+        printf("Alignement : %#x\n", table_entetes_section[i].sh_addralign);
+        printf("Entsize : %#x\n", table_entetes_section[i].sh_entsize);
         printf("\n\n");
     }
 
     fseek(file, pos_curs, SEEK_SET);
+}
+
+void print_elf_symbol_table(Elf32_Sym *symbols, Elf32_Half shnum) {
+    int i = 0;
+    char type[16];
+    //char info[16];
+    printf("<TABLE DES SYMBOLES>\n");
+    printf("#      Name   Value  Type    \n");
+    printf("-----------------------------\n");
+    for (i = 0; i < shnum; ++i) {
+        switch (symbols[i].st_info) {
+            case STT_NOTYPE:
+            default:
+                strcpy(type, "NOTYPE");
+                break;
+            case STT_OBJECT:
+                strcpy(type, "OBJECT");
+                break;
+            case STT_FUNC:
+                strcpy(type, "FUNC");
+                break;
+            case STT_SECTION:
+                strcpy(type, "SECTION");
+                break;
+            case STT_FILE:
+                strcpy(type, "FILE");
+                break;
+        }
+
+        printf("%-7d%#-7x%#-7x%-8s", i, symbols[i].st_name, symbols[i].st_value, type);
+        printf("\n");
+    }
 }
