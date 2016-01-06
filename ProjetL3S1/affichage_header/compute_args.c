@@ -90,7 +90,7 @@ int compute_multiple_args (int argc, char **argv) {
                             secnum = strtol(argv[i], NULL, 10);
                         }
 
-                        print_elf_section_content(section_content, secnum, table_entetes_section);
+                        print_elf_section_content(section_content, secnum, table_entetes_section, argv[i]);
                         break;
                     }
                     default:
