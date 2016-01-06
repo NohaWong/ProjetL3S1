@@ -169,15 +169,55 @@ void print_elf_symbol_table(Elf32_Sym *symbols, Elf32_Half shnum) {
 void print_elf_section_content(uint8_t** secContent, int number, Elf32_Shdr *section_headers, char *secname) {
     printf(BOLDWHITE "<CONTENU DE LA SECTION %s>" RESET, secname);
     uint8_t i;
+
+    Elf32_Half (*bytes)[4];
+    bytes = malloc(sizeof(Elf32_Half[4]) * section_headers[number].sh_size);
+
+    printf("\n[0x%08x]\t", 0x0);
     for (i = 0; i < (section_headers[number].sh_size); i++) {
-        if (!(i%4)) {
+        // split bytes to display, later, ASCII equivalent of memory
+        bytes[i][0] = (secContent[number][i] >> 24) & 0xFF;
+        bytes[i][1] = (secContent[number][i] >> 16) & 0xFF;
+        bytes[i][2] = (secContent[number][i] >> 8) & 0xFF;
+        bytes[i][3] = secContent[number][i] & 0xFF;
+
+        if (!(i%4) && i != 0) {
             printf(" ");
         }
-        if (!(i%16)) {
+        if ((!(i%16) && i != 0)) {
+            int j;
+            printf("\t|");
+            for (j = i - 16; j < i; ++j) {
+                int k;
+                for (k = 0; k < 4; ++k) {
+                    if (bytes[j][0] + bytes[j][1] + bytes[j][2] + bytes[j][3] == 0) {
+                        bytes[j][k] = '.';
+                    }
+                    printf("%c", bytes[j][k]);
+                }
+            }
             printf("\n[0x%08x]\t", i);
         }
 
         printf("%02x", secContent[number][i]);
     }
+
+    int j;
+    for (j = 0; j < section_headers[number].sh_size%8; ++j) {
+        printf(" ");
+    }
+
+
+    printf("\t|");
+    for (j = i - (section_headers[number].sh_size%16); j < i; ++j) {
+        int k;
+        for (k = 0; k < 4; ++k) {
+            if (bytes[j][0] + bytes[j][1] + bytes[j][2] + bytes[j][3] == 0) {
+                bytes[j][k] = '.';
+            }
+            printf("%c", bytes[j][k]);
+        }
+    }
+
     printf("\n");
 }
