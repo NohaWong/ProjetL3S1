@@ -90,14 +90,14 @@ void print_elf_section_header(FILE* file, Elf32_Ehdr header, Elf32_Shdr * table_
     uint8_t i;
     Elf32_Addr addr_debut_nom_section = table_entetes_section[header.e_shstrndx].sh_addr + table_entetes_section[header.e_shstrndx].sh_offset;
     uint64_t pos_curs = ftell(file);
-    uint32_t temp=0;
+    uint32_t offset = 0;
     char c;
 
     for (i=0; i < header.e_shnum; i++) {
         // On recupere le nom
-        temp = (addr_debut_nom_section)+(table_entetes_section[i].sh_name);
+        offset = (addr_debut_nom_section) + (table_entetes_section[i].sh_name);
         printf("Nom : ");
-        fseek(file, temp, SEEK_SET);
+        fseek(file, offset, SEEK_SET);
         fread(&c, sizeof(char), 1, file);
         while (c != '\0') {
             printf("%c", c);
