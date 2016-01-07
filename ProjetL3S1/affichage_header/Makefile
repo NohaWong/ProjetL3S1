@@ -11,9 +11,9 @@ NOM=our_readelf
 all: $(NOM)
 
 clean:
-	rm *.o $(NOM)
+	rm *.o *.dep $(NOM)
 
-our_readelf: $(OBJ)
+$(NOM): $(OBJ)
 	$(CC) -o $@ $^
 
 -include $(DEPS)
