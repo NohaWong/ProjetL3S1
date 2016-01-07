@@ -204,13 +204,13 @@ void print_elf_section_content(uint8_t** secContent, int number, Elf32_Shdr *sec
 
     uint32_t initial_printfor = 0, condition_printfort = 0;
 
-    if ((section_headers[number].sh_size) != 16) {
+    if ((section_headers[number].sh_size%16) != 0) {
         initial_printfor = j - 16;
         condition_printfort = (j - 16) + section_headers[number].sh_size%16;
     } else {
         // case when there is only one line of 16 bytes
-        initial_printfor = 0;
-        condition_printfort = 16;
+        initial_printfor = i - 16;
+        condition_printfort = i;
     }
 
     for (i = initial_printfor; i < condition_printfort; ++i) {

@@ -12,16 +12,14 @@ enum { ERROR_MAGIC_NUMBERS = 1, ERROR_MISSING_ARG, ERROR_WRONG_WORD_SIZE, ERROR_
 typedef struct TableRel TableRel;
 
 struct TableRel
-
 {
 	int num_section;
 	int nb_elem;
     Elf32_Rel * tab;
-
 };
+
 typedef struct TableRela TableRela;
 struct TableRela
-
 {
 	int num_section;
 	int nb_elem;
@@ -39,8 +37,6 @@ Elf32_Shdr *read_elf_section_header(FILE *file, Elf32_Ehdr *header, char** c);
 Elf32_Sym *read_symbol_table(FILE *file, Elf32_Shdr *section_headers, Elf32_Half shnum, uint16_t *symbols_count);
 TableRel * read_rel_table(FILE *file, Elf32_Shdr *section_headers, Elf32_Half shnum);
 TableRela * read_rela_table(FILE *file, Elf32_Shdr *section_headers, Elf32_Half shnum);
-
-
 
 // prend un nom de section en argument et retourne le numeros associé
 int section_name_to_number (char* nom, Elf32_Shdr * section_headers, char* table_noms, Elf32_Ehdr *header);
