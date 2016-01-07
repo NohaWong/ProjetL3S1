@@ -116,8 +116,8 @@ void print_elf_symbol_table(Elf32_Sym *symbols, Elf32_Half shnum) {
     char info[16];
     //char info[16];
     printf(BOLDWHITE "<TABLE DES SYMBOLES>\n" RESET);
-    printf("#      Nom    Valeur Type      Portée  \n");
-    printf("---------------------------------------\n");
+    printf("#      Nom         Valeur      Type      Portée  \n");
+    printf("-------------------------------------------------\n");
     for (i = 0; i < shnum; ++i) {
         switch (ELF32_ST_TYPE(symbols[i].st_info)) {
             case STT_NOTYPE:
@@ -158,7 +158,7 @@ void print_elf_symbol_table(Elf32_Sym *symbols, Elf32_Half shnum) {
                 break;
         }
 
-        printf("%-7d%#-7x%#-7x%-10s%-8s", i, symbols[i].st_name, symbols[i].st_value, type, info);
+        printf("%-7d%#-12x%#-12x%-10s%-8s", i, symbols[i].st_name, symbols[i].st_value, type, info);
         printf("\n");
     }
     printf("\n");
@@ -227,16 +227,38 @@ void print_elf_section_content(uint8_t** secContent, int number, Elf32_Shdr *sec
 
 
 void print_elf_rel_tab(TableRel *tab){
-    int i=0;
-    for(i=0;i<tab->nb_elem;i++){
-        printf("Entrée numero %d : r_offset = %x r_info = %x \n",i,tab->tab[i].r_offset,tab->tab[i].r_info );
+    printf(BOLDWHITE "<TABLE DE RÉIMPLANTATION STATIQUE>\n" RESET);
+
+    if (tab->nb_elem == 0) {
+        printf("Aucun élément.\n");
+        return;
     }
+
+    printf("#      Décalage    Information   \n");
+    printf("---------------------------------\n");
+    int i = 0;
+    for(i = 0; i < tab->nb_elem;  i++){
+        printf("%-8d%#-12x%#-14x\n",i,tab->tab[i].r_offset,tab->tab[i].r_info);
+    }
+
+    printf("\n");
 }
 
 
 void print_elf_rela_tab(TableRela *tab){
-    int i=0;
-    for(i=0;i<tab->nb_elem;i++){
-        printf("Entrée numero %d : r_offset = %x r_info = %x r_addend = %x \n",i,tab->tab[i].r_offset,tab->tab[i].r_info,tab->tab[i].r_addend );
+    printf(BOLDWHITE "<TABLE DE RÉIMPLANTATION DYNAMIQUE>\n" RESET);
+
+    if (tab->nb_elem == 0) {
+        printf("Aucun élément.\n");
+        return;
     }
+
+    printf("#      Décalage    Information   Fin addresse    \n");
+    printf("--------------------------------\n");
+    int i = 0;
+    for(i = 0; i < tab->nb_elem;  i++){
+        printf("%-8d%#-12x%#-14x%#-16x\n", i, tab->tab[i].r_offset, tab->tab[i].r_info, tab->tab[i].r_addend);
+    }
+
+    printf("\n");
 }
