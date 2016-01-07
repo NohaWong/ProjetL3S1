@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=-Wall -Werror
+CFLAGS=-Wall -Werror -g
 SOURCES=$(wildcard *.c)
 DEPS=$(patsubst %.c, %.dep, $(SOURCES))
 OBJ=$(patsubst %.c, %.o, $(SOURCES))

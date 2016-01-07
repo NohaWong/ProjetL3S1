@@ -70,7 +70,6 @@ Elf32_Shdr *read_elf_section_header(FILE *file, Elf32_Ehdr *header, char **c) {
     table_entetes_section = (Elf32_Shdr*) malloc(sizeof(Elf32_Shdr) * (header->e_shnum));
     fseek(file, header->e_shoff, SEEK_SET);
 
-
     fread(table_entetes_section, sizeof(Elf32_Shdr), header->e_shnum, file);
 
     if (header->e_ident[EI_DATA] == ELFDATA2MSB) {
@@ -126,7 +125,7 @@ Elf32_Sym *read_symbol_table(FILE *file, Elf32_Shdr *section_headers, Elf32_Half
 
     return symbols;
 }
-TableRel * read_rel_table(FILE *file, Elf32_Shdr *section_headers, Elf32_Half shnum){
+TableRel *read_rel_table(FILE *file, Elf32_Shdr *section_headers, Elf32_Half shnum){
     int i=0;
     int compteur =0;
     for (i=0; i< shnum;i++){
@@ -160,7 +159,7 @@ TableRel * read_rel_table(FILE *file, Elf32_Shdr *section_headers, Elf32_Half sh
 }
 
 
-TableRela * read_rela_table(FILE *file, Elf32_Shdr *section_headers, Elf32_Half shnum){
+TableRela *read_rela_table(FILE *file, Elf32_Shdr *section_headers, Elf32_Half shnum){
 
     int i=0;
     int compteur =0;
@@ -196,15 +195,12 @@ TableRela * read_rela_table(FILE *file, Elf32_Shdr *section_headers, Elf32_Half 
     return table;
 }
 
-
-
-
-
-
 int section_name_to_number (char* nom, Elf32_Shdr * section_headers, char* table_noms, Elf32_Ehdr *header) {
     int i;
 
-    for (i=0; i<header->e_shnum ; i++) {
+    // prevent the case where a user enter a identifier grater than the section table size
+
+    for (i=0; i < header->e_shnum ; i++) {
         if (!(strcmp(nom, &table_noms[section_headers[i].sh_name]))) {
             return i;
         }
@@ -213,12 +209,14 @@ int section_name_to_number (char* nom, Elf32_Shdr * section_headers, char* table
 
 }
 
+
 Elf32_Word relInfo_to_symbole (Elf32_Word info) {
     Elf32_Word tempo = ELF32_R_SYM(info);
     return (!(tempo==STN_UNDEF)) * tempo;
 }
 
 uint8_t ** read_section_content(FILE* file, Elf32_Shdr *section_headers, Elf32_Ehdr *header) {
+
     Elf32_Half nbSections = header->e_shnum;
     uint8_t i;
     uint8_t **resultat = malloc(sizeof(uint8_t*) * nbSections);

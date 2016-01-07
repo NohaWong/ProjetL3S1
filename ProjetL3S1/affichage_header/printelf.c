@@ -226,7 +226,7 @@ void print_elf_section_content(uint8_t** secContent, int number, Elf32_Shdr *sec
 }
 
 
-void print_elf_rel_tab(TableRel *tab){
+void print_elf_rel_tab(TableRel *tab, Elf32_Shdr * table_entetes_section, char *secname){
     printf(BOLDWHITE "<TABLE DE RÉIMPLANTATION STATIQUE>\n" RESET);
 
     if (tab->nb_elem == 0) {
@@ -234,11 +234,17 @@ void print_elf_rel_tab(TableRel *tab){
         return;
     }
 
-    printf("#      Décalage    Information   \n");
-    printf("---------------------------------\n");
+    printf("Décalage    Information   Type      Valeur      Nom symbole     \n");
+    printf("----------------------------------------------------------------\n");
     int i = 0;
     for(i = 0; i < tab->nb_elem;  i++){
-        printf("%-8d%#-12x%#-14x\n",i,tab->tab[i].r_offset,tab->tab[i].r_info);
+        printf("%#-12x%#-14x%#-10x%#-12x%-13s\n",tab->tab[i].r_offset,
+                                            tab->tab[i].r_info,
+                                            ELF32_R_TYPE(tab->tab[i].r_info),
+                                            ELF32_R_SYM(tab->tab[i].r_info) == STN_UNDEF ?
+                                                ELF32_R_SYM(tab->tab[i].r_info) : 0,
+                                            &(secname[table_entetes_section[ELF32_M_SYM(tab->tab[i].r_info)].sh_name]
+                                        ));
     }
 
     printf("\n");
@@ -253,8 +259,8 @@ void print_elf_rela_tab(TableRela *tab){
         return;
     }
 
-    printf("#      Décalage    Information   Fin addresse    \n");
-    printf("--------------------------------\n");
+    printf("#       Décalage    Information   Fin addresse    \n");
+    printf("--------------------------------------------------\n");
     int i = 0;
     for(i = 0; i < tab->nb_elem;  i++){
         printf("%-8d%#-12x%#-14x%#-16x\n", i, tab->tab[i].r_offset, tab->tab[i].r_info, tab->tab[i].r_addend);
