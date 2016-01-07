@@ -146,14 +146,14 @@ TableRel * read_rel_table(FILE *file, Elf32_Shdr *section_headers, Elf32_Half sh
             int j=0;
             fseek(file, section_headers[i].sh_offset, SEEK_SET);
             for(j=0;j<section_headers[i].sh_size/sizeof(Elf32_Rel);j++){
-                    
+
                     fread(&table->tab[k].r_offset, sizeof(Elf32_Addr),1, file);
                     fread(&table->tab[k].r_info, sizeof(Elf32_Word),1, file);
                     table->tab[k].r_offset = htobe32(table->tab[k].r_offset);
                     table->tab[k].r_info = htobe32(table->tab[k].r_info);
                     k++;
             }
-        
+
         }
     }
     return table;
@@ -181,7 +181,7 @@ TableRela * read_rela_table(FILE *file, Elf32_Shdr *section_headers, Elf32_Half 
             int j=0;
             fseek(file, section_headers[i].sh_offset, SEEK_SET);
             for(j=0;j<section_headers[i].sh_size/sizeof(Elf32_Rel);j++){
-                    
+
                 fread(&table->tab[k].r_offset, sizeof(Elf32_Addr),1, file);
                 fread(&table->tab[k].r_info, sizeof(Elf32_Word),1, file);
                 fread(&table->tab[k].r_addend, sizeof(Elf32_Sword),1, file);
@@ -190,7 +190,7 @@ TableRela * read_rela_table(FILE *file, Elf32_Shdr *section_headers, Elf32_Half 
                 table->tab[k].r_addend = htobe32(table->tab[k].r_addend);
                 k++;
             }
-        
+
         }
     }
     return table;
@@ -213,6 +213,10 @@ int section_name_to_number (char* nom, Elf32_Shdr * section_headers, char* table
 
 }
 
+Elf32_Word relInfo_to_symbole (Elf32_Word info) {
+    Elf32_Word tempo = ELF32_R_SYM(info);
+    return (!(tempo==STN_UNDEF)) * tempo;
+}
 
 uint8_t ** read_section_content(FILE* file, Elf32_Shdr *section_headers, Elf32_Ehdr *header) {
     Elf32_Half nbSections = header->e_shnum;
