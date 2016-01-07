@@ -34,7 +34,7 @@ void init_systarget();
 
 // fonctions lecture header sections
 Elf32_Shdr *read_elf_section_header(FILE *file, Elf32_Ehdr *header, char** c);
-Elf32_Sym *read_symbol_table(FILE *file, Elf32_Shdr *section_headers, Elf32_Half shnum, uint16_t *symbols_count);
+Elf32_Sym *read_symbol_table(FILE *file, Elf32_Shdr *section_headers, uint16_t *symbols_count);
 TableRel * read_rel_table(FILE *file, Elf32_Shdr *section_headers, Elf32_Half shnum);
 TableRela * read_rela_table(FILE *file, Elf32_Shdr *section_headers, Elf32_Half shnum);
 

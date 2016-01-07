@@ -102,30 +102,33 @@ Elf32_Shdr *read_elf_section_header(FILE *file, Elf32_Ehdr *header, char **c) {
 
 // -------------- lecture section content -------------- //
 
-Elf32_Sym *read_symbol_table(FILE *file, Elf32_Shdr *section_headers, Elf32_Half shnum, uint16_t *symbols_count) {
+Elf32_Sym *read_symbol_table(FILE *file, Elf32_Shdr *section_headers, uint16_t *symbols_count) {
     Elf32_Half symtable_index = 0;
     int i = 0;
-    for (i = 0; i < shnum; ++i) {
-        if (section_headers[i].sh_type == SHT_SYMTAB) {
-            symtable_index = i;
-            break;
-        }
+
+    // get section index of the symbole table
+    while (section_headers[symtable_index].sh_type != SHT_SYMTAB) {
+        symtable_index++;
     }
 
-    Elf32_Sym *symbols = (Elf32_Sym*)malloc(sizeof(Elf32_Sym) * shnum);
-    *symbols_count = section_headers[symtable_index].sh_size / section_headers[symtable_index].sh_entsize;
+    *symbols_count = section_headers[symtable_index].sh_size / sizeof(Elf32_Sym);
+
+    Elf32_Sym *symbols = malloc(sizeof(Elf32_Sym) * *symbols_count);
     fseek(file, section_headers[symtable_index].sh_offset, SEEK_SET);
     fread(symbols, sizeof(Elf32_Sym), *symbols_count, file);
 
     for (i = 0; i < *symbols_count; ++i) {
         symbols[i].st_name = htobe32(symbols[i].st_name);
         symbols[i].st_value = htobe32(symbols[i].st_value);
-        symbols[i].st_shndx = htobe32(symbols[i].st_shndx);
+        symbols[i].st_shndx = htobe16(symbols[i].st_shndx);
         symbols[i].st_size = htobe32(symbols[i].st_size);
     }
 
     return symbols;
 }
+
+
+
 TableRel *read_rel_table(FILE *file, Elf32_Shdr *section_headers, Elf32_Half shnum){
     int i=0;
     int compteur =0;
