@@ -1,11 +1,23 @@
 CC=gcc
-CFLAGS=-Wall -Werror -g
+CFLAGS=-Wall -Werror
+SOURCES=$(wildcard *.c)
+DEPS=$(patsubst %.c, %.dep, $(SOURCES))
+OBJ=$(patsubst %.c, %.o, $(SOURCES))
+NOM=our_readelf
 
-all: main.o readelf.o printelf.o compute_args.o
-	$(CC) $(CFLAGS) -o affichage_header main.o readelf.o printelf.o compute_args.o
+
+.PHONY:clean default all
+
+all: $(NOM)
 
 clean:
-	rm -f *.o
+	rm *.o $(NOM)
 
-%.o: %.c %.h
-	$(CC) $(CFLAGS) -c $<
+our_readelf: $(OBJ)
+	$(CC) -o $@ $^
+
+-include $(DEPS)
+
+%.dep: %.c
+	gcc -MM $< >$@
+
