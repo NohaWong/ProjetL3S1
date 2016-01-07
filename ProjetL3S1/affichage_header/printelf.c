@@ -169,6 +169,7 @@ void print_elf_symbol_table(Elf32_Sym *symbols, Elf32_Half shnum) {
 void print_elf_section_content(uint8_t** secContent, int number, Elf32_Shdr *section_headers, char *secname) {
     printf(BOLDWHITE "<CONTENU DE LA SECTION %s>" RESET, secname);
 
+    // print the address of the current line
     printf("\n[0x%08x]\t", 0x0);
 
     uint32_t i, j;
@@ -207,11 +208,13 @@ void print_elf_section_content(uint8_t** secContent, int number, Elf32_Shdr *sec
         initial_printfor = j - 16;
         condition_printfort = (j - 16) + section_headers[number].sh_size%16;
     } else {
+        // case when there is only one line of 16 bytes
         initial_printfor = 0;
         condition_printfort = 16;
     }
 
     for (i = initial_printfor; i < condition_printfort; ++i) {
+        // if character is a blank character, print a '.'
         if (secContent[number][i] < 0x20) {
             printf(".");
         } else {
