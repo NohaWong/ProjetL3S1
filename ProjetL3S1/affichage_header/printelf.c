@@ -247,9 +247,9 @@ void print_elf_rel_tab(TableRel *tab, Elf32_Shdr * table_entetes_section, char *
                                             tab->tab[i].r_info,
                                             ELF32_R_TYPE(tab->tab[i].r_info),
                                             ELF32_R_SYM(tab->tab[i].r_info) == STN_UNDEF ?
-                                                ELF32_R_SYM(tab->tab[i].r_info) : 0,
-                                            &(secname[table_entetes_section[ELF32_M_SYM(tab->tab[i].r_info)].sh_name]
-                                        ));
+                                                0 : ELF32_R_SYM(tab->tab[i].r_info),
+                                            "coucou"//&(secname[table_entetes_section[ELF32_M_SYM(tab->tab[i].r_info)].sh_name])
+                                        );
     }
 
     printf("\n");

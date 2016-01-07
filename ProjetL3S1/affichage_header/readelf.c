@@ -113,8 +113,9 @@ Elf32_Sym *read_symbol_table(FILE *file, Elf32_Shdr *section_headers, Elf32_Half
     }
 
     Elf32_Sym *symbols = (Elf32_Sym*)malloc(sizeof(Elf32_Sym) * shnum);
-    fread(symbols, sizeof(Elf32_Sym), section_headers[symtable_index].sh_link, file);
-    *symbols_count = section_headers[symtable_index].sh_link;
+    *symbols_count = section_headers[symtable_index].sh_size / section_headers[symtable_index].sh_entsize;
+    fseek(file, section_headers[symtable_index].sh_offset, SEEK_SET);
+    fread(symbols, sizeof(Elf32_Sym), *symbols_count, file);
 
     for (i = 0; i < *symbols_count; ++i) {
         symbols[i].st_name = htobe32(symbols[i].st_name);
