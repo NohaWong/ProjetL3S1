@@ -134,7 +134,7 @@ void print_help() {
     printf(BOLDWHITE "NOM\n" RESET);
     printf("\tour_readelf - lit un fichier au format ELF et affiche ses caractéristiques\n\n");
     printf(BOLDWHITE "SYNOPSIS\n");
-    printf("\tour_readelf [-hsSx]" RESET " FICHIER\n\n");
+    printf("\tour_readelf [-hsSrRx]" RESET " FICHIER\n\n");
     printf(BOLDWHITE "DESCRIPTION\n" RESET);
     printf("\tLit un fichier au format ELF et affiche les caractéristiques voulues à l'écran.\n\tSi aucun argument n'est spécifié, un menu apparait à l'écran pour choisir l'opération souhaitée.\n\n");
     printf(BOLDWHITE "\t-h\n" RESET);
@@ -147,6 +147,20 @@ void print_help() {
     printf("\t\tAffiche le contenu de la section donnée par son numéro ou son nom.\n\n");
     printf(BOLDWHITE "\t--help\n" RESET);
     printf("\t\tAffiche cette aide.\n\n");
+    printf(BOLDWHITE "\t-r\n" RESET);
+    printf("\t\tAffiche la table de réimplantation statique.\n\n");
+    printf(BOLDWHITE "\t-R\n" RESET);
+    printf("\t\tAffiche la table de réimplantation dynamique.\n\n");
+    printf(BOLDWHITE "    Valeurs de retour :\n" RESET);
+    printf("\t0\tLe programme s'est terminé normalement.\n\n");
+    printf("\t1\tLes nombres magiques sont erronés.\n\n");
+    printf("\t2\tLe nombre d'arguments envoyés au programme est inccorect.\n\n");
+    printf("\t3\tLe fichier ELF n'est pas au format 32-bits.\n\n");
+    printf("\t4\tL'endianness du fichier n'est pas défini.\n\n");
+    printf("\t5\tLa version du fichier ELF n'est pas valide.\n\n");
+    printf("\t6\tUne erreur inconnue s'est produite.\n\n");
+    printf(BOLDWHITE "AUTEURS\n" RESET);
+    printf("\tÉcrit par Alexandre Daubois, Maxence Ginet, Sylvain Marion, Hugo Serem et Noha Wong.\n\n");
 }
 
 // Récupéré sur http://rosettacode.org/wiki/Determine_if_a_string_is_numeric#C
