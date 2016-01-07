@@ -197,9 +197,6 @@ TableRela *read_rela_table(FILE *file, Elf32_Shdr *section_headers, Elf32_Half s
 
 int section_name_to_number (char* nom, Elf32_Shdr * section_headers, char* table_noms, Elf32_Ehdr *header) {
     int i;
-
-    // prevent the case where a user enter a identifier grater than the section table size
-
     for (i=0; i < header->e_shnum ; i++) {
         if (!(strcmp(nom, &table_noms[section_headers[i].sh_name]))) {
             return i;

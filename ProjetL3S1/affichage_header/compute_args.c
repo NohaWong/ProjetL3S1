@@ -1,9 +1,21 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
+#include <unistd.h>
 #include "compute_args.h"
 
 int compute_multiple_args (int argc, char **argv) {
+    if (argc == 1) {
+        print_help();
+        return EXIT_SUCCESS;
+    } else if (argc == 2 && strcmp(argv[1], "--help") != 0) {
+        printf("Mauvaise syntaxe. Tapez our_readelf --help pour plus d'informations.\n");
+        return ERROR_MISSING_ARG;
+    } else if (access(argv[argc - 1], F_OK) == -1 && strcmp(argv[1], "--help") != 0) {
+        printf("Le fichier '%s' n'existe pas ou n'est pas accessible.\n", argv[argc - 1]);
+        return ERROR_NO_FILE_SPECIFIED;
+    }
+
     if (strcmp(argv[1], "--help") == 0) {
         print_help();
         return EXIT_SUCCESS;
@@ -104,7 +116,7 @@ int compute_multiple_args (int argc, char **argv) {
                             secnum = strtol(argv[i], NULL, 10);
                         }
 
-                        print_elf_section_content(section_content, secnum, table_entetes_section, argv[i]);
+                        print_elf_section_content(section_content, secnum, table_entetes_section, argv[i], header);
                         break;
                     }
                     default:

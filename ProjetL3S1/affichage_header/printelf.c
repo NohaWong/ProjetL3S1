@@ -166,11 +166,17 @@ void print_elf_symbol_table(Elf32_Sym *symbols, Elf32_Half shnum) {
 
 
 
-void print_elf_section_content(uint8_t** secContent, int number, Elf32_Shdr *section_headers, char *secname) {
-    printf(BOLDWHITE "<CONTENU DE LA SECTION %s>" RESET, secname);
+void print_elf_section_content(uint8_t** secContent, int number, Elf32_Shdr *section_headers, char *secname, Elf32_Ehdr elf_header) {
+    printf(BOLDWHITE "<CONTENU DE LA SECTION %s>\n" RESET, secname);
+
+    // prevent the case where a user enter a identifier grater than the section table size
+    if (elf_header.e_shnum <= number || number < 0) {
+        printf("La section n'existe pas.\n");
+        return;
+    }
 
     // print the address of the current line
-    printf("\n[0x%08x]\t", 0x0);
+    printf("[0x%08x]\t", 0x0);
 
     uint32_t i, j;
     for (i = 0; i < (section_headers[number].sh_size); i++) {
@@ -189,7 +195,6 @@ void print_elf_section_content(uint8_t** secContent, int number, Elf32_Shdr *sec
             }
             printf("\n[0x%08x]\t", i);
         }
-
         printf("%02x", secContent[number][i]);
     }
 

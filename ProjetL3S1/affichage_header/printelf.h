@@ -12,7 +12,7 @@ void print_elf_rel_tab(TableRel * tab, Elf32_Shdr * table_entetes_section, char 
 void print_elf_rela_tab(TableRela * tab);
 
 void print_elf_section_header(Elf32_Ehdr header, Elf32_Shdr * table_entetes_section, char *secname);
-void print_elf_section_content(uint8_t** secContent, int number, Elf32_Shdr *section_headers, char *secname);
+void print_elf_section_content(uint8_t** secContent, int number, Elf32_Shdr *section_headers, char *secname, Elf32_Ehdr elf_header);
 
 #define BOLDWHITE   "\033[1m\033[37m"      /* Bold White */
 #define RESET       "\033[0m"
