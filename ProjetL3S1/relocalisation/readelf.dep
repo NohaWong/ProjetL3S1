@@ -1,0 +1,1 @@
+readelf.o: readelf.c readelf.h
