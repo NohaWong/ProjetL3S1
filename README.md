@@ -11,4 +11,5 @@ Valeurs de retour du programme :
   - 3 : Le fichier ELF n'est pas au format 32 bits
   - 4 : L'endianness du fichier n'est pas défini
   - 5 : La version du fichier ELF n'est pas valide
+  - 6 : Une erreur inconnue s'est produite.
   - Autre : une erreur inconnue s'est produite

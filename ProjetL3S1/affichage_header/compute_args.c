@@ -170,7 +170,8 @@ void print_help() {
     printf("\t3\tLe fichier ELF n'est pas au format 32-bits.\n\n");
     printf("\t4\tL'endianness du fichier n'est pas défini.\n\n");
     printf("\t5\tLa version du fichier ELF n'est pas valide.\n\n");
-    printf("\t6\tUne erreur inconnue s'est produite.\n\n");
+    printf("\t6\tAucun fichier n'a été spécifié en entrée, ou il n'est pas accessible.\n\n");
+    printf("\tAutre\tUne erreur inconnue s'est produite.\n\n");
     printf(BOLDWHITE "AUTEURS\n" RESET);
     printf("\tÉcrit par Alexandre Daubois, Maxence Ginet, Sylvain Marion, Hugo Serem et Noha Wong.\n\n");
 }
