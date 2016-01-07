@@ -234,7 +234,7 @@ void print_elf_rel_tab(TableRel *tab){
         return;
     }
 
-    printf("#      Décalage    Information   \n");
+    printf("#       Décalage    Information   \n");
     printf("---------------------------------\n");
     int i = 0;
     for(i = 0; i < tab->nb_elem;  i++){
@@ -253,8 +253,8 @@ void print_elf_rela_tab(TableRela *tab){
         return;
     }
 
-    printf("#      Décalage    Information   Fin addresse    \n");
-    printf("--------------------------------\n");
+    printf("#       Décalage    Information   Fin addresse    \n");
+    printf("--------------------------------------------------\n");
     int i = 0;
     for(i = 0; i < tab->nb_elem;  i++){
         printf("%-8d%#-12x%#-14x%#-16x\n", i, tab->tab[i].r_offset, tab->tab[i].r_info, tab->tab[i].r_addend);
