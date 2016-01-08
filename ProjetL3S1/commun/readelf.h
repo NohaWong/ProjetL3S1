@@ -72,10 +72,10 @@ typedef struct
  */
 typedef struct
 {
-	Elf32_Word section_name;
-	int elem_count;
+    Elf32_Word section_name;
+    int elem_count;
     Elf32_Rela * rel_list;
-} Table_rela_section  ;
+} Table_rela_section;
 
 /**
  * @struct Ensemble_table_rel
