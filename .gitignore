@@ -2,3 +2,5 @@
 *.dep
 *~
 *.s
+our_readelf
+relocalisation
