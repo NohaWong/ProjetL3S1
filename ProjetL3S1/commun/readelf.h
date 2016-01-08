@@ -29,7 +29,7 @@ Elf32_Sym *read_symbol_table(FILE *file, Elf32_Shdr *section_headers, uint16_t *
 // contains the static relocations of 1 section
 typedef struct
 {
-	int section_name;
+	Elf32_Word section_name;
 	int elem_count;
     Elf32_Rel * rel_list;
 } Table_rel_section  ;
@@ -37,17 +37,17 @@ typedef struct
 // contains the dynamic relocations of 1 section
 typedef struct
 {
-	int section_name;
+	Elf32_Word section_name;
 	int elem_count;
-    Elf32_RelA * rel_list;
-} Table_relA_section  ;
+    Elf32_Rela * rel_list;
+} Table_rela_section  ;
 
 // contains all the static relocations
 typedef struct {
     int section_count_rel;
-    int section_count_relA;
+    int section_count_rela;
     Table_rel_section *rel_section_list;
-    Table_relA_section *relA_section_list;
+    Table_rela_section *rela_section_list;
 } Ensemble_table_rel;
 
 
