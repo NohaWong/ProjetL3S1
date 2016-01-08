@@ -8,21 +8,21 @@ int print_elf_header(Elf32_Ehdr header)
     printf(BOLDWHITE "<EN-TÊTE ELF>\n" RESET);
 
     int i = 0;
-    printf("  Magique : ");
+    printf("  Magic number : ");
     for (i = 0; i < 4; ++i) {
         printf("%x ", header.e_ident[i]);
     }
     printf("\n");
 
-    printf("  Taille d'un word : ");
+    printf("  Size of word : ");
     if (header.e_ident[EI_CLASS] == ELFCLASS32) {
         printf("ELF32\n");
     } else if (header.e_ident[EI_CLASS] == ELFCLASS64) {
         printf("ELF64\n");
-        printf("Les fichiers 64-bits ne sont pas supportés.\n");
+        printf("64-bits files are not supported\n");
         return ERROR_WRONG_WORD_SIZE;
     } else {
-        printf("Taille invalide %d\n", header.e_ident[EI_CLASS]);
+        printf("Wrong size %d\n", header.e_ident[EI_CLASS]);
         return ERROR_WRONG_WORD_SIZE;
     }
 
@@ -32,50 +32,50 @@ int print_elf_header(Elf32_Ehdr header)
     } else if (header.e_ident[EI_DATA] == ELFDATA2MSB) {
         printf("Big endian\n");
     } else {
-        printf("Endianess invalide");
+        printf(" Invalid Endianess ");
         return ERROR_WRONG_ENDIAN;
     }
 
-    printf("  Version ELF : ");
+    printf(" ELF Version : ");
     if (header.e_ident[EI_VERSION] >= EV_CURRENT) {
         printf("%d (current)\n", header.e_ident[EI_VERSION]);
     } else if (header.e_ident[EI_VERSION] == EV_NONE) {
-        printf("La version n'est pas valide : %d\n", header.e_ident[EI_VERSION]);
+        printf("Current version is not valide : %d\n", header.e_ident[EI_VERSION]);
         return ERROR_INVALID_VERSION;
     }
 
     printf("  OS/ABI : ");
     printf("%s\n", sys_table[header.e_ident[EI_OSABI]]);
 
-    printf("  Type de fichier : ");
+    printf("  File type : ");
     if (header.e_type == ET_NONE) {
-        printf("Aucun\n");
+        printf("None\n");
     } else if (header.e_type == ET_REL) {
-        printf("Repositionnable (REL)\n");
+        printf("Relocalizable (REL)\n");
     } else if (header.e_type == ET_EXEC) {
-        printf("Exécutable (EXEC)\n");
+        printf("Executable (EXEC)\n");
     } else if (header.e_type == ET_DYN) {
-        printf("Dyanmique (partagé)");
+        printf("Dynamic (partagé)");
     } else if (header.e_type == ET_CORE) {
-        printf("Fichier core (CORE)");
+        printf("Core file (CORE)");
     } else {
-        printf("Type inconnu");
+        printf("Unknown type");
     }
 
     printf("  Machine cible : %s\n", sys_target[header.e_machine]);
     printf("  Version : %#x\n", header.e_version);
-    printf("  Point d'entrée : %#x\n", header.e_entry);
+    printf("  Entry point : %#x\n", header.e_entry);
     printf("  Flags : %#x\n", header.e_flags);
-    printf("-- Décalages des tables\n");
-    printf("  Décalage de la table d'en-tête du programme : %#x\n", header.e_phoff);
-    printf("  Décalage de la table de sections : %#x\n", header.e_shoff);
-    printf("-- Informations sur l'en-tête\n");
-    printf("  Taille de l'en-tête ELF : %d octets\n", header.e_ehsize);
-    printf("  Taille d'une entrée de l'en-tête du programme : %d octets\n", header.e_phentsize);
-    printf("  Nombre d'entrées de l'en-tête du programme : %d\n", header.e_phnum);
-    printf("-- Informations sur les sections\n");
-    printf("  Taille d'une entrée de la table de sections : %d octets\n", header.e_shentsize);
-    printf("  Nombre d'entrées de la table de sections : %d\n", header.e_shnum);
+    printf("-- Tables offset\n");
+    printf("  Headers's table offset : %#x\n", header.e_phoff);
+    printf("  Sections's table offset : %#x\n", header.e_shoff);
+    printf("-- Header infos\n");
+    printf("   ELF's header size : %d octets\n", header.e_ehsize);
+    printf("  Entry size in header's table : %d octets\n", header.e_phentsize);
+    printf("  Numbre of entries in header  : %d\n", header.e_phnum);
+    printf("-- Section information\n");
+    printf("  Section's table entry size : %d octets\n", header.e_shentsize);
+    printf("  Number of entries in section's table : %d\n", header.e_shnum);
 
     printf("\n");
 
@@ -85,8 +85,8 @@ int print_elf_header(Elf32_Ehdr header)
 
 void print_elf_section_header(Elf32_Ehdr header, Elf32_Shdr * table_entetes_section, char *secname) {
     uint8_t i;
-    printf(BOLDWHITE "<SECTIONS DU FICHIER>\n" RESET);
-    printf("#     Nom                 Type        Flags   Adresse              Taille  Lien    Alignement Entsize \n");
+    printf(BOLDWHITE "<FILE'S SECTIONS>\n" RESET);
+    printf("#     Name                 Type        Flags   Adress              Size  Link    Alignement Entsize \n");
     printf("------------------------------------------------------------------------------------------------------\n");
 
     for (i=0; i < header.e_shnum; i++) {
@@ -116,7 +116,7 @@ void print_elf_symbol_table(Elf32_Sym *symbols, uint16_t symbols_count) {
     char info[16];
     //char info[16];
     printf(BOLDWHITE "<TABLE DES SYMBOLES>\n" RESET);
-    printf("#      Nom         Valeur      Type      Portée    Idx Section\n");
+    printf("#      Name         Value      Type      Scope    Idx Section\n");
     printf("--------------------------------------------------------------\n");
     for (i = 0; i < symbols_count; ++i) {
         switch (ELF32_ST_TYPE(symbols[i].st_info)) {
@@ -166,11 +166,11 @@ void print_elf_symbol_table(Elf32_Sym *symbols, uint16_t symbols_count) {
 
 
 void print_elf_section_content(uint8_t** secContent, int number, Elf32_Shdr *section_headers, char *secname, Elf32_Ehdr elf_header) {
-    printf(BOLDWHITE "<CONTENU DE LA SECTION %s>\n" RESET, secname);
+    printf(BOLDWHITE "<CONTENT OF THE SECTION %s>\n" RESET, secname);
 
     // prevent the case where a user enter a identifier grater than the section table size
     if (elf_header.e_shnum <= number || number < 0) {
-        printf("La section n'existe pas.\n");
+        printf("The section does not exist.\n");
         return;
     }
 
@@ -231,14 +231,14 @@ void print_elf_section_content(uint8_t** secContent, int number, Elf32_Shdr *sec
 
 /*
 void print_elf_rel_tab(TableRel *tab, Elf32_Shdr * table_entetes_section, char *secname){
-    printf(BOLDWHITE "<TABLE DE RÉIMPLANTATION STATIQUE>\n" RESET);
+    printf(BOLDWHITE "<STATIC RELOCALIZATION'S TABLE>\n" RESET);
 
     if (tab->nb_elem == 0) {
-        printf("Aucun élément.\n");
+        printf("No entries.\n");
         return;
     }
 
-    printf("Décalage    Information   Type      Valeur      Nom symbole     \n");
+    printf("Offset    Informations   Type      Value      Name symbole     \n");
     printf("----------------------------------------------------------------\n");
     int i = 0;
     for(i = 0; i < tab->nb_elem;  i++){
@@ -253,4 +253,6 @@ void print_elf_rel_tab(TableRel *tab, Elf32_Shdr * table_entetes_section, char *
 
     printf("\n");
 }
+
 */
+
