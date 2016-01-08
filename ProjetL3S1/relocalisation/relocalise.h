@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <elf.h>
-#include "readelf.h"
+#include "../commun/readelf.h"
 
 typedef struct {
     char* section_name;
@@ -15,5 +15,7 @@ typedef struct {
 // prend une chaine de car. et retourne un entier >= 0. retourne -1 si la chaine n'est pas un entier
 
 void new_section_header(Elf32_Shdr* section_headers, char* nom_sections, rel_info * infos, int nb_relocalisations, Elf32_Ehdr header);
+
+void new_section_content (TableRel* table_rel, char* nom_sections, uint8_t** section_content, rel_info* infos, int nb_relocalisations, Elf32_Shdr * section_headers,Elf32_Ehdr *header);
 
 #endif // RELOCALISE_H_INCLUDED
