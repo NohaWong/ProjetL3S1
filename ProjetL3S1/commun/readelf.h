@@ -61,8 +61,8 @@ Elf32_Sym *read_symbol_table(FILE *file, Elf32_Shdr *section_headers, uint16_t *
  */
 typedef struct
 {
-	Elf32_Word section_name;
-	int elem_count;
+    Elf32_Word section_name;
+    int elem_count;
     Elf32_Rel * rel_list;
 } Table_rel_section  ;
 
