@@ -16,6 +16,8 @@ void read_elf_header(FILE *file, Elf32_Ehdr *header);
 void init_systable();
 void init_systarget();
 
+Elf32_Word relInfo_to_symbole (Elf32_Word info);
+
 // read table content
 uint8_t** read_section_content(FILE* file, Elf32_Shdr *section_headers, Elf32_Ehdr *header);
 
