@@ -3,32 +3,39 @@
 extern char sys_table[256][32];
 extern char sys_target[193][32];
 
-int print_elf_header(Elf32_Ehdr header) {
+/**
+ * Prints the header of ELF file given to the program.
+ *
+ * @param elf   Elf32_Ehdr, all informations about ELF file header
+ * @return Return a code defined is the error enumeration above
+ *
+ */
+int print_elf_header(Elf32_Ehdr elf_header) {
     printf(BOLDWHITE "<EN-TÊTE ELF>\n" RESET);
 
     int i = 0;
     printf("  Magic number : ");
     for (i = 0; i < 4; ++i) {
-        printf("%x ", header.e_ident[i]);
+        printf("%x ", elf_header.e_ident[i]);
     }
     printf("\n");
 
     printf("  Size of word : ");
-    if (header.e_ident[EI_CLASS] == ELFCLASS32) {
+    if (elf_header.e_ident[EI_CLASS] == ELFCLASS32) {
         printf("ELF32\n");
-    } else if (header.e_ident[EI_CLASS] == ELFCLASS64) {
+    } else if (elf_header.e_ident[EI_CLASS] == ELFCLASS64) {
         printf("ELF64\n");
         printf("64-bits files are not supported\n");
         return ERROR_WRONG_WORD_SIZE;
     } else {
-        printf("Wrong size %d\n", header.e_ident[EI_CLASS]);
+        printf("Wrong size %d\n", elf_header.e_ident[EI_CLASS]);
         return ERROR_WRONG_WORD_SIZE;
     }
 
     printf("  Endianness : ");
-    if (header.e_ident[EI_DATA] == ELFDATA2LSB) {
+    if (elf_header.e_ident[EI_DATA] == ELFDATA2LSB) {
         printf("Little endian\n");
-    } else if (header.e_ident[EI_DATA] == ELFDATA2MSB) {
+    } else if (elf_header.e_ident[EI_DATA] == ELFDATA2MSB) {
         printf("Big endian\n");
     } else {
         printf(" Invalid Endianess ");
@@ -36,69 +43,75 @@ int print_elf_header(Elf32_Ehdr header) {
     }
 
     printf(" ELF Version : ");
-    if (header.e_ident[EI_VERSION] >= EV_CURRENT) {
-        printf("%d (current)\n", header.e_ident[EI_VERSION]);
-    } else if (header.e_ident[EI_VERSION] == EV_NONE) {
-        printf("Current version is not valide : %d\n", header.e_ident[EI_VERSION]);
+    if (elf_header.e_ident[EI_VERSION] >= EV_CURRENT) {
+        printf("%d (current)\n", elf_header.e_ident[EI_VERSION]);
+    } else if (elf_header.e_ident[EI_VERSION] == EV_NONE) {
+        printf("Current version is not valide : %d\n", elf_header.e_ident[EI_VERSION]);
         return ERROR_INVALID_VERSION;
     }
 
     printf("  OS/ABI : ");
-    printf("%s\n", sys_table[header.e_ident[EI_OSABI]]);
+    printf("%s\n", sys_table[elf_header.e_ident[EI_OSABI]]);
 
     printf("  File type : ");
-    if (header.e_type == ET_NONE) {
+    if (elf_header.e_type == ET_NONE) {
         printf("None\n");
-    } else if (header.e_type == ET_REL) {
+    } else if (elf_header.e_type == ET_REL) {
         printf("Relocalizable (REL)\n");
-    } else if (header.e_type == ET_EXEC) {
+    } else if (elf_header.e_type == ET_EXEC) {
         printf("Executable (EXEC)\n");
-    } else if (header.e_type == ET_DYN) {
+    } else if (elf_header.e_type == ET_DYN) {
         printf("Dynamic (partagé)");
-    } else if (header.e_type == ET_CORE) {
+    } else if (elf_header.e_type == ET_CORE) {
         printf("Core file (CORE)");
     } else {
         printf("Unknown type");
     }
 
-    printf("  Machine cible : %s\n", sys_target[header.e_machine]);
-    printf("  Version : %#x\n", header.e_version);
-    printf("  Entry point : %#x\n", header.e_entry);
-    printf("  Flags : %#x\n", header.e_flags);
+    printf("  Machine cible : %s\n", sys_target[elf_header.e_machine]);
+    printf("  Version : %#x\n", elf_header.e_version);
+    printf("  Entry point : %#x\n", elf_header.e_entry);
+    printf("  Flags : %#x\n", elf_header.e_flags);
     printf("-- Tables offset\n");
-    printf("  Headers's table offset : %#x\n", header.e_phoff);
-    printf("  Sections's table offset : %#x\n", header.e_shoff);
+    printf("  Headers's table offset : %#x\n", elf_header.e_phoff);
+    printf("  Sections's table offset : %#x\n", elf_header.e_shoff);
     printf("-- Header infos\n");
-    printf("   ELF's header size : %d octets\n", header.e_ehsize);
-    printf("  Entry size in header's table : %d octets\n", header.e_phentsize);
-    printf("  Numbre of entries in header  : %d\n", header.e_phnum);
+    printf("   ELF's header size : %d octets\n", elf_header.e_ehsize);
+    printf("  Entry size in header's table : %d octets\n", elf_header.e_phentsize);
+    printf("  Numbre of entries in header  : %d\n", elf_header.e_phnum);
     printf("-- Section information\n");
-    printf("  Section's table entry size : %d octets\n", header.e_shentsize);
-    printf("  Number of entries in section's table : %d\n", header.e_shnum);
+    printf("  Section's table entry size : %d octets\n", elf_header.e_shentsize);
+    printf("  Number of entries in section's table : %d\n", elf_header.e_shnum);
 
     printf("\n");
 
     return EXIT_SUCCESS;
 }
 
-
-void print_elf_section_header(Elf32_Ehdr header, Elf32_Shdr * table_entetes_section, char *secname) {
+/**
+ * Prints one section header of an ELF file
+ *
+ * @param symbols               Elf32_Sym*, symbols array
+ * @param section_header_table  Elf32_Shdr*, the table of sections headers
+ * @param secname               char*, name of the wanted section
+ */
+void print_elf_section_header(Elf32_Ehdr header, Elf32_Shdr *section_header_table, char *secname) {
     uint8_t i;
-    printf(BOLDWHITE "<FILE'S SECTIONS>\n" RESET);
-    printf("#     Name                 Type        Flags   Adress              Size  Link    Alignement Entsize \n");
+    printf(BOLDWHITE "<TABLE DES SECTIONS>\n" RESET);
+    printf("#     Nom                  Type        Flags   Adresse             Taille  Link    Alignement Entsize \n");
     printf("------------------------------------------------------------------------------------------------------\n");
 
     for (i=0; i < header.e_shnum; i++) {
         printf("%-6d%-20s%#-12x%#-8x%#-8x(+ %#-8x) %#-8x%#-8x%#-11x%#-8x", i,
-                           &(secname[table_entetes_section[i].sh_name]),
-                           table_entetes_section[i].sh_type,
-                           table_entetes_section[i].sh_flags,
-                           table_entetes_section[i].sh_addr,
-                           table_entetes_section[i].sh_offset,
-                           table_entetes_section[i].sh_size,
-                           table_entetes_section[i].sh_link,
-                           table_entetes_section[i].sh_addralign,
-                           table_entetes_section[i].sh_entsize
+                           &(secname[section_header_table[i].sh_name]),
+                           section_header_table[i].sh_type,
+                           section_header_table[i].sh_flags,
+                           section_header_table[i].sh_addr,
+                           section_header_table[i].sh_offset,
+                           section_header_table[i].sh_size,
+                           section_header_table[i].sh_link,
+                           section_header_table[i].sh_addralign,
+                           section_header_table[i].sh_entsize
               );
 
         printf("\n");
@@ -107,15 +120,19 @@ void print_elf_section_header(Elf32_Ehdr header, Elf32_Shdr * table_entetes_sect
     printf("\n");
 }
 
-
+/**
+ * Prints symbol table of an ELF file
+ *
+ * @param symbols   Elf32_Sym*, symbols array
+ */
 void print_elf_symbol_table(Elf32_Sym *symbols, uint16_t symbols_count) {
     int i = 0;
     char type[16];
     char info[16];
     //char info[16];
     printf(BOLDWHITE "<TABLE DES SYMBOLES>\n" RESET);
-    printf("#      Name         Value      Type      Scope    Idx Section\n");
-    printf("--------------------------------------------------------------\n");
+    printf("#      Nom         Valeur      Type      Portée    Indice de section\n");
+    printf("--------------------------------------------------------------------\n");
     for (i = 0; i < symbols_count; ++i) {
         switch (ELF32_ST_TYPE(symbols[i].st_info)) {
             case STT_NOTYPE:
@@ -162,12 +179,12 @@ void print_elf_symbol_table(Elf32_Sym *symbols, uint16_t symbols_count) {
 }
 
 
-void print_elf_section_content(uint8_t** secContent, int number, Elf32_Shdr *section_headers, char *secname, Elf32_Ehdr elf_header) {
-    printf(BOLDWHITE "<CONTENT OF THE SECTION %s>\n" RESET, secname);
+void print_elf_section_content(uint8_t** sec_content, int number, Elf32_Shdr *section_headers, char *secname, Elf32_Ehdr elf_header) {
+    printf(BOLDWHITE "<CONTENU DE LA SECTION %s>\n" RESET, secname);
 
     // prevent the case where a user enter a identifier grater than the section table size
     if (elf_header.e_shnum <= number || number < 0) {
-        printf("The section does not exist.\n");
+        printf("La section n'existe pas.\n");
         return;
     }
 
@@ -183,15 +200,15 @@ void print_elf_section_content(uint8_t** secContent, int number, Elf32_Shdr *sec
             printf("\t| ");
             for (j = i - 16; j < i; ++j) {
                 // if character is a blank character, print a '.'
-                if (secContent[number][j] < 0x20) {
+                if (sec_content[number][j] < 0x20) {
                     printf(".");
                 } else {
-                    printf("%c", secContent[number][j]);
+                    printf("%c", sec_content[number][j]);
                 }
             }
             printf("\n[0x%08x]\t", i);
         }
-        printf("%02x", secContent[number][i]);
+        printf("%02x", sec_content[number][i]);
     }
 
     for (j = i; j%16 != 0; ++j) {
@@ -216,41 +233,52 @@ void print_elf_section_content(uint8_t** secContent, int number, Elf32_Shdr *sec
 
     for (i = initial_printfor; i < condition_printfort; ++i) {
         // if character is a blank character, print a '.'
-        if (secContent[number][i] < 0x20) {
+        if (sec_content[number][i] < 0x20) {
             printf(".");
         } else {
-            printf("%c", secContent[number][i]);
+            printf("%c", sec_content[number][i]);
         }
     }
 
     printf("\n");
 }
 
-
-void print_elf_rel_tab(Ensemble_table_rel relocations, char *secname){
-    printf(BOLDWHITE "<STATIC RELOCALIZATION'S TABLE>\n\n" RESET);
+/**
+ * Prints static relocation table
+ *
+ * @param relocations           Ensemble_table_rel, all relocations
+ * @param symb_table            Elf32_Sym*, the table of all symbols
+ * @param secname               char*, name of all sections
+ * @param elf                   Elf32_Ehdr, all informations about ELF file header
+ */
+void print_elf_rel_tab(Ensemble_table_rel relocations, Elf32_Sym* symb_table, Elf32_Shdr * section_headers, char *secname, Elf32_Ehdr header){
+    printf(BOLDWHITE "<TABLE DE RELOCATION STATIQUE>\n" RESET);
 
     if (relocations.section_count_rel == 0) {
-        printf("No entries.\n");
+        printf("Aucune entrée.\n");
         return;
     }
 
     int i = 0;
     for(i = 0; i < relocations.section_count_rel; i++) {
         int j;
-        printf("Table de relocations de la section %s\n", &secname[relocations.rel_section_list[i].section_name]);
-        printf("Offset    Informations   Type      Value      Name symbole     \n");
-        printf("----------------------------------------------------------------\n");
+        printf("Table de relocations de la section %s à l'adresse de décalage %#x contient %d relocations\n",
+                    &secname[relocations.rel_section_list[i].section_name],
+                    section_headers[section_name_to_number(&secname[relocations.rel_section_list[i].section_name], section_headers, secname, &header)].sh_offset,
+                    relocations.rel_section_list[i].elem_count
+                );
+        printf("Décalage    Informations   Type      Valeur      Nom du symbole     \n");
+        printf("--------------------------------------------------------------------\n");
         for (j=0; j<relocations.rel_section_list[i].elem_count; j++) {
-            printf("%#-12x%#-14x%#-10x%#-12x%-13s\n",
+            printf("%#-12x%#-15x%#-10x%#-12x%-19s\n",
                     relocations.rel_section_list[i].rel_list[j].r_offset,
                     relocations.rel_section_list[i].rel_list[j].r_info,
                     ELF32_R_TYPE(relocations.rel_section_list[i].rel_list[j].r_info),
-                    ELF32_R_SYM(relocations.rel_section_list[i].rel_list[j].r_info) == STN_UNDEF ?
-                    0 : ELF32_R_SYM(relocations.rel_section_list[i].rel_list[j].r_info),
-                    "coucou"//&(secname[table_entetes_section[ELF32_M_SYM(tab->tab[i].r_info)].sh_name])
+                    relocations.rel_section_list[i].rel_list[j].r_info,
+                    &secname[rel_info_to_symbol(relocations.rel_section_list[i].rel_list[j].r_info, symb_table, section_headers)]
                 );
         }
+        printf("\n");
     }
 
     printf("\n");

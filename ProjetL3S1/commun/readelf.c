@@ -7,6 +7,12 @@ char sys_table[256][32];
 // 193 targets, according to elf.h
 char sys_target[193][32];
 
+/**
+ * Read an ELF file and store it in a struct.
+ *
+ * @param file      FILE*, the file to read, *already opened in "rb"*
+ * @param header    ELF32_Ehdr*, the structure to stock header informations
+ */
 void read_elf_header(FILE *file, Elf32_Ehdr *header) {
     fseek(file, 0, SEEK_SET);
     fread(header, sizeof(Elf32_Ehdr), 1, file);
@@ -28,6 +34,10 @@ void read_elf_header(FILE *file, Elf32_Ehdr *header) {
     }
 }
 
+/**
+ * Init the systems table. Used to print human-readable informations
+ * when printing the header.
+ */
 void init_systable() {
     strcpy(sys_table[ELFOSABI_SYSV], "UNIX System V");
     strcpy(sys_table[ELFOSABI_HPUX], "HP-UX");
@@ -45,6 +55,10 @@ void init_systable() {
     strcpy(sys_table[ELFOSABI_STANDALONE], "Standalone");
 }
 
+/**
+ * Init the targets table. Used to print human-readable informations
+ * when printing the header.
+ */
 void init_systarget() {
     strcpy(sys_target[EM_NONE], "Aucune");
     strcpy(sys_target[EM_SPARC], "SPARC");
@@ -59,8 +73,13 @@ void init_systarget() {
     strcpy(sys_target[EM_X86_64], "x64");
 }
 
-// -------------- lecture section header -------------- //
-
+/**
+ * Reads a sections' headers
+ * @param file              FILE*, the file to read, *already opened in "rb"*
+ * @param header            ELF32_Ehdr*, the structure to stock header informations
+ * @param
+ * @return A pointer to a structure that holds all sections' headers
+ */
 Elf32_Shdr *read_elf_section_header(FILE *file, Elf32_Ehdr *header, char **c) {
     uint32_t i;
     Elf32_Shdr *table_entetes_section;
@@ -98,8 +117,14 @@ Elf32_Shdr *read_elf_section_header(FILE *file, Elf32_Ehdr *header, char **c) {
     return table_entetes_section;
 }
 
-// -------------- lecture section content -------------- //
-
+/**
+ * Reads the symbol table and returns it.
+ *
+ * @param file              FILE*, the file to read, *already opened in "rb"*
+ * @param section_header    ELF32_Shdr*, all sections headers
+ * @param symbols_count     uint16_t*, symbols count. The result is directly written in this variable
+ * @return The structure that holds the symbol table
+ */
 Elf32_Sym *read_symbol_table(FILE *file, Elf32_Shdr *section_headers, uint16_t *symbols_count) {
     Elf32_Half symtable_index = 0;
     int i = 0;
@@ -126,6 +151,14 @@ Elf32_Sym *read_symbol_table(FILE *file, Elf32_Shdr *section_headers, uint16_t *
     return symbols;
 }
 
+/**
+ * Reads the static relocation table
+ *
+ * @param file              FILE*, the file to read, *already opened in "rb"*
+ * @param section_header    ELF32_Shdr*, all sections headers
+ * @param shnum             Elf32_Half, number of sections
+ * @return The structure (Ensemble_table_rel) that holds the static relocations table.
+ */
 Ensemble_table_rel read_rel_table(FILE *file, Elf32_Shdr *section_headers, Elf32_Half shnum){
 
     int i=0;
@@ -164,14 +197,14 @@ Ensemble_table_rel read_rel_table(FILE *file, Elf32_Shdr *section_headers, Elf32
             // move to where we need to read in the file
             fseek(file, section_headers[i].sh_offset, SEEK_SET);
             // start reading
-            for(j=0;j<relocations.rel_section_list[l].elem_count;j++){ //Read every elem of the section
+            for(j=0;j<relocations.rel_section_list[k].elem_count;j++){ //Read every elem of the section
                     fread(&relocations.rel_section_list[k].rel_list[j], sizeof(Elf32_Rel),1, file);
                     relocations.rel_section_list[k].rel_list[j].r_info = htobe32(relocations.rel_section_list[k].rel_list[j].r_info);
                     relocations.rel_section_list[k].rel_list[j].r_offset = htobe32(relocations.rel_section_list[k].rel_list[j].r_offset);
             }
             k++;
         }else if(section_headers[i].sh_type == SHT_RELA){
-                        int j=0;
+            int j=0;
 
             // set its name
             relocations.rela_section_list[l].section_name = section_headers[i].sh_name;
@@ -196,11 +229,19 @@ Ensemble_table_rel read_rel_table(FILE *file, Elf32_Shdr *section_headers, Elf32
     return relocations;
 }
 
-
-int section_name_to_number (char* nom, Elf32_Shdr * section_headers, char* names_table, Elf32_Ehdr *header) {
+/**
+ * Convert a section name to its identifier
+ *
+ * @param name              char*, the name to convert
+ * @param section_header    ELF32_Shdr*, all sections headers
+ * @param names_table       char*, the table with all names
+ * @param header            ELF32_Ehdr*, the structure to stock header informations
+ * @return The structure (Ensemble_table_rel) that holds the static relocations table.
+ */
+int section_name_to_number (char* name, Elf32_Shdr * section_headers, char* names_table, Elf32_Ehdr *header) {
     int i;
     for (i=0; i < header->e_shnum ; i++) {
-        if (!(strcmp(nom, &names_table[section_headers[i].sh_name]))) {
+        if (!(strcmp(name, &names_table[section_headers[i].sh_name]))) {
             return i;
         }
     }
@@ -208,13 +249,22 @@ int section_name_to_number (char* nom, Elf32_Shdr * section_headers, char* names
 
 }
 
-
-Elf32_Word relInfo_to_symbole (Elf32_Word info) {
-    Elf32_Word tmp = ELF32_R_SYM(info);
-    return (!(tmp==STN_UNDEF)) * tmp;
+/**
+ * @todo documentation
+ */
+Elf32_Word rel_info_to_symbol (Elf32_Word info, Elf32_Sym * symb_table, Elf32_Shdr* section_headers) {
+    return section_headers[symb_table[(!(ELF32_R_SYM(info)==STN_UNDEF)) * ELF32_R_SYM(info)].st_shndx].sh_name;
 }
 
-uint8_t ** read_section_content(FILE* file, Elf32_Shdr *section_headers, Elf32_Ehdr *header) {
+/**
+ * Reads a section content and returns it.
+ *
+ * @param file              FILE*, the file to read, *already opened in "rb"*
+ * @param section_header    ELF32_Shdr*, all sections headers
+ * @param header            ELF32_Ehdr*, the structure to stock header informations
+ * @return A double pointer array, with the content of a whole section inside
+ */
+uint8_t **read_section_content(FILE* file, Elf32_Shdr *section_headers, Elf32_Ehdr *header) {
 
     Elf32_Half sectionNumber = header->e_shnum;
     uint8_t i;

@@ -1,4 +1,5 @@
 #include "../commun/readelf.h"
+#include "../affichage/printelf.h"
 #include "relocalise.h"
 
 int main(int argc, char **argv) {
@@ -66,11 +67,11 @@ int main(int argc, char **argv) {
 
         printf("\n");
     }
-    new_section_content (table_rel,table_nom_sections,section_content,table_rel_info,nb_relocalisation, table_entetes_section, &header);
-
+    new_section_content (table_rel,table_nom_sections,section_content,table_rel_info, table_entetes_section, &header,nb_relocalisation,symbols);
     free(symbols);
     free(table_entetes_section);
     free(table_nom_sections);
+    fclose(file);
 //    free(table_rela);
 //    free(table_rel);
 //    free(table_rel_info);
