@@ -9,14 +9,17 @@
 enum { ERROR_MAGIC_NUMBERS = 1, ERROR_MISSING_ARG, ERROR_WRONG_WORD_SIZE, ERROR_WRONG_ENDIAN,
        ERROR_INVALID_VERSION, ERROR_NO_FILE_SPECIFIED };
 
-typedef struct TableRel TableRel;
-
-struct TableRel
+typedef struct
 {
-	int num_section;
-	int nb_elem;
-    Elf32_Rel * tab;
-};
+	int section_name;
+	int elem_count;
+    Elf32_Rel * rel_list;
+} Table_rel_section  ;
+
+typedef struct {
+    int section_count;
+    Table_rel_section *rel_section_list;
+} Ensemble_table_rel;
 
 typedef struct TableRela TableRela;
 struct TableRela
@@ -35,7 +38,7 @@ void init_systarget();
 // fonctions lecture header sections
 Elf32_Shdr *read_elf_section_header(FILE *file, Elf32_Ehdr *header, char** c);
 Elf32_Sym *read_symbol_table(FILE *file, Elf32_Shdr *section_headers, Elf32_Half shnum, uint16_t *symbols_count);
-TableRel * read_rel_table(FILE *file, Elf32_Shdr *section_headers, Elf32_Half shnum);
+Ensemble_table_rel * read_rel_table(FILE *file, Elf32_Shdr *section_headers, Elf32_Half shnum);
 TableRela * read_rela_table(FILE *file, Elf32_Shdr *section_headers, Elf32_Half shnum);
 
 // prend un nom de section en argument et retourne le numeros associé
