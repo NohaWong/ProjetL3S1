@@ -150,6 +150,7 @@ Ensemble_table_rel read_rel_table(FILE *file, Elf32_Shdr *section_headers, Elf32
     for (i=0; i< shnum;i++){ //on parcourt toute les sections
 
         if (section_headers[i].sh_type == SHT_REL) { // found a rel section
+
             int j=0;
 
             // set its name
@@ -163,7 +164,7 @@ Ensemble_table_rel read_rel_table(FILE *file, Elf32_Shdr *section_headers, Elf32
             // move to where we need to read in the file
             fseek(file, section_headers[i].sh_offset, SEEK_SET);
             // start reading
-            for(j=0; j<relocations.rel_section_list[k].elem_count; j++){ // read its elements
+            for(j=0;j<relocations.rel_section_list[l].elem_count;j++){ //Read every elem of the section
                     fread(&relocations.rel_section_list[k].rel_list[j], sizeof(Elf32_Rel),1, file);
                     relocations.rel_section_list[k].rel_list[j].r_info = htobe32(relocations.rel_section_list[k].rel_list[j].r_info);
                     relocations.rel_section_list[k].rel_list[j].r_offset = htobe32(relocations.rel_section_list[k].rel_list[j].r_offset);
