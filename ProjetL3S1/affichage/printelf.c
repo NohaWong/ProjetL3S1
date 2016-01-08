@@ -228,10 +228,10 @@ void print_elf_section_content(uint8_t** secContent, int number, Elf32_Shdr *sec
 
 
 void print_elf_rel_tab(Ensemble_table_rel relocations, Elf32_Sym* symb_table, Elf32_Shdr * section_headers, char *secname, Elf32_Ehdr header){
-    printf(BOLDWHITE "<STATIC RELOCALIZATION'S TABLE>\n\n" RESET);
+    printf(BOLDWHITE "<TABLE DE RELOCATION STATIQUE>\n" RESET);
 
     if (relocations.section_count_rel == 0) {
-        printf("No entries.\n");
+        printf("Aucune entrée.\n");
         return;
     }
 
@@ -239,14 +239,14 @@ void print_elf_rel_tab(Ensemble_table_rel relocations, Elf32_Sym* symb_table, El
     for(i = 0; i < relocations.section_count_rel; i++) {
         int j;
         printf("Table de relocations de la section %s à l'adresse de décalage %#x contient %d relocations\n",
-                &secname[relocations.rel_section_list[i].section_name],
-                section_headers[section_name_to_number(&secname[relocations.rel_section_list[i].section_name], section_headers, secname, &header)].sh_offset,
-                relocations.rel_section_list[i].elem_count
+                    &secname[relocations.rel_section_list[i].section_name],
+                    section_headers[section_name_to_number(&secname[relocations.rel_section_list[i].section_name], section_headers, secname, &header)].sh_offset,
+                    relocations.rel_section_list[i].elem_count
                 );
-        printf("Offset    Informations   Type      Value      Name symbole     \n");
-        printf("----------------------------------------------------------------\n");
+        printf("Décalage    Informations   Type      Valeur      Nom du symbole     \n");
+        printf("--------------------------------------------------------------------\n");
         for (j=0; j<relocations.rel_section_list[i].elem_count; j++) {
-            printf("%#-12x%#-14x%#-10x%#-12x%-13s\n",
+            printf("%#-12x%#-15x%#-10x%#-12x%-19s\n",
                     relocations.rel_section_list[i].rel_list[j].r_offset,
                     relocations.rel_section_list[i].rel_list[j].r_info,
                     ELF32_R_TYPE(relocations.rel_section_list[i].rel_list[j].r_info),
