@@ -66,8 +66,7 @@ int main(int argc, char **argv) {
 
         printf("\n");
     }
-    new_section_content (table_rel,table_nom_sections,section_content,table_rel_info,nb_relocalisation, table_entetes_section, &header);
-
+    new_section_content (table_rel,table_nom_sections,section_content,table_rel_info, table_entetes_section, &header,nb_relocalisation,symbols);
     free(symbols);
     free(table_entetes_section);
     free(table_nom_sections);
