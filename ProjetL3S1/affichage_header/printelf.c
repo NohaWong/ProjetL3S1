@@ -230,8 +230,8 @@ void print_elf_section_content(uint8_t** secContent, int number, Elf32_Shdr *sec
     printf("\n");
 }
 
-
-void print_elf_rel_tab(TableRel *tab, Elf32_Shdr * table_entetes_section, char *secname){
+/*
+void print_elf_rel_tab(Ensemble_table_rel * tab, Elf32_Shdr * table_entetes_section, char *secname){
     printf(BOLDWHITE "<TABLE DE RÉIMPLANTATION STATIQUE>\n" RESET);
 
     if (tab->nb_elem == 0) {
@@ -254,7 +254,7 @@ void print_elf_rel_tab(TableRel *tab, Elf32_Shdr * table_entetes_section, char *
 
     printf("\n");
 }
-
+*/
 
 void print_elf_rela_tab(TableRela *tab){
     printf(BOLDWHITE "<TABLE DE RÉIMPLANTATION DYNAMIQUE>\n" RESET);

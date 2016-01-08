@@ -13,22 +13,24 @@ typedef struct
 {
 	int section_name;
 	int elem_count;
+	u_int32_t type = SHT_REL ;
     Elf32_Rel * rel_list;
 } Table_rel_section  ;
 
-typedef struct {
-    int section_count;
-    Table_rel_section *rel_section_list;
-} Ensemble_table_rel;
-
-typedef struct TableRela TableRela;
-struct TableRela
+typedef struct
 {
-	int num_section;
-	int nb_elem;
-    Elf32_Rela * tab;
-};
+	int section_name;
+	int elem_count;
+    u_int32_t type = SHT_RELA;
+    Elf32_RelA * rel_list;
+} Table_relA_section  ;
 
+typedef struct {
+    int section_count_rel;
+    int section_count_relA;
+    Table_rel_section *rel_section_list;
+    Table_relA_section *relA_section_list;
+} Ensemble_table_rel;
 
 // fonctions lecture header fichier
 void read_elf_header(FILE *file, Elf32_Ehdr *header);
@@ -39,7 +41,6 @@ void init_systarget();
 Elf32_Shdr *read_elf_section_header(FILE *file, Elf32_Ehdr *header, char** c);
 Elf32_Sym *read_symbol_table(FILE *file, Elf32_Shdr *section_headers, Elf32_Half shnum, uint16_t *symbols_count);
 Ensemble_table_rel * read_rel_table(FILE *file, Elf32_Shdr *section_headers, Elf32_Half shnum);
-TableRela * read_rela_table(FILE *file, Elf32_Shdr *section_headers, Elf32_Half shnum);
 
 // prend un nom de section en argument et retourne le numeros associé
 int section_name_to_number (char* nom, Elf32_Shdr * section_headers, char* table_noms, Elf32_Ehdr *header);
