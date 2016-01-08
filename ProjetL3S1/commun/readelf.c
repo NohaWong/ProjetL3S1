@@ -164,14 +164,14 @@ Ensemble_table_rel read_rel_table(FILE *file, Elf32_Shdr *section_headers, Elf32
             // move to where we need to read in the file
             fseek(file, section_headers[i].sh_offset, SEEK_SET);
             // start reading
-            for(j=0;j<relocations.rel_section_list[l].elem_count;j++){ //Read every elem of the section
+            for(j=0;j<relocations.rel_section_list[k].elem_count;j++){ //Read every elem of the section
                     fread(&relocations.rel_section_list[k].rel_list[j], sizeof(Elf32_Rel),1, file);
                     relocations.rel_section_list[k].rel_list[j].r_info = htobe32(relocations.rel_section_list[k].rel_list[j].r_info);
                     relocations.rel_section_list[k].rel_list[j].r_offset = htobe32(relocations.rel_section_list[k].rel_list[j].r_offset);
             }
             k++;
         }else if(section_headers[i].sh_type == SHT_RELA){
-                        int j=0;
+            int j=0;
 
             // set its name
             relocations.rela_section_list[l].section_name = section_headers[i].sh_name;
@@ -209,9 +209,8 @@ int section_name_to_number (char* nom, Elf32_Shdr * section_headers, char* names
 }
 
 
-Elf32_Word relInfo_to_symbole (Elf32_Word info) {
-    Elf32_Word tmp = ELF32_R_SYM(info);
-    return (!(tmp==STN_UNDEF)) * tmp;
+Elf32_Word relInfo_to_symbole (Elf32_Word info, Elf32_Sym * symb_table, Elf32_Shdr* section_headers) {
+    return section_headers[symb_table[(!(ELF32_R_SYM(info)==STN_UNDEF)) * ELF32_R_SYM(info)].st_shndx].sh_name;
 }
 
 uint8_t ** read_section_content(FILE* file, Elf32_Shdr *section_headers, Elf32_Ehdr *header) {

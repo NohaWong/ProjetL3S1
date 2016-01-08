@@ -14,7 +14,7 @@ void print_elf_symbol_table(Elf32_Sym *symbols, uint16_t symbols_count);
 void print_elf_section_header(Elf32_Ehdr header, Elf32_Shdr * table_entetes_section, char *c);
 
 
-void print_elf_rel_tab(Ensemble_table_rel relocations, char *secname);
+void print_elf_rel_tab(Ensemble_table_rel relocations, Elf32_Sym* symb_table, Elf32_Shdr * section_headers, char *secname, Elf32_Ehdr header);
 
 
 void print_elf_section_header(Elf32_Ehdr header, Elf32_Shdr * table_entetes_section, char *secname);
