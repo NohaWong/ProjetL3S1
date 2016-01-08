@@ -3,10 +3,8 @@
 
 #include "../commun/readelf.h"
 /*
-
-	Print the informations about the format of the file ( Magic number, Endian ...)
-
-*/
+ *	Print the informations about the file format (Magic number, Endian...)
+ */
 int print_elf_header(Elf32_Ehdr elf);
 
 void print_elf_symbol_table(Elf32_Sym *symbols, uint16_t symbols_count);
