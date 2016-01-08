@@ -115,7 +115,7 @@ Elf32_Sym *read_symbol_table(FILE *file, Elf32_Shdr *section_headers, uint16_t *
     fseek(file, section_headers[symtable_index].sh_offset, SEEK_SET);
     fread(symbols, sizeof(Elf32_Sym), *symbols_count, file);
 
-    // swap endiannes  
+    // swap endiannes
     for (i = 0; i < *symbols_count; ++i) {
         symbols[i].st_name = htobe32(symbols[i].st_name);
         symbols[i].st_value = htobe32(symbols[i].st_value);
@@ -136,9 +136,8 @@ Ensemble_table_rel read_rel_table(FILE *file, Elf32_Shdr *section_headers, Elf32
 
     for (i=0; i< shnum;i++){
         if (section_headers[i].sh_type == SHT_REL ) {
-            //compteur += section_headers[i].sh_size/sizeof(Elf32_Rel);
             relocations.section_count_rel++;
-        }else if (section_headers[i].sh_type == SHT_RELA){
+        } else if (section_headers[i].sh_type == SHT_RELA){
             relocations.section_count_rela++;
         }
     }
@@ -148,27 +147,47 @@ Ensemble_table_rel read_rel_table(FILE *file, Elf32_Shdr *section_headers, Elf32
 
     int k=0;//nb de section Rel deja traité.
     int l=0;//nb de section Rela deja traité
-    for (i=0; i< shnum;i++){ //on parcour toute les sections
+    for (i=0; i< shnum;i++){ //on parcourt toute les sections
 
-        if (section_headers[i].sh_type == SHT_REL) { // la section regardé est une relocation
+        if (section_headers[i].sh_type == SHT_REL) { // found a rel section
             int j=0;
-            fseek(file, section_headers[i].sh_offset, SEEK_SET);
-            int section_relocation_count_rel = section_headers[i].sh_size/sizeof(Elf32_Rel);
-            relocations.rel_section_list[k].rel_list = malloc(sizeof(Elf32_Rel)*section_relocation_count_rel);
+
+            // set its name
             relocations.rel_section_list[k].section_name = section_headers[i].sh_name;
-            for(j=0;j<section_relocation_count_rel;j++){ //on lit tout les elements de la section i
+
+            // set the number of relocation inside it
+            relocations.rel_section_list[k].elem_count = section_headers[i].sh_size/sizeof(Elf32_Rel);
+
+            relocations.rel_section_list[k].rel_list = malloc(sizeof(Elf32_Rel)*relocations.rel_section_list[k].elem_count);
+
+            // move to where we need to read in the file
+            fseek(file, section_headers[i].sh_offset, SEEK_SET);
+            // start reading
+            for(j=0; j<relocations.rel_section_list[k].elem_count; j++){ // read its elements
                     fread(&relocations.rel_section_list[k].rel_list[j], sizeof(Elf32_Rel),1, file);
+                    relocations.rel_section_list[k].rel_list[j].r_info = htobe32(relocations.rel_section_list[k].rel_list[j].r_info);
+                    relocations.rel_section_list[k].rel_list[j].r_offset = htobe32(relocations.rel_section_list[k].rel_list[j].r_offset);
             }
             k++;
         }else if(section_headers[i].sh_type == SHT_RELA){
-            int j=0;
-            fseek(file, section_headers[i].sh_offset, SEEK_SET);
-            int section_relocation_count_rela = section_headers[i].sh_size/sizeof(Elf32_Rela);
-            relocations.rela_section_list[l].rel_list = malloc(sizeof(Elf32_Rela)*section_relocation_count_rela);
+                        int j=0;
+
+            // set its name
             relocations.rela_section_list[l].section_name = section_headers[i].sh_name;
 
-            for(j=0;j<section_relocation_count_rela;j++){ //on lit tout les elements de la section i
+            // set the number of relocation inside it
+            relocations.rela_section_list[l].elem_count = section_headers[i].sh_size/sizeof(Elf32_Rela);
+
+            relocations.rela_section_list[l].rel_list = malloc(sizeof(Elf32_Rela) * relocations.rela_section_list[l].elem_count);
+
+            // move to where we need to read in the file
+            fseek(file, section_headers[i].sh_offset, SEEK_SET);
+            // start reading
+            for(j=0; j<relocations.rela_section_list[l].elem_count; j++){ // read its elements
                     fread(&relocations.rela_section_list[l].rel_list[j], sizeof(Elf32_Rela),1, file);
+                    relocations.rela_section_list[l].rel_list[j].r_info = htobe32(relocations.rela_section_list[l].rel_list[j].r_info);
+                    relocations.rela_section_list[l].rel_list[j].r_offset = htobe32(relocations.rela_section_list[l].rel_list[j].r_offset);
+                    relocations.rela_section_list[l].rel_list[j].r_addend = htobe32(relocations.rela_section_list[l].rel_list[j].r_addend);
             }
             l++;
         }
@@ -204,10 +223,10 @@ uint8_t ** read_section_content(FILE* file, Elf32_Shdr *section_headers, Elf32_E
 
     for (i=0;i<sectionNumber;i++) {
 
-        // Is empty ? 
+        // Is empty ?
         if (section_headers[i].sh_size==0 ||
             section_headers[i].sh_type==SHT_NOBITS ||
-            section_headers[i].sh_type==SHT_NULL) { 
+            section_headers[i].sh_type==SHT_NULL) {
             res[i] = NULL;
         }
         else { // Not empty
@@ -215,7 +234,7 @@ uint8_t ** read_section_content(FILE* file, Elf32_Shdr *section_headers, Elf32_E
             if (res[i] == NULL) {
                 return NULL;
             }
-            // Change position of write pointer. 
+            // Change position of write pointer.
             fseek(file, section_headers[i].sh_offset, section_headers[i].sh_addr);
             fread(res[i], sizeof(char), section_headers[i].sh_size, file);
         }

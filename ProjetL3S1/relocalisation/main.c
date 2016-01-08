@@ -33,9 +33,9 @@ int main(int argc, char **argv) {
     }
 
     table_entetes_section = read_elf_section_header(file, &header, &table_nom_sections);
-    Elf32_Sym *symbols = read_symbol_table(file, table_entetes_section, header.e_shnum, &symbols_count);
+    Elf32_Sym *symbols = read_symbol_table(file, table_entetes_section,/* header.e_shnum,*/ &symbols_count);
     section_content = read_section_content(file, table_entetes_section, &header);
-    TableRel * table_rel= read_rel_table(file, table_entetes_section, header.e_shnum);
+    Ensemble_table_rel table_rel= read_rel_table(file, table_entetes_section, header.e_shnum);
 //    TableRela * table_rela= read_rela_table(file, table_entetes_section, header.e_shnum);
 
     uint32_t nb_relocalisation = (argc-1)/2, i;

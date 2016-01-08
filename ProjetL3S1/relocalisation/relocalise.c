@@ -15,21 +15,26 @@ int i;
     }
 }
 
-/*
-void new_section_content (TableRel* table_rel, char* nom_sections, uint8_t** section_content, rel_info* infos, int nb_relocalisations, Elf32_Shdr * section_headers) {
 
-    uint32_t tempo;
-    int j,i;
-     uint8_t *nomsection;
+
+void new_section_content (Ensemble_table_rel table_rel, char* nom_sections, uint8_t** section_content, rel_info* infos, int nb_relocalisations, Elf32_Shdr * section_headers,Elf32_Ehdr *header) {
+
+    uint32_t* tempo= NULL;
+    int j,i, section_to_change;
+    char *b;
     for (j=0; j<nb_relocalisations; j++) {
-        for (i=0;i<table_rel.nb_elem;i++) {
-            if (!strcmp(infos[j].section_name,&nom_sections[relInfo_to_symbole(table_rel.tab[i].r_info)])){
-                section = section_content[nom_sections[relInfo_to_symbole(table_rel.tab[i].r_info)]]+table_rel.tab[i].r_offset;
+        for (i=0;i<table_rel->nb_elem;i++) {
+            b = &nom_sections[section_headers[ELF32_M_SYM(table_rel->tab[i].r_info)].sh_name];
+            if (!strcmp(infos[j].section_name,b)){
+                // get the right section to modify
+                section_to_change = table_rel ;
+                nomsection = &section_content[section_name_to_number(&nom_sections[relInfo_to_symbole(table_rel->tab[i].r_info)],section_headers,nom_sections,header)][table_rel->tab[i].r_offset];
+                memcpy(tempo,nomsection,32);
+//                printf("test%d", *tempo);
 
-                fread(tempo, sizeof(uint32_t),1, file);
             }
         }
     }
 }
 
-*/
+
