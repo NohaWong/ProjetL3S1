@@ -251,7 +251,7 @@ void print_elf_rel_tab(Ensemble_table_rel relocations, Elf32_Sym* symb_table, El
                     relocations.rel_section_list[i].rel_list[j].r_info,
                     ELF32_R_TYPE(relocations.rel_section_list[i].rel_list[j].r_info),
                     relocations.rel_section_list[i].rel_list[j].r_info,
-                    &secname[relInfo_to_symbole(relocations.rel_section_list[i].rel_list[j].r_info, symb_table, section_headers)]
+                    &secname[rel_info_to_symbol(relocations.rel_section_list[i].rel_list[j].r_info, symb_table, section_headers)]
                 );
         }
         printf("\n");

@@ -2,6 +2,11 @@
 #define PRINTELF_H
 
 #include "../commun/readelf.h"
+
+
+enum { ERROR_MAGIC_NUMBERS = 1, ERROR_MISSING_ARG, ERROR_WRONG_WORD_SIZE, ERROR_WRONG_ENDIAN,
+       ERROR_INVALID_VERSION, ERROR_NO_FILE_SPECIFIED };
+
 /*
  *	Print the informations about the file format (Magic number, Endian...)
  */
