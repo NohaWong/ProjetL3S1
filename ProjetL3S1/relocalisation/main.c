@@ -1,4 +1,4 @@
-#include "readelf.h"
+#include "../commun/readelf.h"
 #include "relocalise.h"
 
 int main(int argc, char **argv) {
@@ -18,7 +18,7 @@ int main(int argc, char **argv) {
     Elf32_Shdr *table_entetes_section = NULL;
     char *table_nom_sections = NULL;
     uint16_t symbols_count = 0;
-//    uint8_t **section_content;
+    uint8_t **section_content;
 
     // load everything before printing
     read_elf_header(file, &header);
@@ -34,8 +34,8 @@ int main(int argc, char **argv) {
 
     table_entetes_section = read_elf_section_header(file, &header, &table_nom_sections);
     Elf32_Sym *symbols = read_symbol_table(file, table_entetes_section, header.e_shnum, &symbols_count);
-    //section_content = read_section_content(file, table_entetes_section, &header);
-    //TableRel * table_rel= read_rel_table(file, table_entetes_section, header.e_shnum);
+    section_content = read_section_content(file, table_entetes_section, &header);
+    TableRel * table_rel= read_rel_table(file, table_entetes_section, header.e_shnum);
 //    TableRela * table_rela= read_rela_table(file, table_entetes_section, header.e_shnum);
 
     uint32_t nb_relocalisation = (argc-1)/2, i;
@@ -66,6 +66,7 @@ int main(int argc, char **argv) {
 
         printf("\n");
     }
+    new_section_content (table_rel,table_nom_sections,section_content,table_rel_info,nb_relocalisation, table_entetes_section, &header);
 
     free(symbols);
     free(table_entetes_section);

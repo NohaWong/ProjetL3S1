@@ -1,6 +1,6 @@
 CC=gcc
-CFLAGS=-Wall -Werror -g
-SOURCES=$(wildcard *.c)
+CFLAGS=-Wall -Werror -g -I../commun
+SOURCES=$(wildcard *.c wildcard ../commun/*.c)
 DEPS=$(patsubst %.c, %.dep, $(SOURCES))
 OBJ=$(patsubst %.c, %.o, $(SOURCES))
 NOM=our_readelf
