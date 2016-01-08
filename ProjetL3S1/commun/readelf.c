@@ -209,7 +209,7 @@ int section_name_to_number (char* nom, Elf32_Shdr * section_headers, char* names
 }
 
 
-Elf32_Word relInfo_to_symbole (Elf32_Word info, Elf32_Sym * symb_table, Elf32_Shdr* section_headers) {
+Elf32_Word rel_info_to_symbol (Elf32_Word info, Elf32_Sym * symb_table, Elf32_Shdr* section_headers) {
     return section_headers[symb_table[(!(ELF32_R_SYM(info)==STN_UNDEF)) * ELF32_R_SYM(info)].st_shndx].sh_name;
 }
 

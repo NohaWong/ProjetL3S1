@@ -6,11 +6,6 @@
 #include <string.h>
 #include <elf.h>
 
-enum { ERROR_MAGIC_NUMBERS = 1, ERROR_MISSING_ARG, ERROR_WRONG_WORD_SIZE, ERROR_WRONG_ENDIAN,
-       ERROR_INVALID_VERSION, ERROR_NO_FILE_SPECIFIED };
-
-
-
 // fonctions lecture header fichier
 void read_elf_header(FILE *file, Elf32_Ehdr *header);
 void init_systable();
@@ -59,6 +54,9 @@ Ensemble_table_rel read_rel_table(FILE *file, Elf32_Shdr *section_headers, Elf32
 
 // find the section number, being given its name
 int section_name_to_number (char* nom, Elf32_Shdr * section_headers, char* table_noms, Elf32_Ehdr *header);
+
+
+Elf32_Word rel_info_to_symbol (Elf32_Word info, Elf32_Sym *symb_table, Elf32_Shdr *section_headers);
 
 
 /* renvoie un tableau de contenant l'ensemble des contenus de chaque section */
