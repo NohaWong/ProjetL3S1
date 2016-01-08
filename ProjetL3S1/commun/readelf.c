@@ -114,8 +114,8 @@ Elf32_Sym *read_symbol_table(FILE *file, Elf32_Shdr *section_headers, uint16_t *
     Elf32_Sym *symbols = malloc(sizeof(Elf32_Sym) * *symbols_count);
     fseek(file, section_headers[symtable_index].sh_offset, SEEK_SET);
     fread(symbols, sizeof(Elf32_Sym), *symbols_count, file);
-    
-    // swap endiannes
+
+    // swap endiannes  
     for (i = 0; i < *symbols_count; ++i) {
         symbols[i].st_name = htobe32(symbols[i].st_name);
         symbols[i].st_value = htobe32(symbols[i].st_value);
