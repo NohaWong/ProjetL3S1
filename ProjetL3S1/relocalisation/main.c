@@ -1,4 +1,5 @@
 #include "../commun/readelf.h"
+#include "../affichage/printelf.h"
 #include "relocalise.h"
 
 int main(int argc, char **argv) {

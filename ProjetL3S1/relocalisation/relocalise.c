@@ -32,7 +32,7 @@ void new_section_content (Ensemble_table_rel table_rel, char* nom_sections, uint
                 for (i=0;i<table_rel.rel_section_list[j].elem_count;i++) {
                     // Name's row is equal to argument  
                     
-                    if(!strcmp(&nom_sections[relInfo_to_symbole(table_rel.rel_section_list[j].rel_list[i].r_info,symbols,section_headers)],infos[k].section_name)) {
+                    if(!strcmp(&nom_sections[rel_info_to_symbol(table_rel.rel_section_list[j].rel_list[i].r_info,symbols,section_headers)],infos[k].section_name)) {
                         section_to_change = section_name_to_number (&nom_sections[table_rel.rel_section_list[j].section_name],section_headers,nom_sections,header);
                         //memcpy(tempo,table_rel.,4);
                         printf("section to change : %i  \n",section_to_change );
