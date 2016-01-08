@@ -115,6 +115,4 @@ int section_name_to_number (char* name, Elf32_Shdr * section_headers, char* name
  */
 Elf32_Word rel_info_to_symbol (Elf32_Word info, Elf32_Sym *symb_table, Elf32_Shdr *section_headers);
 
-
-/* renvoie un tableau de contenant l'ensemble des contenus de chaque section */
-#endif
+#endif // READ_ELF_H
