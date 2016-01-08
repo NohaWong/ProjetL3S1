@@ -198,10 +198,10 @@ TableRela *read_rela_table(FILE *file, Elf32_Shdr *section_headers, Elf32_Half s
     return table;
 }*/
 
-int section_name_to_number (char* nom, Elf32_Shdr * section_headers, char* table_noms, Elf32_Ehdr *header) {
+int section_name_to_number (char* nom, Elf32_Shdr * section_headers, char* names_table, Elf32_Ehdr *header) {
     int i;
     for (i=0; i < header->e_shnum ; i++) {
-        if (!(strcmp(nom, &table_noms[section_headers[i].sh_name]))) {
+        if (!(strcmp(nom, &names_table[section_headers[i].sh_name]))) {
             return i;
         }
     }
@@ -211,37 +211,37 @@ int section_name_to_number (char* nom, Elf32_Shdr * section_headers, char* table
 
 
 Elf32_Word relInfo_to_symbole (Elf32_Word info) {
-    Elf32_Word tempo = ELF32_R_SYM(info);
-    return (!(tempo==STN_UNDEF)) * tempo;
+    Elf32_Word tmp = ELF32_R_SYM(info);
+    return (!(tmp==STN_UNDEF)) * tmp;
 }
 
 uint8_t ** read_section_content(FILE* file, Elf32_Shdr *section_headers, Elf32_Ehdr *header) {
 
-    Elf32_Half nbSections = header->e_shnum;
+    Elf32_Half sectionNumber = header->e_shnum;
     uint8_t i;
-    uint8_t **resultat = malloc(sizeof(uint8_t*) * nbSections);
+    uint8_t **res = malloc(sizeof(uint8_t*) * sectionNumber);
 
     uint32_t pos_curs = ftell(file);
 
-    for (i=0;i<nbSections;i++) {
+    for (i=0;i<sectionNumber;i++) {
 
         // Is empty ? 
         if (section_headers[i].sh_size==0 ||
             section_headers[i].sh_type==SHT_NOBITS ||
             section_headers[i].sh_type==SHT_NULL) { 
-            resultat[i] = NULL;
+            res[i] = NULL;
         }
         else { // Not empty
-            resultat[i] = malloc(sizeof(char) * section_headers[i].sh_size);
-            if (resultat[i] == NULL) {
+            res[i] = malloc(sizeof(char) * section_headers[i].sh_size);
+            if (res[i] == NULL) {
                 return NULL;
             }
             // Change position of write pointer. 
             fseek(file, section_headers[i].sh_offset, section_headers[i].sh_addr);
-            fread(resultat[i], sizeof(char), section_headers[i].sh_size, file);
+            fread(res[i], sizeof(char), section_headers[i].sh_size, file);
         }
     }
     fseek(file, 0, pos_curs);
 
-    return resultat;
+    return res;
 }
