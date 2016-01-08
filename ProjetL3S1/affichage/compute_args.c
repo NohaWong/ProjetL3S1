@@ -83,7 +83,7 @@ int compute_multiple_args (int argc, char **argv) {
                     }
                     case 'r':
                     {
-                        print_elf_rel_tab(table_rel, table_nom_sections);
+                        print_elf_rel_tab(table_rel, symbols, table_entetes_section, table_nom_sections, header);
                         // print rel table
                         break;
                     }
