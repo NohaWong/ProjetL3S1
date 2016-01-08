@@ -27,6 +27,7 @@ void print_help();
 
 /**
  * This function chek if the given string in a number ( @a isdigit extended to a string)
+ * From http://rosettacode.org/wiki/Determine_if_a_string_is_numeric#C
  *
  * @param s     const char*, string containing (or not) the number
  * @return 0 if the string is not a number, otherwise return non-zero value
@@ -34,4 +35,4 @@ void print_help();
  */
 int is_numeric (const char * s);
 
-#endif
+#endif // COMPUTE_ARGS_H
