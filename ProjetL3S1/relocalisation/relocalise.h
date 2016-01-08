@@ -16,6 +16,5 @@ typedef struct {
 
 void new_section_header(Elf32_Shdr* section_headers, char* nom_sections, rel_info * infos, int nb_relocalisations, Elf32_Ehdr header);
 
-void new_section_content (TableRel* table_rel, char* nom_sections, uint8_t** section_content, rel_info* infos, int nb_relocalisations, Elf32_Shdr * section_headers,Elf32_Ehdr *header);
-
+void new_section_content (Ensemble_table_rel table_rel, char* nom_sections, uint8_t** section_content, rel_info* infos, Elf32_Shdr * section_headers,Elf32_Ehdr *header,int nb_relocalisation,Elf32_Sym *symbols);
 #endif // RELOCALISE_H_INCLUDED

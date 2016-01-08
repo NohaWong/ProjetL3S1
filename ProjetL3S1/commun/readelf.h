@@ -11,6 +11,8 @@ void read_elf_header(FILE *file, Elf32_Ehdr *header);
 void init_systable();
 void init_systarget();
 
+Elf32_Word relInfo_to_symbole (Elf32_Word info, Elf32_Sym * symb_table, Elf32_Shdr* section_headers);
+
 // read table content
 uint8_t** read_section_content(FILE* file, Elf32_Shdr *section_headers, Elf32_Ehdr *header);
 
@@ -53,7 +55,9 @@ Ensemble_table_rel read_rel_table(FILE *file, Elf32_Shdr *section_headers, Elf32
 // find the section number, being given its name
 int section_name_to_number (char* nom, Elf32_Shdr * section_headers, char* table_noms, Elf32_Ehdr *header);
 
+
 Elf32_Word rel_info_to_symbol (Elf32_Word info, Elf32_Sym *symb_table, Elf32_Shdr *section_headers);
+
 
 /* renvoie un tableau de contenant l'ensemble des contenus de chaque section */
 #endif
