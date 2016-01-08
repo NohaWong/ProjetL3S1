@@ -70,6 +70,7 @@ int main(int argc, char **argv) {
     free(symbols);
     free(table_entetes_section);
     free(table_nom_sections);
+    fclose(file);
 //    free(table_rela);
 //    free(table_rel);
 //    free(table_rel_info);
