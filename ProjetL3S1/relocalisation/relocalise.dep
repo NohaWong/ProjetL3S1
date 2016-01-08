@@ -1,1 +1,1 @@
-relocalise.o: relocalise.c relocalise.h readelf.h
+relocalise.o: relocalise.c relocalise.h ../commun/readelf.h
