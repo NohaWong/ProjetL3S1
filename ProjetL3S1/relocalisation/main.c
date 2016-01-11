@@ -3,6 +3,8 @@
 #include "relocalise.h"
 #include "write_file.h"
 
+
+
 int main(int argc, char **argv) {
 
 // APPEL : relocalisation <nom_fichier> <nom_section adresse_relocalisee> [nom_section_x adresse_relocalisee_x]
@@ -31,7 +33,11 @@ int main(int argc, char **argv) {
     }
 
     Elf32_Ehdr header;
+
     Elf32_Shdr *section_header_table = NULL;
+
+    Elf32_Ehdr* new_header= malloc(sizeof(Elf32_Ehdr));
+
     char *table_nom_sections = NULL;
     uint16_t symbols_count = 0;
    // uint8_t **section_content;
@@ -68,7 +74,8 @@ int main(int argc, char **argv) {
     }
 
 
-    new_section_header(table_entetes_section, table_nom_sections, table_rel_info, nb_relocalisation, header);
+    Elf32_Shdr * new_sections_header = new_section_header(table_entetes_section, table_nom_sections, table_rel_info, nb_relocalisation, header,new_header);
+
     for (i=0; i < header.e_shnum; i++) {
         printf("%-6d%-20s%#-12x%#-8x%#-8x(+ %#-8x) %#-8x%#-8x%#-11x%#-8x", i,
                            &(table_nom_sections[table_entetes_section[i].sh_name]),
@@ -85,6 +92,22 @@ int main(int argc, char **argv) {
         printf("\n");
     }
 
+    for (i=0; i < header.e_shnum; i++) {
+        printf("%-6d%-20s%#-12x%#-8x%#-8x(+ %#-8x) %#-8x%#-8x%#-11x%#-8x", i,
+                           &(table_nom_sections[new_sections_header[i].sh_name]),
+                           new_sections_header[i].sh_type,
+                           new_sections_header[i].sh_flags,
+                           new_sections_header[i].sh_addr,
+                           new_sections_header[i].sh_offset,
+                           new_sections_header[i].sh_size,
+                           new_sections_header[i].sh_link,
+                           new_sections_header[i].sh_addralign,
+                           new_sections_header[i].sh_entsize
+              );
+
+        printf("\n");
+    }
+
     new_section_content (table_rel,table_nom_sections,section_content,table_rel_info, table_entetes_section, &header,nb_relocalisation,symbols);
 
     */
@@ -92,8 +115,14 @@ int main(int argc, char **argv) {
     free(symbols);
     free(section_header_table);
     free(table_nom_sections);
+
     fclose(file_source);
     fclose(file_target);//    free(table_rela);
+
+    free(new_sections_header);
+    free(new_header);
+    fclose(file);
+//    free(table_rela);
 //    free(table_rel);
 //    free(table_rel_info);
 //    free(section_content);
@@ -102,3 +131,5 @@ int main(int argc, char **argv) {
 }
 
 }
+
+
