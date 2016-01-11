@@ -17,6 +17,7 @@ int i,k;
 
 
     for (j=0; j<nb_relocalisations; j++) {
+        k=0;
         for (i=0; i<header.e_shnum;i++) {
             if (section_headers[i].sh_type!=SHT_REL){
                 new_sections_header[k]=section_headers[i];
@@ -27,8 +28,8 @@ int i,k;
                 }
                 k++;
             }
-            
-           
+
+
         }
     }
 
@@ -46,14 +47,14 @@ void new_section_content (Ensemble_table_rel table_rel, char* nom_sections, uint
     //char *b;
     // Each different relocalization's table
     for (j=0; j<table_rel.section_count_rel; j++) {
-        // For each argument name 
+        // For each argument name
         for(k=0;k<nb_relocalisation;k++){
-            // If the relocalization table's name is equal to the argument 
+            // If the relocalization table's name is equal to the argument
             if(!strcmp(&nom_sections[table_rel.rel_section_list[j].section_name+4],infos[k].section_name)){
-                //For each row in relocalization's table 
+                //For each row in relocalization's table
                 for (i=0;i<table_rel.rel_section_list[j].elem_count;i++) {
-                    // Name's row is equal to argument  
-                    
+                    // Name's row is equal to argument
+
                     if(!strcmp(&nom_sections[rel_info_to_symbol(table_rel.rel_section_list[j].rel_list[i].r_info,symbols,section_headers)],infos[k].section_name)) {
                         section_to_change = section_name_to_number (&nom_sections[table_rel.rel_section_list[j].section_name],section_headers,nom_sections,header);
                         //memcpy(tempo,table_rel.,4);
@@ -61,12 +62,12 @@ void new_section_content (Ensemble_table_rel table_rel, char* nom_sections, uint
 
                     }
                 }
-                
+
             }
         }
-        
 
-        
+
+
     }
 
 
