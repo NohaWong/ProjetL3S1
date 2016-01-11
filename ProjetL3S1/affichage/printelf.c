@@ -61,11 +61,11 @@ int print_elf_header(Elf32_Ehdr elf_header) {
     } else if (elf_header.e_type == ET_EXEC) {
         printf("Executable (EXEC)\n");
     } else if (elf_header.e_type == ET_DYN) {
-        printf("Dynamic (partagé)");
+        printf("Dynamic (partagé)\n");
     } else if (elf_header.e_type == ET_CORE) {
-        printf("Core file (CORE)");
+        printf("Core file (CORE)\n");
     } else {
-        printf("Unknown type");
+        printf("Unknown type\n");
     }
 
     printf("  Machine cible : %s\n", sys_target[elf_header.e_machine]);
