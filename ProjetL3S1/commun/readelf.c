@@ -19,18 +19,18 @@ void read_elf_header(FILE *file, Elf32_Ehdr *header) {
 
     if (header->e_ident[EI_DATA] == ELFDATA2MSB) {
         // swap endianness, file is encoded in little endian
-        header->e_machine = htobe16(header->e_machine);
-        header->e_version = htobe32(header->e_version);
-        header->e_entry = htobe32(header->e_entry);
-        header->e_phoff = htobe32(header->e_phoff);
-        header->e_shoff = htobe32(header->e_shoff);
-        header->e_flags  = htobe32(header->e_flags);
-        header->e_ehsize = htobe16(header->e_ehsize);
-        header->e_phentsize = htobe16(header->e_phentsize);
-        header->e_phnum = htobe16(header->e_phnum);
-        header->e_shentsize = htobe16(header->e_shentsize);
-        header->e_shnum = htobe16(header->e_shnum);
-        header->e_shstrndx = htobe16(header->e_shstrndx);
+        header->e_machine = be16toh(header->e_machine);
+        header->e_version = be32toh(header->e_version);
+        header->e_entry = be32toh(header->e_entry);
+        header->e_phoff = be32toh(header->e_phoff);
+        header->e_shoff = be32toh(header->e_shoff);
+        header->e_flags  = be32toh(header->e_flags);
+        header->e_ehsize = be16toh(header->e_ehsize);
+        header->e_phentsize = be16toh(header->e_phentsize);
+        header->e_phnum = be16toh(header->e_phnum);
+        header->e_shentsize = be16toh(header->e_shentsize);
+        header->e_shnum = be16toh(header->e_shnum);
+        header->e_shstrndx = be16toh(header->e_shstrndx);
     }
 }
 
@@ -92,16 +92,16 @@ Elf32_Shdr *read_elf_section_header(FILE *file, Elf32_Ehdr *header, char **c) {
     if (header->e_ident[EI_DATA] == ELFDATA2MSB) {
         for (i = 0; i < header->e_shnum; i++) {
             // swap endiannes
-            table_entetes_section[i].sh_name = htobe32(table_entetes_section[i].sh_name);
-            table_entetes_section[i].sh_type = htobe32(table_entetes_section[i].sh_type);
-            table_entetes_section[i].sh_flags = htobe32(table_entetes_section[i].sh_flags);
-            table_entetes_section[i].sh_addr = htobe32(table_entetes_section[i].sh_addr);
-            table_entetes_section[i].sh_offset = htobe32(table_entetes_section[i].sh_offset);
-            table_entetes_section[i].sh_size = htobe32(table_entetes_section[i].sh_size);
-            table_entetes_section[i].sh_link = htobe32(table_entetes_section[i].sh_link);
-            table_entetes_section[i].sh_info = htobe32(table_entetes_section[i].sh_info);
-            table_entetes_section[i].sh_addralign = htobe32(table_entetes_section[i].sh_addralign);
-            table_entetes_section[i].sh_entsize = htobe32(table_entetes_section[i].sh_entsize);
+            table_entetes_section[i].sh_name = be32toh(table_entetes_section[i].sh_name);
+            table_entetes_section[i].sh_type = be32toh(table_entetes_section[i].sh_type);
+            table_entetes_section[i].sh_flags = be32toh(table_entetes_section[i].sh_flags);
+            table_entetes_section[i].sh_addr = be32toh(table_entetes_section[i].sh_addr);
+            table_entetes_section[i].sh_offset = be32toh(table_entetes_section[i].sh_offset);
+            table_entetes_section[i].sh_size = be32toh(table_entetes_section[i].sh_size);
+            table_entetes_section[i].sh_link = be32toh(table_entetes_section[i].sh_link);
+            table_entetes_section[i].sh_info = be32toh(table_entetes_section[i].sh_info);
+            table_entetes_section[i].sh_addralign = be32toh(table_entetes_section[i].sh_addralign);
+            table_entetes_section[i].sh_entsize = be32toh(table_entetes_section[i].sh_entsize);
         }
     }
     // Get name's table
@@ -142,10 +142,10 @@ Elf32_Sym *read_symbol_table(FILE *file, Elf32_Shdr *section_headers, uint16_t *
 
     // swap endiannes
     for (i = 0; i < *symbols_count; ++i) {
-        symbols[i].st_name = htobe32(symbols[i].st_name);
-        symbols[i].st_value = htobe32(symbols[i].st_value);
-        symbols[i].st_shndx = htobe16(symbols[i].st_shndx);
-        symbols[i].st_size = htobe32(symbols[i].st_size);
+        symbols[i].st_name = be32toh(symbols[i].st_name);
+        symbols[i].st_value = be32toh(symbols[i].st_value);
+        symbols[i].st_shndx = be16toh(symbols[i].st_shndx);
+        symbols[i].st_size = be32toh(symbols[i].st_size);
     }
 
     return symbols;
@@ -199,8 +199,8 @@ Ensemble_table_rel read_rel_table(FILE *file, Elf32_Shdr *section_headers, Elf32
             // start reading
             for(j=0;j<relocations.rel_section_list[k].elem_count;j++){ //Read every elem of the section
                     fread(&relocations.rel_section_list[k].rel_list[j], sizeof(Elf32_Rel),1, file);
-                    relocations.rel_section_list[k].rel_list[j].r_info = htobe32(relocations.rel_section_list[k].rel_list[j].r_info);
-                    relocations.rel_section_list[k].rel_list[j].r_offset = htobe32(relocations.rel_section_list[k].rel_list[j].r_offset);
+                    relocations.rel_section_list[k].rel_list[j].r_info = be32toh(relocations.rel_section_list[k].rel_list[j].r_info);
+                    relocations.rel_section_list[k].rel_list[j].r_offset = be32toh(relocations.rel_section_list[k].rel_list[j].r_offset);
             }
             k++;
         }else if(section_headers[i].sh_type == SHT_RELA){
@@ -219,9 +219,9 @@ Ensemble_table_rel read_rel_table(FILE *file, Elf32_Shdr *section_headers, Elf32
             // start reading
             for(j=0; j<relocations.rela_section_list[l].elem_count; j++){ // read its elements
                     fread(&relocations.rela_section_list[l].rel_list[j], sizeof(Elf32_Rela),1, file);
-                    relocations.rela_section_list[l].rel_list[j].r_info = htobe32(relocations.rela_section_list[l].rel_list[j].r_info);
-                    relocations.rela_section_list[l].rel_list[j].r_offset = htobe32(relocations.rela_section_list[l].rel_list[j].r_offset);
-                    relocations.rela_section_list[l].rel_list[j].r_addend = htobe32(relocations.rela_section_list[l].rel_list[j].r_addend);
+                    relocations.rela_section_list[l].rel_list[j].r_info = be32toh(relocations.rela_section_list[l].rel_list[j].r_info);
+                    relocations.rela_section_list[l].rel_list[j].r_offset = be32toh(relocations.rela_section_list[l].rel_list[j].r_offset);
+                    relocations.rela_section_list[l].rel_list[j].r_addend = be32toh(relocations.rela_section_list[l].rel_list[j].r_addend);
             }
             l++;
         }

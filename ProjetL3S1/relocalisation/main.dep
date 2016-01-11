@@ -1,2 +1,2 @@
 main.o: main.c ../commun/readelf.h ../affichage/printelf.h \
- ../affichage/../commun/readelf.h relocalise.h
+ ../affichage/../commun/readelf.h relocalise.h write_file.h
