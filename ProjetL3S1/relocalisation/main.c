@@ -3,7 +3,8 @@
 #include "relocalise.h"
 
 int main(int argc, char **argv) {
-
+    char type[16],info[16];
+    uint32_t i;
 // APPEL : relocalisation <nom_fichier> <nom_section adresse_relocalisee> [nom_section_x adresse_relocalisee_x]
 
     init_systable();
@@ -20,6 +21,7 @@ int main(int argc, char **argv) {
     char *table_nom_sections = NULL;
     uint16_t symbols_count = 0;
     uint8_t **section_content;
+    Elf32_Sym *new_symb_table;
 
     // load everything before printing
     read_elf_header(file, &header);
@@ -38,8 +40,53 @@ int main(int argc, char **argv) {
     section_content = read_section_content(file, table_entetes_section, &header);
     Ensemble_table_rel table_rel= read_rel_table(file, table_entetes_section, header.e_shnum);
 //    TableRela * table_rela= read_rela_table(file, table_entetes_section, header.e_shnum);
+    printf("#      Nom         Valeur      Type      Portée    Indice de section\n");
+        printf("--------------------------------------------------------------------\n");
+        for (i = 0; i < symbols_count; ++i) {
+            switch (ELF32_ST_TYPE(symbols[i].st_info)) {
+                case STT_NOTYPE:
+                default:
+                    strcpy(type, "NOTYPE");
+                    break;
+                case STT_OBJECT:
+                    strcpy(type, "OBJECT");
+                    break;
+                case STT_FUNC:
+                    strcpy(type, "FUNC");
+                    break;
+                case STT_SECTION:
+                    strcpy(type, "SECTION");
+                    break;
+                case STT_FILE:
+                    strcpy(type, "FILE");
+                    break;
+            }
 
-    uint32_t nb_relocalisation = (argc-1)/2, i;
+            //bind
+            switch(ELF32_ST_BIND(symbols[i].st_info)) {
+                case STB_LOCAL:
+                    strcpy(info, "LOCAL");
+                    break;
+                case STB_GLOBAL:
+                    strcpy(info, "GLOBAL");
+                    break;
+                case STB_WEAK:
+                    strcpy(info, "WEAK");
+                    break;
+                case STB_NUM:
+                    strcpy(info, "NUM");
+                    break;
+                default:
+                    strcpy(info, "OTHER");
+                    break;
+            }
+
+            printf("%-7d%#-12x%#-12x%-10s%-10s%-2d", i, symbols[i].st_name, symbols[i].st_value, type, info, symbols[i].st_shndx);
+            printf("\n");
+        }
+        printf("\n");
+
+    uint32_t nb_relocalisation = (argc-1)/2;
 
     rel_info* table_rel_info;
     table_rel_info = malloc(nb_relocalisation * sizeof(rel_info));
@@ -68,6 +115,56 @@ int main(int argc, char **argv) {
         printf("\n");
     }
     new_section_content (table_rel,table_nom_sections,section_content,table_rel_info, table_entetes_section, &header,nb_relocalisation,symbols);
+    new_symb_table= new_symbol_table(symbols, table_rel_info, symbols_count, nb_relocalisation, table_entetes_section, table_nom_sections);
+
+
+    printf("#      Nom         Valeur      Type      Portée    Indice de section\n");
+        printf("--------------------------------------------------------------------\n");
+        for (i = 0; i < symbols_count; ++i) {
+            switch (ELF32_ST_TYPE(new_symb_table[i].st_info)) {
+                case STT_NOTYPE:
+                default:
+                    strcpy(type, "NOTYPE");
+                    break;
+                case STT_OBJECT:
+                    strcpy(type, "OBJECT");
+                    break;
+                case STT_FUNC:
+                    strcpy(type, "FUNC");
+                    break;
+                case STT_SECTION:
+                    strcpy(type, "SECTION");
+                    break;
+                case STT_FILE:
+                    strcpy(type, "FILE");
+                    break;
+            }
+
+            //bind
+            switch(ELF32_ST_BIND(new_symb_table[i].st_info)) {
+                case STB_LOCAL:
+                    strcpy(info, "LOCAL");
+                    break;
+                case STB_GLOBAL:
+                    strcpy(info, "GLOBAL");
+                    break;
+                case STB_WEAK:
+                    strcpy(info, "WEAK");
+                    break;
+                case STB_NUM:
+                    strcpy(info, "NUM");
+                    break;
+                default:
+                    strcpy(info, "OTHER");
+                    break;
+            }
+
+            printf("%-7d%#-12x%#-12x%-10s%-10s%-2d", i, new_symb_table[i].st_name, new_symb_table[i].st_value, type, info, new_symb_table[i].st_shndx);
+            printf("\n");
+        }
+        printf("\n");
+
+    free(new_symb_table);
     free(symbols);
     free(table_entetes_section);
     free(table_nom_sections);
