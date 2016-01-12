@@ -4,7 +4,7 @@
 
 int main(int argc, char **argv) {
 
-// APPEL : relocalisation <nom_fichier> <nom_section adresse_relocalisee> [nom_section_x adresse_relocalisee_x]
+// APPEL : relocalisation <nom_fichier> <nom_fichier_cible> <nom_section adresse_relocalisee> [nom_section_x adresse_relocalisee_x]
 
     init_systable();
     init_systarget();
@@ -37,21 +37,19 @@ int main(int argc, char **argv) {
     Elf32_Sym *symbols = read_symbol_table(file, table_entetes_section,/* header.e_shnum,*/ &symbols_count);
     section_content = read_section_content(file, table_entetes_section, &header);
     Ensemble_table_rel table_rel= read_rel_table(file, table_entetes_section, header.e_shnum);
-//    TableRela * table_rela= read_rela_table(file, table_entetes_section, header.e_shnum);
 
-    uint32_t nb_relocalisation = (argc-1)/2, i;
+    uint32_t rel_count = (argc-1)/2, i = 0;
 
     rel_info* table_rel_info;
-    table_rel_info = malloc(nb_relocalisation * sizeof(rel_info));
+    table_rel_info = malloc(rel_count * sizeof(rel_info));
 
 
-    for (i=0; i<nb_relocalisation; ++i) {
+    for (i=0; i<rel_count; ++i) {
         table_rel_info[i].section_name = argv[2*(i+1)];
         table_rel_info[i].section_new_addr = strtol(argv[2*(i+1)+1], NULL, 16);
-//        printf("%s    ;    %i", (table_rel_info[i].section_name), table_rel_info[i].section_new_addr);
     }
 
-    new_section_header(table_entetes_section, table_nom_sections, table_rel_info, nb_relocalisation, header);
+    new_section_header(table_entetes_section, table_nom_sections, table_rel_info, rel_count, header);
     for (i=0; i < header.e_shnum; i++) {
         printf("%-6d%-20s%#-12x%#-8x%#-8x(+ %#-8x) %#-8x%#-8x%#-11x%#-8x", i,
                            &(table_nom_sections[table_entetes_section[i].sh_name]),
@@ -67,11 +65,16 @@ int main(int argc, char **argv) {
 
         printf("\n");
     }
-    new_section_content (table_rel,table_nom_sections,section_content,table_rel_info, table_entetes_section, &header,nb_relocalisation,symbols);
+    uint8_t **new_section = new_section_content (table_rel, table_nom_sections, section_content, table_rel_info, table_entetes_section, header, rel_count, symbols);
     free(symbols);
     free(table_entetes_section);
     free(table_nom_sections);
     fclose(file);
+
+    for (i = 0; i < header.e_shnum; ++i) {
+        free(new_section[i]);
+    }
+    free(new_section);
 //    free(table_rela);
 //    free(table_rel);
 //    free(table_rel_info);
