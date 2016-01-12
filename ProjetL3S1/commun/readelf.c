@@ -77,7 +77,7 @@ void init_systarget() {
  * Reads a sections' headers
  * @param file              FILE*, the file to read, *already opened in "rb"*
  * @param header            ELF32_Ehdr*, the structure to stock header informations
- * @param
+ * @param c
  * @return A pointer to a structure that holds all sections' headers
  */
 Elf32_Shdr *read_elf_section_header(FILE *file, Elf32_Ehdr *header, char **c) {

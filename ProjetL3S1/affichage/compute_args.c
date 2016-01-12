@@ -16,141 +16,110 @@
  *
  */
 int compute_multiple_args (int argc, char **argv) {
-    if (argc == 1) {
-        print_help();
-        return EXIT_SUCCESS;
-    } else if (argc == 2 && strcmp(argv[1], "--help") != 0) {
-        printf("Mauvaise syntaxe. Tapez our_readelf --help pour plus d'informations.\n");
-        return ERROR_MISSING_ARG;
-    } else if (access(argv[argc - 1], F_OK) == -1 && strcmp(argv[1], "--help") != 0) {
-        printf("Le fichier '%s' n'existe pas ou n'est pas accessible.\n", argv[argc - 1]);
-        return ERROR_NO_FILE_SPECIFIED;
-    } // if (argc == 1)
+    int opt;
+	int hflag = 0, sflag = 0, Sflag = 0, xflag = 0, rflag = 0;
+	char* xflag_arg;
+	// tell if, in the case 'x' is used, the section is given in number format or string format
+	int needtoconvert_sectionnumber = 0;
 
-    if (strcmp(argv[1], "--help") == 0) {
+	struct option longopts[] = {
+		{ "header", no_argument, NULL, 'h' },
+		{ "symbols", no_argument, NULL, 's' },
+		{ "sections", no_argument, NULL, 'S' },
+		{ "help", no_argument, NULL, 'H' },
+		{ "hex-dump", required_argument, NULL, 'x' },
+		{ "relocs", no_argument, NULL, 'r' },
+		{ NULL, 0, NULL, 0 }
+	};
+
+	while ((opt = getopt_long(argc, argv, "hsSx:rH", longopts, NULL)) != -1) {
+		switch(opt) {
+		case 'h':
+			hflag = 1;
+			break;
+		case 'S':
+			Sflag = 1;
+			break;
+		case 'H':
+            print_help();
+			return ERROR_MISSING_ARG;
+		case 's':
+			sflag = 1;
+			break;
+        case 'x':
+            xflag = 1;
+            xflag_arg = optarg;
+            if (is_numeric(xflag_arg)) {
+                needtoconvert_sectionnumber = 0;
+            } else {
+                needtoconvert_sectionnumber = 1;
+            }
+            break;
+        case 'r':
+            rflag = 1;
+            break;
+		default:
+			fprintf(stderr, "Unrecognized option %c\n", opt);
+			exit(1);
+		}
+	}
+
+	// missing file arg
+	if (argc == optind) {
         print_help();
-        return EXIT_SUCCESS;
-    }
+        return ERROR_MISSING_ARG;
+	}
 
     init_systable();
     init_systarget();
-    FILE *file = fopen(argv[argc - 1], "rb");
+    FILE *file = fopen(argv[optind], "rb");
     if (file == NULL) {
         printf("Le fichier n'existe pas.\n");
         return EXIT_FAILURE;
     }
 
     Elf32_Ehdr header;
-    Elf32_Shdr *table_entetes_section = NULL;
-    char *table_nom_sections = NULL;
+    Elf32_Shdr *sections_headers_table = NULL;
+    char *sections_name_table = NULL;
     uint16_t symbols_count = 0;
     uint8_t **section_content;
 
     // load everything before printing
     read_elf_header(file, &header);
+    sections_headers_table = read_elf_section_header(file, &header, &sections_name_table);
+    Elf32_Sym *symbols = read_symbol_table(file, sections_headers_table, &symbols_count);
+    section_content = read_section_content(file, sections_headers_table, &header);
+    Ensemble_table_rel table_rel= read_rel_table(file, sections_headers_table, header.e_shnum);
 
-    // check if magic numbers are correct or not
-    if (    header.e_ident[EI_MAG0] != ELFMAG0
-        ||  header.e_ident[EI_MAG1] != ELFMAG1
-        ||  header.e_ident[EI_MAG2] != ELFMAG2
-        ||  header.e_ident[EI_MAG3] != ELFMAG3) {
-            printf("Erreur : Les nombres magiques ne sont pas corrects.\n");
-            return ERROR_MAGIC_NUMBERS;
+    if (hflag == 1) {
+        // print header
+        print_elf_header(header);
+    }
+    if (sflag == 1) {
+        // print symbols
+        print_elf_symbol_table(symbols, symbols_count);
+    }
+    if (Sflag == 1) {
+        // print sections
+        print_elf_section_header(header, sections_headers_table, sections_name_table);
+    }
+    if (xflag == 1) {
+        // print hex-dump of a section
+        int xflag_argint = 255;
+        if (needtoconvert_sectionnumber == 0) {
+            xflag_argint = strtol(xflag_arg, NULL, 10);
+        } else {
+            xflag_argint = section_name_to_number(xflag_arg, sections_headers_table, sections_name_table, &header);
+        }
+        print_elf_section_content(section_content, xflag_argint, sections_headers_table, xflag_arg, header);
+    }
+    if (rflag == 1) {
+        print_elf_rel_tab(table_rel, symbols, sections_headers_table, sections_name_table, header);
     }
 
-    table_entetes_section = read_elf_section_header(file, &header, &table_nom_sections);
-    table_entetes_section = read_elf_section_header(file, &header, &table_nom_sections);
-    Elf32_Sym *symbols = read_symbol_table(file, table_entetes_section, &symbols_count);
-    section_content = read_section_content(file, table_entetes_section, &header);
-    Ensemble_table_rel table_rel= read_rel_table(file, table_entetes_section, header.e_shnum);
-
-    int i;
-    for (i = 1; i < argc - 1; ++i) {
-        if (strcmp(argv[i], "--help") == 0) {
-            print_help();
-            return EXIT_SUCCESS;
-        } else if (argv[i][0] == '-') {
-            // check arg value
-            size_t len = strlen(argv[i]);
-            int j;
-            // j = 1, skip '-'
-            for (j = 1; j < len; ++j) {
-                switch (argv[i][j]) {
-                    case 'h':
-                    {
-                        // print header
-                        int value = 0;
-                        if (value) {
-                            printf("Le programme s'est terminé avec le code %d.\n", value);
-                            return value;
-                        }
-                        print_elf_header(header);
-                        break;
-                    }
-                    case 's':
-                    {
-                        print_elf_symbol_table(symbols, symbols_count);
-                        // print symbol table
-                        break;
-                    }
-                    case 'r':
-                    {
-                        print_elf_rel_tab(table_rel, symbols, table_entetes_section, table_nom_sections, header);
-                        // print rel table
-                        break;
-                    }
-                    case 'S':
-                    {
-                        // affichage de l'entete des sections
-                        print_elf_section_header(header, table_entetes_section, table_nom_sections);
-                        // print all sections
-                        break;
-                    }
-                    case 'x':
-                    {
-                        // skip the section name that doesn't exists for the next argument
-                        i++;
-                        int secnum;
-                        if (!is_numeric(argv[i])) {
-                            secnum = section_name_to_number(argv[i], table_entetes_section, table_nom_sections, &header);
-                            if (secnum == -1) {
-                                printf("La section \"%s\" n'existe pas.\n", argv[i]);
-                                continue;
-                            }
-                        } else {
-                            secnum = strtol(argv[i], NULL, 10);
-                        }
-
-                        print_elf_section_content(section_content, secnum, table_entetes_section, argv[i], header);
-                        break;
-                    }
-                    case 'a':
-                    {
-                        // print all
-                        int value = 0;
-                        if (value) {
-                            printf("Le programme s'est terminé avec le code %d.\n", value);
-                            return value;
-                        }
-                        print_elf_header(header);
-                        print_elf_section_header(header, table_entetes_section, table_nom_sections);
-                        print_elf_symbol_table(symbols, symbols_count);
-                        print_elf_rel_tab(table_rel, symbols, table_entetes_section, table_nom_sections, header);
-                        break;
-                    }
-                    default:
-                        // unknown argument
-                        break;
-                } // switch
-            } // for
-        } else {
-            break;
-        }
-    } // for
-
     free(symbols);
-    free(table_entetes_section);
-    free(table_nom_sections);
+    free(sections_headers_table);
+    free(sections_name_table);
 
     return EXIT_SUCCESS;
 }

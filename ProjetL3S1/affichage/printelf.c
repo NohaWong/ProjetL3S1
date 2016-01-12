@@ -240,7 +240,7 @@ void print_elf_section_content(uint8_t** sec_content, int number, Elf32_Shdr *se
         }
     }
 
-    printf("\n");
+    printf("\n\n");
 }
 
 /**
