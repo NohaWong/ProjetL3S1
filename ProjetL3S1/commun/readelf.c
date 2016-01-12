@@ -69,7 +69,7 @@ void handle_errors (int error_id) {
             break;
 
             case ERROR_WRONG_WORD_SIZE:
-                printf("mauvaises tailles de mots (64 non supporté).");
+                printf("mauvaises tailles de mots (64-bits non supporté).");
             break;
 
             case ERROR_INVALID_VERSION:
