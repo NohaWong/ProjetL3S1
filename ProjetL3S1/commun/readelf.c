@@ -10,8 +10,8 @@ char sys_target[193][32];
 /**
  * Read an ELF file and store it in a struct.
  *
- * @param file      FILE*, the file to read, *already opened in "rb"*
- * @param header    ELF32_Ehdr*, the structure to stock header informations
+ * @param file      the file to read, *already opened in "rb"*
+ * @param header    the structure to stock header informations
  * @return an integer that describes the error (see enum type)
  */
 int read_elf_header(FILE *file, Elf32_Ehdr *header) {
@@ -69,7 +69,7 @@ void handle_errors (int error_id) {
             break;
 
             case ERROR_WRONG_WORD_SIZE:
-                printf("mauvaises tailles de mots (64 non supporté).");
+                printf("mauvaises tailles de mots (64-bits non supporté).");
             break;
 
             case ERROR_INVALID_VERSION:
@@ -88,8 +88,8 @@ void handle_errors (int error_id) {
 
 /**
  * Reads a sections' headers
- * @param file              FILE*, the file to read, *already opened in "rb"*
- * @param header            ELF32_Ehdr*, the structure to stock header informations
+ * @param file              the file to read, *already opened in "rb"*
+ * @param header            the structure to stock header informations
  * @param c
  * @return A pointer to a structure that holds all sections' headers
  */
@@ -133,12 +133,12 @@ Elf32_Shdr *read_elf_section_header(FILE *file, Elf32_Ehdr *header, char **c) {
 /**
  * Reads the symbol table and returns it.
  *
- * @param file              FILE*, the file to read, *already opened in "rb"*
- * @param section_header    ELF32_Shdr*, all sections headers
- * @param symbols_count     uint16_t*, symbols count. The result is directly written in this variable
+ * @param file              the file to read, *already opened in "rb"*
+ * @param section_header    all sections headers
+ * @param symbols_count     symbols count. The result is directly written in this variable
  * @return The structure that holds the symbol table
  */
-Elf32_Sym *read_symbol_table(FILE *file, Elf32_Shdr *section_headers, uint16_t *symbols_count) {
+Elf32_Sym *read_symbol_table( Elf32_Ehdr header,FILE *file, Elf32_Shdr *section_headers, uint16_t *symbols_count) {
     Elf32_Half symtable_index = 0;
     int i = 0;
 
@@ -153,12 +153,14 @@ Elf32_Sym *read_symbol_table(FILE *file, Elf32_Shdr *section_headers, uint16_t *
     fseek(file, section_headers[symtable_index].sh_offset, SEEK_SET);
     fread(symbols, sizeof(Elf32_Sym), *symbols_count, file);
 
+    if (header.e_ident[EI_DATA] == ELFDATA2MSB) {
     // swap endiannes
-    for (i = 0; i < *symbols_count; ++i) {
-        symbols[i].st_name = be32toh(symbols[i].st_name);
-        symbols[i].st_value = be32toh(symbols[i].st_value);
-        symbols[i].st_shndx = be16toh(symbols[i].st_shndx);
-        symbols[i].st_size = be32toh(symbols[i].st_size);
+        for (i = 0; i < *symbols_count; ++i) {
+            symbols[i].st_name = be32toh(symbols[i].st_name);
+            symbols[i].st_value = be32toh(symbols[i].st_value);
+            symbols[i].st_shndx = be16toh(symbols[i].st_shndx);
+            symbols[i].st_size = be32toh(symbols[i].st_size);
+        }
     }
 
     return symbols;
@@ -167,9 +169,9 @@ Elf32_Sym *read_symbol_table(FILE *file, Elf32_Shdr *section_headers, uint16_t *
 /**
  * Reads the static relocation table
  *
- * @param file              FILE*, the file to read, *already opened in "rb"*
- * @param section_header    ELF32_Shdr*, all sections headers
- * @param shnum             Elf32_Half, number of sections
+ * @param file              the file to read, *already opened in "rb"*
+ * @param section_header    all sections headers
+ * @param shnum             number of sections
  * @return The structure (Table_rel_set) that holds the static relocations table.
  */
 Table_rel_set read_rel_table(FILE *file, Elf32_Shdr *section_headers, Elf32_Half shnum){
@@ -245,10 +247,10 @@ Table_rel_set read_rel_table(FILE *file, Elf32_Shdr *section_headers, Elf32_Half
 /**
  * Convert a section name to its identifier
  *
- * @param name              char*, the name to convert
- * @param section_header    ELF32_Shdr*, all sections headers
- * @param names_table       char*, the table with all names
- * @param header            ELF32_Ehdr*, the structure to stock header informations
+ * @param name              the name to convert
+ * @param section_header    all sections headers
+ * @param names_table       the table with all names
+ * @param header            the structure to stock header informations
  * @return The structure (Table_rel_set) that holds the static relocations table.
  */
 int section_name_to_number (char* name, Elf32_Shdr * section_headers, char* names_table, Elf32_Ehdr *header) {
@@ -272,9 +274,9 @@ Elf32_Word rel_info_to_symbol (Elf32_Word info, Elf32_Sym * symb_table, Elf32_Sh
 /**
  * Reads a section content and returns it.
  *
- * @param file              FILE*, the file to read, *already opened in "rb"*
- * @param section_header    ELF32_Shdr*, all sections headers
- * @param header            ELF32_Ehdr*, the structure to stock header informations
+ * @param file              the file to read, *already opened in "rb"*
+ * @param section_header    all sections headers
+ * @param header            the structure to stock header informations
  * @return A double pointer array, with the content of a whole section inside
  */
 uint8_t **read_section_content(FILE* file, Elf32_Shdr *section_headers, Elf32_Ehdr *header) {

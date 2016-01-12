@@ -77,10 +77,16 @@ uint8_t** new_section_content (Table_rel_set table_rel, char* sections_name, uin
                     result_fusion32 = (to_fuse[0] << 24) | (to_fuse[1] << 16) | (to_fuse[2] << 8) | (to_fuse[3]);
                     switch (ELF32_R_TYPE(table_rel.rel_section_list[i].rel_list[j].r_info)) {
                         case R_ARM_ABS32:
+                            result_fusion32 = symbols[(!(ELF32_R_SYM(table_rel.rel_section_list[i].rel_list[j].r_info)==STN_UNDEF)) * ELF32_R_SYM(table_rel.rel_section_list[i].rel_list[j].r_info)].st_value;
                             result_fusion32 += infos[k].section_new_addr;
                             break;
                         case R_ARM_JUMP24:
                         case R_ARM_CALL:
+                        /*
+                            result_fusion32 += infos[k].section_new_addr;
+                            result_fusion32 -= table_rel.rel_section_list[i].rel_list[j].r_offset;
+                        */
+                            result_fusion32 = symbols[(!(ELF32_R_SYM(table_rel.rel_section_list[i].rel_list[j].r_info)==STN_UNDEF)) * ELF32_R_SYM(table_rel.rel_section_list[i].rel_list[j].r_info)].st_value;
                             result_fusion32 += infos[k].section_new_addr;
                             result_fusion32 -= table_rel.rel_section_list[i].rel_list[j].r_offset;
                             break;
@@ -98,7 +104,7 @@ uint8_t** new_section_content (Table_rel_set table_rel, char* sections_name, uin
         }
     }
 
-	/* display test section_content (after modif)
+	///* display test section_content (after modif)
     for (j = 0; j < section_headers[1].sh_size; ++j) {
         printf("%02x", section_cpy[1][j]);
 
