@@ -148,6 +148,24 @@ int main(int argc, char **argv) {
     }
     //*/
 
+	//* display test section header (before modif)
+    for (i=0; i < new_header.e_shnum; i++) {
+        printf("%-6d%-20s%#-12x%#-8x%#-8x(+ %#-8x) %#-8x%#-8x%#-11x%#-8x", i,
+                           &(section_header_name[new_sections_header[i].sh_name]),
+                           new_sections_header[i].sh_type,
+                           new_sections_header[i].sh_flags,
+                           new_sections_header[i].sh_addr,
+                           new_sections_header[i].sh_offset,
+                           new_sections_header[i].sh_size,
+                           new_sections_header[i].sh_link,
+                           new_sections_header[i].sh_addralign,
+                           new_sections_header[i].sh_entsize
+              );
+
+        printf("\n");
+    }
+    //*/
+
     /* display test symbol table (after modif)
 
     #ifndef FIRST_SYMB_DISPLAY
