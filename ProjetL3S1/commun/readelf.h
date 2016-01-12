@@ -6,25 +6,29 @@
 #include <string.h>
 #include <elf.h>
 
+
+/**
+ * @enum
+ * This enum contains all known errors that can happens during the program execution
+ */
+enum { ERROR_MAGIC_NUMBERS = 1, ERROR_MISSING_ARG, ERROR_WRONG_WORD_SIZE, ERROR_WRONG_ENDIAN,
+       ERROR_INVALID_VERSION, ERROR_NO_FILE_SPECIFIED };
+
 /**
  * Read an ELF file and store it in a struct.
  *
  * @param file      FILE*, the file to read, *already opened in "rb"*
  * @param header    Elf32_Ehdr*, the structure to stock header informations
+ * @return an integer that describes the error (see enum type)
  */
-void read_elf_header(FILE *file, Elf32_Ehdr *header);
+int read_elf_header(FILE *file, Elf32_Ehdr *header);
 
 /**
- * Init the systems table. Used to print human-readable informations
- * when printing the header.
+ * handle the errors that may occur when reading an ELF file
+ *
+ * @param error_id  int, from the enum type - the error that is sent by read_elf_header
  */
-void init_systable();
-
-/**
- * Init the targets table. Used to print human-readable informations
- * when printing the header.
- */
-void init_systarget();
+void handle_errors (int error_id);
 
 /**
  * Reads a section content and returns it.

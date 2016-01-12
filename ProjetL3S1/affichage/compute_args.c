@@ -47,22 +47,13 @@ int compute_multiple_args (int argc, char **argv) {
     uint8_t **section_content;
 
     // load everything before printing
-    read_elf_header(file, &header);
-
-    // check if magic numbers are correct or not
-    if (    header.e_ident[EI_MAG0] != ELFMAG0
-        ||  header.e_ident[EI_MAG1] != ELFMAG1
-        ||  header.e_ident[EI_MAG2] != ELFMAG2
-        ||  header.e_ident[EI_MAG3] != ELFMAG3) {
-            printf("Erreur : Les nombres magiques ne sont pas corrects.\n");
-            return ERROR_MAGIC_NUMBERS;
-    }
+    handle_errors(read_elf_header(file, &header));
 
     table_entetes_section = read_elf_section_header(file, &header, &table_nom_sections);
     table_entetes_section = read_elf_section_header(file, &header, &table_nom_sections);
     Elf32_Sym *symbols = read_symbol_table(file, table_entetes_section, &symbols_count);
     section_content = read_section_content(file, table_entetes_section, &header);
-    Ensemble_table_rel table_rel= read_rel_table(file, table_entetes_section, header.e_shnum);
+    Ensemble_table_rel table_rel = read_rel_table(file, table_entetes_section, header.e_shnum);
 
     int i;
     for (i = 1; i < argc - 1; ++i) {
@@ -79,11 +70,6 @@ int compute_multiple_args (int argc, char **argv) {
                     case 'h':
                     {
                         // print header
-                        int value = 0;
-                        if (value) {
-                            printf("Le programme s'est terminé avec le code %d.\n", value);
-                            return value;
-                        }
                         print_elf_header(header);
                         break;
                     }

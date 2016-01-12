@@ -4,13 +4,50 @@ extern char sys_table[256][32];
 extern char sys_target[193][32];
 
 /**
+ * Init the systems table. Used to print human-readable informations
+ * when printing the header.
+ */
+void init_systable() {
+    strcpy(sys_table[ELFOSABI_SYSV], "UNIX System V");
+    strcpy(sys_table[ELFOSABI_HPUX], "HP-UX");
+    strcpy(sys_table[ELFOSABI_NETBSD], "NetBSD");
+    strcpy(sys_table[ELFOSABI_LINUX], "Linux");
+    strcpy(sys_table[ELFOSABI_SOLARIS], "Sun Solaris");
+    strcpy(sys_table[ELFOSABI_AIX], "IBM AIX");
+    strcpy(sys_table[ELFOSABI_IRIX], "SGI Irix");
+    strcpy(sys_table[ELFOSABI_FREEBSD], "FreeBSD");
+    strcpy(sys_table[ELFOSABI_TRU64], "Compaq TRU64");
+    strcpy(sys_table[ELFOSABI_MODESTO], "Novell Modesto");
+    strcpy(sys_table[ELFOSABI_OPENBSD], "OpenBSD");
+    strcpy(sys_table[ELFOSABI_ARM_AEABI], "ARM EABI");
+    strcpy(sys_table[ELFOSABI_ARM], "ARM");
+    strcpy(sys_table[ELFOSABI_STANDALONE], "Standalone");
+}
+
+/**
+ * Init the targets table. Used to print human-readable informations
+ * when printing the header.
+ */
+void init_systarget() {
+    strcpy(sys_target[EM_NONE], "Aucune");
+    strcpy(sys_target[EM_SPARC], "SPARC");
+    strcpy(sys_target[EM_386], "Intel 80386");
+    strcpy(sys_target[EM_68K], "Motorola 68000");
+    strcpy(sys_target[EM_860], "Intel i860");
+    strcpy(sys_target[EM_MIPS], "MIPS I");
+    strcpy(sys_target[EM_960], "Intel i960");
+    strcpy(sys_target[EM_PPC], "PowerPC");
+    strcpy(sys_target[EM_ARM], "ARM");
+    strcpy(sys_target[EM_IA_64], "Intel IA64");
+    strcpy(sys_target[EM_X86_64], "x64");
+}
+
+/**
  * Prints the header of ELF file given to the program.
  *
  * @param elf   Elf32_Ehdr, all informations about ELF file header
- * @return Return a code defined is the error enumeration above
- *
  */
-int print_elf_header(Elf32_Ehdr elf_header) {
+void print_elf_header(Elf32_Ehdr elf_header) {
     printf(BOLDWHITE "<EN-TÊTE ELF>\n" RESET);
 
     int i = 0;
@@ -26,10 +63,8 @@ int print_elf_header(Elf32_Ehdr elf_header) {
     } else if (elf_header.e_ident[EI_CLASS] == ELFCLASS64) {
         printf("ELF64\n");
         printf("Les fichiers 64-bits ne sont pas supportés.\n");
-        return ERROR_WRONG_WORD_SIZE;
     } else {
         printf("Mauvaise taille : %d\n", elf_header.e_ident[EI_CLASS]);
-        return ERROR_WRONG_WORD_SIZE;
     }
 
     printf("  Endianness : ");
@@ -39,7 +74,6 @@ int print_elf_header(Elf32_Ehdr elf_header) {
         printf("Big endian\n");
     } else {
         printf("Endianess invalide");
-        return ERROR_WRONG_ENDIAN;
     }
 
     printf("  ELF Version : ");
@@ -47,7 +81,6 @@ int print_elf_header(Elf32_Ehdr elf_header) {
         printf("%d (current)\n", elf_header.e_ident[EI_VERSION]);
     } else if (elf_header.e_ident[EI_VERSION] == EV_NONE) {
         printf("Version invalide : %d\n", elf_header.e_ident[EI_VERSION]);
-        return ERROR_INVALID_VERSION;
     }
 
     printf("  OS/ABI : ");
@@ -84,8 +117,6 @@ int print_elf_header(Elf32_Ehdr elf_header) {
     printf("  Nombre d'entrées dans la table des sections : %d\n", elf_header.e_shnum);
 
     printf("\n");
-
-    return EXIT_SUCCESS;
 }
 
 /**

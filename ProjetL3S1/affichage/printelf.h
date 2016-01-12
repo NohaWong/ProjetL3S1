@@ -4,20 +4,23 @@
 #include "../commun/readelf.h"
 
 /**
- * @enum
- * This enum contains all known errors that can happens during the program execution
+ * Init the systems table. Used to print human-readable informations
+ * when printing the header.
  */
-enum { ERROR_MAGIC_NUMBERS = 1, ERROR_MISSING_ARG, ERROR_WRONG_WORD_SIZE, ERROR_WRONG_ENDIAN,
-       ERROR_INVALID_VERSION, ERROR_NO_FILE_SPECIFIED };
+void init_systable();
+
+/**
+ * Init the targets table. Used to print human-readable informations
+ * when printing the header.
+ */
+void init_systarget();
 
 /**
  * Prints the header of ELF file given to the program.
  *
  * @param elf_header   Elf32_Ehdr, all informations about ELF file header
- * @return Return a code defined is the error enumeration above
- *
  */
-int print_elf_header(Elf32_Ehdr elf_header);
+void print_elf_header(Elf32_Ehdr elf_header);
 
 /**
  * Prints symbol table of an ELF file
