@@ -107,7 +107,7 @@ uint8_t** new_section_content (Table_rel_set table_rel, char* sections_name, uin
         }
     }
 
-	///* display test section_content (after modif)
+	/* display test section_content (after modif)
     for (j = 0; j < section_headers[1].sh_size; ++j) {
         printf("%02x", section_cpy[1][j]);
 
@@ -152,13 +152,8 @@ char* new_section_header_name(char* section_header_name, Elf32_Shdr *new_section
 
     for(i=0 ; i<new_header.e_shnum ; i++){
         strcpy(&new_sec_header_name[current_pos], &section_header_name[new_sections_header[i].sh_name]);
-        printf("%s ----- ", &new_sec_header_name[current_pos]);
         new_sections_header[i].sh_name = current_pos;
-        printf("%i ;;; %i\n",current_pos,(int)my_strlen(&new_sec_header_name[current_pos]));
         current_pos += my_strlen(&new_sec_header_name[current_pos]);
-    }
-    for (i=0; i<new_header.e_shnum; i++) {
-        printf("%s\n", &new_sec_header_name[new_sections_header[i].sh_name]);
     }
 
     return new_sec_header_name;

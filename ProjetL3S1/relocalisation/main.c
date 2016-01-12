@@ -72,12 +72,12 @@ int main(int argc, char **argv) {
     Elf32_Shdr *new_sections_header = new_section_header(section_header_table, section_header_name, table_rel_info, rel_count, header, &new_header);
     Elf32_Sym *new_symb_table= new_symbol_table(symbols, table_rel_info, symbols_count, rel_count, section_header_table, section_header_name);
     uint8_t **new_section = new_section_content (table_rel, section_header_name, section_content, table_rel_info, section_header_table, header, rel_count, symbols);
-
+    char *new_sec_header_name=new_section_header_name(section_header_name, new_sections_header, new_header);
 
 
     // display tests
 
-   // /* display test symb_table (before modif)
+   /* display test symb_table (before modif)
 
     #ifndef FIRST_SYMB_DISPLAY
     #define FIRST_SYMB_DISPLAY
@@ -148,7 +148,7 @@ int main(int argc, char **argv) {
     }
     //*/
 
-	//* display test section header (before modif)
+	/* display test section header (before modif)
     for (i=0; i < new_header.e_shnum; i++) {
         printf("%-6d%-20s%#-12x%#-8x%#-8x(+ %#-8x) %#-8x%#-8x%#-11x%#-8x", i,
                            &(section_header_name[new_sections_header[i].sh_name]),
@@ -238,14 +238,7 @@ int main(int argc, char **argv) {
     }
     //*/
 
-
-
-
-    char *new_sec_header_name=new_section_header_name(section_header_name, new_sections_header, new_header);
-
-
-
-
+	/* display test sections' headers (after modif)
     printf("#     Nom                 Type        Flags   Adresse              Taille  Link    Alignement Entsize \n");
     printf("------------------------------------------------------------------------------------------------------\n");
 
@@ -265,17 +258,14 @@ int main(int argc, char **argv) {
         printf("\n");
     }
 
-
-
-
-
+	//*/
 
     free(symbols);
     free(new_symb_table);
     free(section_header_table);
     free(new_sections_header);
     free(section_header_name);
-
+	free(new_sec_header_name);
     for (i = 0; i < header.e_shnum; ++i) {
         free(new_section[i]);
     }
