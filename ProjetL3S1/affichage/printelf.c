@@ -202,8 +202,9 @@ void print_elf_symbol_table(Elf32_Sym *symbols, uint16_t symbols_count) {
                 strcpy(info, "OTHER");
                 break;
         }
-
-        printf("%-7d%#-12x%#-12x%-10s%-10s%-2d", i, symbols[i].st_name, symbols[i].st_value, type, info, symbols[i].st_shndx);
+        char idx[15];
+        (symbols[i].st_shndx == SHN_ABS) ? sprintf(idx, "ABS") : sprintf(idx, "%d", symbols[i].st_shndx);
+        printf("%-7d%#-12x%#-12x%-10s%-10s%-5s", i, symbols[i].st_name, symbols[i].st_value, type, info, idx);
         printf("\n");
     }
     printf("\n");
@@ -271,7 +272,7 @@ void print_elf_section_content(uint8_t** sec_content, int number, Elf32_Shdr *se
         }
     }
 
-    printf("\n");
+    printf("\n\n");
 }
 
 /**
