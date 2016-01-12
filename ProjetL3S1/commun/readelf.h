@@ -6,25 +6,29 @@
 #include <string.h>
 #include <elf.h>
 
+
+/**
+ * @enum
+ * This enum contains all known errors that can happens during the program execution
+ */
+enum { ERROR_MAGIC_NUMBERS = 1, ERROR_MISSING_ARG, ERROR_WRONG_WORD_SIZE, ERROR_WRONG_ENDIAN,
+       ERROR_INVALID_VERSION, ERROR_NO_FILE_SPECIFIED };
+
 /**
  * Read an ELF file and store it in a struct.
  *
  * @param file      FILE*, the file to read, *already opened in "rb"*
  * @param header    Elf32_Ehdr*, the structure to stock header informations
+ * @return an integer that describes the error (see enum type)
  */
-void read_elf_header(FILE *file, Elf32_Ehdr *header);
+int read_elf_header(FILE *file, Elf32_Ehdr *header);
 
 /**
- * Init the systems table. Used to print human-readable informations
- * when printing the header.
+ * handle the errors that may occur when reading an ELF file
+ *
+ * @param error_id  int, from the enum type - the error that is sent by read_elf_header
  */
-void init_systable();
-
-/**
- * Init the targets table. Used to print human-readable informations
- * when printing the header.
- */
-void init_systarget();
+void handle_errors (int error_id);
 
 /**
  * Reads a section content and returns it.
@@ -78,7 +82,7 @@ typedef struct
 } Table_rela_section;
 
 /**
- * @struct Ensemble_table_rel
+ * @struct Table_rel_set
  * Holds the lists of static relocations and dynamic relocations
  */
 typedef struct {
@@ -86,7 +90,7 @@ typedef struct {
     int section_count_rela;
     Table_rel_section *rel_section_list;
     Table_rela_section *rela_section_list;
-} Ensemble_table_rel;
+} Table_rel_set;
 
 
 /**
@@ -95,9 +99,9 @@ typedef struct {
  * @param file              FILE*, the file to read, *already opened in "rb"*
  * @param section_header    ELF32_Shdr*, all sections headers
  * @param shnum             Elf32_Half, number of sections
- * @return The structure (Ensemble_table_rel) that holds the static relocations table.
+ * @return The structure (Table_rel_set) that holds the static relocations table.
  */
-Ensemble_table_rel read_rel_table(FILE *file, Elf32_Shdr *section_headers, Elf32_Half shnum);
+Table_rel_set read_rel_table(FILE *file, Elf32_Shdr *section_headers, Elf32_Half shnum);
 
 /**
  * Convert a section name to its identifier
@@ -106,7 +110,7 @@ Ensemble_table_rel read_rel_table(FILE *file, Elf32_Shdr *section_headers, Elf32
  * @param section_header    ELF32_Shdr*, all sections headers
  * @param names_table       char*, the table with all names
  * @param header            ELF32_Ehdr*, the structure to stock header informations
- * @return The structure (Ensemble_table_rel) that holds the static relocations table.
+ * @return The structure (Table_rel_set) that holds the static relocations table.
  */
 int section_name_to_number (char* name, Elf32_Shdr * section_headers, char* names_table, Elf32_Ehdr *header);
 
