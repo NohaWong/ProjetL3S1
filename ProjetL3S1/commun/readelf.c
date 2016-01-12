@@ -138,7 +138,7 @@ Elf32_Shdr *read_elf_section_header(FILE *file, Elf32_Ehdr *header, char **c) {
  * @param symbols_count     uint16_t*, symbols count. The result is directly written in this variable
  * @return The structure that holds the symbol table
  */
-Elf32_Sym *read_symbol_table(FILE *file, Elf32_Shdr *section_headers, uint16_t *symbols_count) {
+Elf32_Sym *read_symbol_table( Elf32_Ehdr header,FILE *file, Elf32_Shdr *section_headers, uint16_t *symbols_count) {
     Elf32_Half symtable_index = 0;
     int i = 0;
 
@@ -153,12 +153,14 @@ Elf32_Sym *read_symbol_table(FILE *file, Elf32_Shdr *section_headers, uint16_t *
     fseek(file, section_headers[symtable_index].sh_offset, SEEK_SET);
     fread(symbols, sizeof(Elf32_Sym), *symbols_count, file);
 
+    if (header.e_ident[EI_DATA] == ELFDATA2MSB) {
     // swap endiannes
-    for (i = 0; i < *symbols_count; ++i) {
-        symbols[i].st_name = be32toh(symbols[i].st_name);
-        symbols[i].st_value = be32toh(symbols[i].st_value);
-        symbols[i].st_shndx = be16toh(symbols[i].st_shndx);
-        symbols[i].st_size = be32toh(symbols[i].st_size);
+        for (i = 0; i < *symbols_count; ++i) {
+            symbols[i].st_name = be32toh(symbols[i].st_name);
+            symbols[i].st_value = be32toh(symbols[i].st_value);
+            symbols[i].st_shndx = be16toh(symbols[i].st_shndx);
+            symbols[i].st_size = be32toh(symbols[i].st_size);
+        }
     }
 
     return symbols;
