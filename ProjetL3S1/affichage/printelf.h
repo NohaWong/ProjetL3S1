@@ -4,20 +4,23 @@
 #include "../commun/readelf.h"
 
 /**
- * @enum
- * This enum contains all known errors that can happens during the program execution
+ * Init the systems table. Used to print human-readable informations
+ * when printing the header.
  */
-enum { ERROR_MAGIC_NUMBERS = 1, ERROR_MISSING_ARG, ERROR_WRONG_WORD_SIZE, ERROR_WRONG_ENDIAN,
-       ERROR_INVALID_VERSION, ERROR_NO_FILE_SPECIFIED };
+void init_systable();
+
+/**
+ * Init the targets table. Used to print human-readable informations
+ * when printing the header.
+ */
+void init_systarget();
 
 /**
  * Prints the header of ELF file given to the program.
  *
  * @param elf_header   Elf32_Ehdr, all informations about ELF file header
- * @return Return a code defined is the error enumeration above
- *
  */
-int print_elf_header(Elf32_Ehdr elf_header);
+void print_elf_header(Elf32_Ehdr elf_header);
 
 /**
  * Prints symbol table of an ELF file
@@ -38,12 +41,12 @@ void print_elf_section_header(Elf32_Ehdr header, Elf32_Shdr *section_header_tabl
 /**
  * Prints static relocation table
  *
- * @param relocations           Ensemble_table_rel, all relocations
+ * @param relocations           Table_rel_set, all relocations
  * @param symb_table            Elf32_Sym*, the table of all symbols
  * @param secname               char*, name of all sections
  * @param elf                   Elf32_Ehdr, all informations about ELF file header
  */
-void print_elf_rel_tab(Ensemble_table_rel relocations, Elf32_Sym* symb_table, Elf32_Shdr * section_headers, char *secname, Elf32_Ehdr header);
+void print_elf_rel_tab(Table_rel_set relocations, Elf32_Sym* symb_table, Elf32_Shdr * section_headers, char *secname, Elf32_Ehdr header);
 
 /**
  * Prints a entire section content, with addresses and ASCII

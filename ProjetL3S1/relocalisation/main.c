@@ -7,7 +7,6 @@
 // APPEL : relocalisation <nom_fichier> <nom_fichier_cible> <nom_section adresse_relocalisee> [nom_section_x adresse_relocalisee_x]
 
 int main(int argc, char **argv) {
-    char type[16],info[16];
     uint32_t i;
 
 
@@ -17,8 +16,6 @@ int main(int argc, char **argv) {
     return 2;
     }
     else{
-    init_systable();
-    init_systarget();
 
     FILE *file_source = fopen(argv[1], "rb");
     FILE *file_target = fopen(argv[2], "wb");
@@ -48,15 +45,15 @@ int main(int argc, char **argv) {
 
 
     section_header_table = read_elf_section_header(file_source, &header, &section_header_name);
-    Elf32_Sym *symbols = read_symbol_table(file_source, section_header_table,/* header.e_shnum,*/ &symbols_count);
+    Elf32_Sym *symbols = read_symbol_table(header,file_source, section_header_table,/* header.e_shnum,*/ &symbols_count);
     section_content = read_section_content(file_source, section_header_table, &header);
-    Ensemble_table_rel table_rel= read_rel_table(file_source, section_header_table, header.e_shnum);
+    Table_rel_set table_rel= read_rel_table(file_source, section_header_table, header.e_shnum);
 
 
     // get args
     if (!(argc%2)) {
-        printf("Mauvais nombre d'arguments.");
-        return 0;
+        printf("Nombre d'arguments incorrect. Veuillez veiller à donner une adresse de relocalisation a chaque section que vous souhaitez relocaliser.\n");
+        return EXIT_FAILURE;
     }
     uint32_t rel_count = (argc-2)/2;
 
@@ -78,7 +75,15 @@ int main(int argc, char **argv) {
 
 
 
-    // Affichages tests
+    // display tests
+
+    /* display test symb_table (before modif)
+
+    #ifndef FIRST_SYMB_DISPLAY
+    #define FIRST_SYMB_DISPLAY
+    char type[16],info[16];
+    #endif
+
     printf("#      Nom         Valeur      Type      Portée    Indice de section\n");
     printf("--------------------------------------------------------------------\n");
     for (i = 0; i < symbols_count; ++i) {
@@ -100,7 +105,6 @@ int main(int argc, char **argv) {
                 strcpy(type, "FILE");
                 break;
         }
-
         //bind
         switch(ELF32_ST_BIND(symbols[i].st_info)) {
             case STB_LOCAL:
@@ -124,7 +128,9 @@ int main(int argc, char **argv) {
         printf("\n");
     }
     printf("\n");
+    //*/
 
+    /* display test section header (before modif)
     for (i=0; i < header.e_shnum; i++) {
         printf("%-6d%-20s%#-12x%#-8x%#-8x(+ %#-8x) %#-8x%#-8x%#-11x%#-8x", i,
                            &(section_header_name[section_header_table[i].sh_name]),
@@ -140,6 +146,14 @@ int main(int argc, char **argv) {
 
         printf("\n");
     }
+    //*/
+
+    /* display test symbol table (after modif)
+
+    #ifndef FIRST_SYMB_DISPLAY
+    #define FIRST_SYMB_DISPLAY
+    char type[16],info[16];
+    #endif
 
     printf("#      Nom         Valeur      Type      Portée    Indice de section\n");
         printf("--------------------------------------------------------------------\n");
@@ -186,7 +200,9 @@ int main(int argc, char **argv) {
             printf("\n");
         }
         printf("\n");
+    //*/
 
+    /* display file header (after modif)
     for (i=0; i < new_header.e_shnum; i++) {
         printf("%-6d%-20s%#-12x%#-8x%#-8x(+ %#-8x) %#-8x%#-8x%#-11x%#-8x", i,
                            &(section_header_name[new_sections_header[i].sh_name]),
@@ -202,6 +218,7 @@ int main(int argc, char **argv) {
 
         printf("\n");
     }
+    //*/
 
     free(symbols);
     free(new_symb_table);
