@@ -238,6 +238,38 @@ int main(int argc, char **argv) {
     }
     //*/
 
+
+
+
+    char *new_sec_header_name=new_section_header_name(section_header_name, new_sections_header, new_header);
+
+
+
+
+    printf("#     Nom                 Type        Flags   Adresse              Taille  Link    Alignement Entsize \n");
+    printf("------------------------------------------------------------------------------------------------------\n");
+
+    for (i=0; i < new_header.e_shnum; i++) {
+        printf("%-6d%-20s%#-12x%#-8x%#-8x(+ %#-8x) %#-8x%#-8x%#-11x%#-8x", i,
+                           &(new_sec_header_name[new_sections_header[i].sh_name]),
+                           new_sections_header[i].sh_type,
+                           new_sections_header[i].sh_flags,
+                           new_sections_header[i].sh_addr,
+                           new_sections_header[i].sh_offset,
+                           new_sections_header[i].sh_size,
+                           new_sections_header[i].sh_link,
+                           new_sections_header[i].sh_addralign,
+                           new_sections_header[i].sh_entsize
+              );
+
+        printf("\n");
+    }
+
+
+
+
+
+
     free(symbols);
     free(new_symb_table);
     free(section_header_table);
