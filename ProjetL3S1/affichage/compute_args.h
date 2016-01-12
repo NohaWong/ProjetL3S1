@@ -25,8 +25,8 @@ typedef struct {
  * This function retrieve all arguments given in command line by the @a main
  * function.
  *
- * @param argc     integer, arguments count
- * @param argv     char**, arguments value represented by strings
+ * @param argc     arguments count
+ * @param argv     arguments value represented by strings
  * @return Return a code defined is the error enumeration in @a printfelf.h
  *
  */
@@ -46,7 +46,7 @@ void print_help();
  * This function chek if the given string in a number ( @a isdigit extended to a string)
  * From http://rosettacode.org/wiki/Determine_if_a_string_is_numeric#C
  *
- * @param s     const char*, string containing (or not) the number
+ * @param s     string containing (or not) the number
  * @return 0 if the string is not a number, otherwise return non-zero value
  *
  */
