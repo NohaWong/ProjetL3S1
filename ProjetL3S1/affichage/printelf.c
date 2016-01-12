@@ -4,13 +4,50 @@ extern char sys_table[256][32];
 extern char sys_target[193][32];
 
 /**
+ * Init the systems table. Used to print human-readable informations
+ * when printing the header.
+ */
+void init_systable() {
+    strcpy(sys_table[ELFOSABI_SYSV], "UNIX System V");
+    strcpy(sys_table[ELFOSABI_HPUX], "HP-UX");
+    strcpy(sys_table[ELFOSABI_NETBSD], "NetBSD");
+    strcpy(sys_table[ELFOSABI_LINUX], "Linux");
+    strcpy(sys_table[ELFOSABI_SOLARIS], "Sun Solaris");
+    strcpy(sys_table[ELFOSABI_AIX], "IBM AIX");
+    strcpy(sys_table[ELFOSABI_IRIX], "SGI Irix");
+    strcpy(sys_table[ELFOSABI_FREEBSD], "FreeBSD");
+    strcpy(sys_table[ELFOSABI_TRU64], "Compaq TRU64");
+    strcpy(sys_table[ELFOSABI_MODESTO], "Novell Modesto");
+    strcpy(sys_table[ELFOSABI_OPENBSD], "OpenBSD");
+    strcpy(sys_table[ELFOSABI_ARM_AEABI], "ARM EABI");
+    strcpy(sys_table[ELFOSABI_ARM], "ARM");
+    strcpy(sys_table[ELFOSABI_STANDALONE], "Standalone");
+}
+
+/**
+ * Init the targets table. Used to print human-readable informations
+ * when printing the header.
+ */
+void init_systarget() {
+    strcpy(sys_target[EM_NONE], "Aucune");
+    strcpy(sys_target[EM_SPARC], "SPARC");
+    strcpy(sys_target[EM_386], "Intel 80386");
+    strcpy(sys_target[EM_68K], "Motorola 68000");
+    strcpy(sys_target[EM_860], "Intel i860");
+    strcpy(sys_target[EM_MIPS], "MIPS I");
+    strcpy(sys_target[EM_960], "Intel i960");
+    strcpy(sys_target[EM_PPC], "PowerPC");
+    strcpy(sys_target[EM_ARM], "ARM");
+    strcpy(sys_target[EM_IA_64], "Intel IA64");
+    strcpy(sys_target[EM_X86_64], "x64");
+}
+
+/**
  * Prints the header of ELF file given to the program.
  *
- * @param elf   Elf32_Ehdr, all informations about ELF file header
- * @return Return a code defined is the error enumeration above
- *
+ * @param elf   all informations about ELF file header
  */
-int print_elf_header(Elf32_Ehdr elf_header) {
+void print_elf_header(Elf32_Ehdr elf_header) {
     printf(BOLDWHITE "<EN-TÊTE ELF>\n" RESET);
 
     int i = 0;
@@ -26,10 +63,8 @@ int print_elf_header(Elf32_Ehdr elf_header) {
     } else if (elf_header.e_ident[EI_CLASS] == ELFCLASS64) {
         printf("ELF64\n");
         printf("Les fichiers 64-bits ne sont pas supportés.\n");
-        return ERROR_WRONG_WORD_SIZE;
     } else {
         printf("Mauvaise taille : %d\n", elf_header.e_ident[EI_CLASS]);
-        return ERROR_WRONG_WORD_SIZE;
     }
 
     printf("  Endianness : ");
@@ -39,7 +74,6 @@ int print_elf_header(Elf32_Ehdr elf_header) {
         printf("Big endian\n");
     } else {
         printf("Endianess invalide");
-        return ERROR_WRONG_ENDIAN;
     }
 
     printf("  ELF Version : ");
@@ -47,7 +81,6 @@ int print_elf_header(Elf32_Ehdr elf_header) {
         printf("%d (current)\n", elf_header.e_ident[EI_VERSION]);
     } else if (elf_header.e_ident[EI_VERSION] == EV_NONE) {
         printf("Version invalide : %d\n", elf_header.e_ident[EI_VERSION]);
-        return ERROR_INVALID_VERSION;
     }
 
     printf("  OS/ABI : ");
@@ -84,16 +117,14 @@ int print_elf_header(Elf32_Ehdr elf_header) {
     printf("  Nombre d'entrées dans la table des sections : %d\n", elf_header.e_shnum);
 
     printf("\n");
-
-    return EXIT_SUCCESS;
 }
 
 /**
  * Prints one section header of an ELF file
  *
- * @param symbols               Elf32_Sym*, symbols array
- * @param section_header_table  Elf32_Shdr*, the table of sections headers
- * @param secname               char*, name of the wanted section
+ * @param symbols               symbols array
+ * @param section_header_table  the table of sections headers
+ * @param secname               name of the wanted section
  */
 void print_elf_section_header(Elf32_Ehdr header, Elf32_Shdr *section_header_table, char *secname) {
     uint8_t i;
@@ -123,7 +154,7 @@ void print_elf_section_header(Elf32_Ehdr header, Elf32_Shdr *section_header_tabl
 /**
  * Prints symbol table of an ELF file
  *
- * @param symbols   Elf32_Sym*, symbols array
+ * @param symbols   symbols array
  */
 void print_elf_symbol_table(Elf32_Sym *symbols, uint16_t symbols_count) {
     int i = 0;
@@ -172,7 +203,11 @@ void print_elf_symbol_table(Elf32_Sym *symbols, uint16_t symbols_count) {
                 break;
         }
 
-        printf("%-7d%#-12x%#-12x%-10s%-10s%-2d", i, symbols[i].st_name, symbols[i].st_value, type, info, symbols[i].st_shndx);
+        // to print "ABS" in case the idx of the section is not set to an actual section
+        char idx[15];
+        (symbols[i].st_shndx == SHN_ABS) ? sprintf(idx, "ABS") : sprintf(idx, "%d", symbols[i].st_shndx);
+
+        printf("%-7d%#-12x%#-12x%-10s%-10s%-5s", i, symbols[i].st_name, symbols[i].st_value, type, info, idx);
         printf("\n");
     }
     printf("\n");
@@ -240,18 +275,18 @@ void print_elf_section_content(uint8_t** sec_content, int number, Elf32_Shdr *se
         }
     }
 
-    printf("\n");
+    printf("\n\n");
 }
 
 /**
  * Prints static relocation table
  *
- * @param relocations           Ensemble_table_rel, all relocations
- * @param symb_table            Elf32_Sym*, the table of all symbols
- * @param secname               char*, name of all sections
- * @param elf                   Elf32_Ehdr, all informations about ELF file header
+ * @param relocations           all relocations
+ * @param symb_table            the table of all symbols
+ * @param secname               name of all sections
+ * @param elf                   all informations about ELF file header
  */
-void print_elf_rel_tab(Ensemble_table_rel relocations, Elf32_Sym* symb_table, Elf32_Shdr * section_headers, char *secname, Elf32_Ehdr header){
+void print_elf_rel_tab(Table_rel_set relocations, Elf32_Sym* symb_table, Elf32_Shdr * section_headers, char *secname, Elf32_Ehdr header){
     printf(BOLDWHITE "<TABLE DE RELOCATION STATIQUE>\n" RESET);
 
     if (relocations.section_count_rel == 0) {

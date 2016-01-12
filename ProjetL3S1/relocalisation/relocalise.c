@@ -1,10 +1,13 @@
 #include "relocalise.h"
 
-Elf32_Shdr* new_section_header(Elf32_Shdr* section_headers, char* nom_sections, rel_info* infos, int nb_relocalisations, Elf32_Ehdr header,Elf32_Ehdr *new_header) {
-	int i,k;
 
-//    {'', '.', 't', 'e', 'x', 't', '\0', '.', 'd', 'a'...}
+
+Elf32_Shdr* new_section_header(Elf32_Shdr* section_headers, char* nom_sections, rel_info* infos, int rel_count, Elf32_Ehdr header,Elf32_Ehdr *new_header) {
+    int i,k;
+
+
     *new_header = header;
+
     Elf32_Shdr * new_sections_header = NULL;
     int sections_count=0;
     int j;
@@ -17,7 +20,7 @@ Elf32_Shdr* new_section_header(Elf32_Shdr* section_headers, char* nom_sections, 
     k=0;
 
 
-    for (j=0; j<nb_relocalisations; j++) {
+    for (j=0; j<rel_count; j++) {
         k=0;
         for (i=0; i<header.e_shnum;i++) {
             //we don't want the section if it's a NOBITS or a REL type section
@@ -40,7 +43,7 @@ Elf32_Shdr* new_section_header(Elf32_Shdr* section_headers, char* nom_sections, 
 
 
 
-uint8_t** new_section_content (Ensemble_table_rel table_rel, char* sections_name, uint8_t** section_content, rel_info* infos, Elf32_Shdr * section_headers,Elf32_Ehdr header, int rel_count, Elf32_Sym *symbols)
+uint8_t** new_section_content (Table_rel_set table_rel, char* sections_name, uint8_t** section_content, rel_info* infos, Elf32_Shdr * section_headers,Elf32_Ehdr header, int rel_count, Elf32_Sym *symbols)
 {
     int i, j, k;
     // create copy of each sections
@@ -49,7 +52,7 @@ uint8_t** new_section_content (Ensemble_table_rel table_rel, char* sections_name
         section_cpy[i] = malloc(section_headers[i].sh_size+1);
         memcpy(section_cpy, section_content, section_headers[i].sh_size);
     }
-
+    /* display test section content (before modif)
     for (j = 0; j < section_headers[1].sh_size; ++j) {
         printf("%02x", section_cpy[1][j]);
 
@@ -61,6 +64,8 @@ uint8_t** new_section_content (Ensemble_table_rel table_rel, char* sections_name
         }
     }
     printf("\n");
+    //*/
+
 
     // Each different rel section
     for (i=0; i<table_rel.section_count_rel; i++) {
@@ -75,10 +80,16 @@ uint8_t** new_section_content (Ensemble_table_rel table_rel, char* sections_name
                     result_fusion32 = (to_fuse[0] << 24) | (to_fuse[1] << 16) | (to_fuse[2] << 8) | (to_fuse[3]);
                     switch (ELF32_R_TYPE(table_rel.rel_section_list[i].rel_list[j].r_info)) {
                         case R_ARM_ABS32:
+                            result_fusion32 = symbols[(!(ELF32_R_SYM(table_rel.rel_section_list[i].rel_list[j].r_info)==STN_UNDEF)) * ELF32_R_SYM(table_rel.rel_section_list[i].rel_list[j].r_info)].st_value;
                             result_fusion32 += infos[k].section_new_addr;
                             break;
                         case R_ARM_JUMP24:
                         case R_ARM_CALL:
+                        /*
+                            result_fusion32 += infos[k].section_new_addr;
+                            result_fusion32 -= table_rel.rel_section_list[i].rel_list[j].r_offset;
+                        */
+                            result_fusion32 = symbols[(!(ELF32_R_SYM(table_rel.rel_section_list[i].rel_list[j].r_info)==STN_UNDEF)) * ELF32_R_SYM(table_rel.rel_section_list[i].rel_list[j].r_info)].st_value;
                             result_fusion32 += infos[k].section_new_addr;
                             result_fusion32 -= table_rel.rel_section_list[i].rel_list[j].r_offset;
                             break;
@@ -96,7 +107,7 @@ uint8_t** new_section_content (Ensemble_table_rel table_rel, char* sections_name
         }
     }
 
-	/* affichage test */
+	///* display test section_content (after modif)
     for (j = 0; j < section_headers[1].sh_size; ++j) {
         printf("%02x", section_cpy[1][j]);
 
@@ -107,7 +118,7 @@ uint8_t** new_section_content (Ensemble_table_rel table_rel, char* sections_name
             printf("\n");
         }
     }
-
+    //*/
     return section_cpy;
 }
 
@@ -117,10 +128,10 @@ Elf32_Sym *new_symbol_table(Elf32_Sym *symb_table, rel_info *info, uint32_t symb
     memcpy(new_symb_table,symb_table,sizeof(Elf32_Sym)*symb_count);
     for(i=0 ; i<symb_count ; i++){
         for(j=0 ; j<rel_count ; j++){
+            /* display test symbol table ???
             printf("%i\n",symb_table[i].st_shndx);
-
+            //*/
             if(symb_table[i].st_shndx != SHN_ABS && !strcmp(info[j].section_name,&section_name[sections_header[symb_table[i].st_shndx].sh_name])){
-
                 new_symb_table[i].st_value += info[j].section_new_addr;
             }
         }

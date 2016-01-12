@@ -10,147 +10,67 @@
  * This function retrieve all arguments given in command line by the @a main
  * function.
  *
- * @param argc     integer, arguments count
- * @param argv     char**, arguments value represented by strings
+ * @param argc     arguments count
+ * @param argv     arguments value represented by strings
  * @return Return a code defined is the error enumeration in @a printfelf.h
  *
  */
-int compute_multiple_args (int argc, char **argv) {
-    if (argc == 1) {
-        print_help();
-        return EXIT_SUCCESS;
-    } else if (argc == 2 && strcmp(argv[1], "--help") != 0) {
-        printf("Mauvaise syntaxe. Tapez our_readelf --help pour plus d'informations.\n");
-        return ERROR_MISSING_ARG;
-    } else if (access(argv[argc - 1], F_OK) == -1 && strcmp(argv[1], "--help") != 0) {
-        printf("Le fichier '%s' n'existe pas ou n'est pas accessible.\n", argv[argc - 1]);
-        return ERROR_NO_FILE_SPECIFIED;
-    } // if (argc == 1)
+int compute_multiple_args (int argc, char **argv, main_flags *flags, int *argv_idx_filename) {
+    int opt;
 
-    if (strcmp(argv[1], "--help") == 0) {
-        print_help();
-        return EXIT_SUCCESS;
-    }
+	struct option longopts[] = {
+		{ "header", no_argument, NULL, 'h' },
+		{ "symbols", no_argument, NULL, 's' },
+		{ "sections", no_argument, NULL, 'S' },
+		{ "help", no_argument, NULL, 'H' },
+		{ "hex-dump", required_argument, NULL, 'x' },
+		{ "relocs", no_argument, NULL, 'r' },
+		{ "all", no_argument, NULL, 'a' },
+		{ NULL, 0, NULL, 0 }
+	};
 
-    init_systable();
-    init_systarget();
-    FILE *file = fopen(argv[argc - 1], "rb");
-    if (file == NULL) {
-        printf("Le fichier n'existe pas.\n");
-        return EXIT_FAILURE;
-    }
-
-    Elf32_Ehdr header;
-    Elf32_Shdr *table_entetes_section = NULL;
-    char *table_nom_sections = NULL;
-    uint16_t symbols_count = 0;
-    uint8_t **section_content;
-
-    // load everything before printing
-    read_elf_header(file, &header);
-
-    // check if magic numbers are correct or not
-    if (    header.e_ident[EI_MAG0] != ELFMAG0
-        ||  header.e_ident[EI_MAG1] != ELFMAG1
-        ||  header.e_ident[EI_MAG2] != ELFMAG2
-        ||  header.e_ident[EI_MAG3] != ELFMAG3) {
-            printf("Erreur : Les nombres magiques ne sont pas corrects.\n");
-            return ERROR_MAGIC_NUMBERS;
-    }
-
-    table_entetes_section = read_elf_section_header(file, &header, &table_nom_sections);
-    table_entetes_section = read_elf_section_header(file, &header, &table_nom_sections);
-    Elf32_Sym *symbols = read_symbol_table(file, table_entetes_section, &symbols_count);
-    section_content = read_section_content(file, table_entetes_section, &header);
-    Ensemble_table_rel table_rel= read_rel_table(file, table_entetes_section, header.e_shnum);
-
-    int i;
-    for (i = 1; i < argc - 1; ++i) {
-        if (strcmp(argv[i], "--help") == 0) {
+	while ((opt = getopt_long(argc, argv, "ahsSx:rH", longopts, NULL)) != -1) {
+		switch(opt) {
+		case 'h':
+			flags->hflag = 1;
+			break;
+		case 'S':
+			flags->Sflag = 1;
+			break;
+		case 'H':
             print_help();
-            return EXIT_SUCCESS;
-        } else if (argv[i][0] == '-') {
-            // check arg value
-            size_t len = strlen(argv[i]);
-            int j;
-            // j = 1, skip '-'
-            for (j = 1; j < len; ++j) {
-                switch (argv[i][j]) {
-                    case 'h':
-                    {
-                        // print header
-                        int value = 0;
-                        if (value) {
-                            printf("Le programme s'est terminé avec le code %d.\n", value);
-                            return value;
-                        }
-                        print_elf_header(header);
-                        break;
-                    }
-                    case 's':
-                    {
-                        print_elf_symbol_table(symbols, symbols_count);
-                        // print symbol table
-                        break;
-                    }
-                    case 'r':
-                    {
-                        print_elf_rel_tab(table_rel, symbols, table_entetes_section, table_nom_sections, header);
-                        // print rel table
-                        break;
-                    }
-                    case 'S':
-                    {
-                        // affichage de l'entete des sections
-                        print_elf_section_header(header, table_entetes_section, table_nom_sections);
-                        // print all sections
-                        break;
-                    }
-                    case 'x':
-                    {
-                        // skip the section name that doesn't exists for the next argument
-                        i++;
-                        int secnum;
-                        if (!is_numeric(argv[i])) {
-                            secnum = section_name_to_number(argv[i], table_entetes_section, table_nom_sections, &header);
-                            if (secnum == -1) {
-                                printf("La section \"%s\" n'existe pas.\n", argv[i]);
-                                continue;
-                            }
-                        } else {
-                            secnum = strtol(argv[i], NULL, 10);
-                        }
-
-                        print_elf_section_content(section_content, secnum, table_entetes_section, argv[i], header);
-                        break;
-                    }
-                    case 'a':
-                    {
-                        // print all
-                        int value = 0;
-                        if (value) {
-                            printf("Le programme s'est terminé avec le code %d.\n", value);
-                            return value;
-                        }
-                        print_elf_header(header);
-                        print_elf_section_header(header, table_entetes_section, table_nom_sections);
-                        print_elf_symbol_table(symbols, symbols_count);
-                        print_elf_rel_tab(table_rel, symbols, table_entetes_section, table_nom_sections, header);
-                        break;
-                    }
-                    default:
-                        // unknown argument
-                        break;
-                } // switch
-            } // for
-        } else {
+			return ERROR_MISSING_ARG;
+		case 's':
+			flags->sflag = 1;
+			break;
+        case 'x':
+            flags->xflag = 1;
+            flags->xflag_arg = optarg;
+            if (is_numeric(flags->xflag_arg)) {
+                flags->is_xflagarg_int = 0;
+            } else {
+                flags->is_xflagarg_int = 1;
+            }
             break;
-        }
-    } // for
+        case 'r':
+            flags->rflag = 1;
+            break;
+        case 'a':
+            flags->hflag = flags->rflag = flags->Sflag = flags->sflag = 1;
+            break;
+		default:
+			fprintf(stderr, "Unrecognized option %c\n", opt);
+			exit(1);
+		}
+	}
 
-    free(symbols);
-    free(table_entetes_section);
-    free(table_nom_sections);
+	// missing file arg
+	if (argc == optind) {
+        print_help();
+        return ERROR_MISSING_ARG;
+	}
+
+	*argv_idx_filename = optind;
 
     return EXIT_SUCCESS;
 }
@@ -174,22 +94,20 @@ void print_help() {
     printf("\tour_readelf [-hsSrx]" RESET " [<nom ou nombre> si l'option x est spécifiée] FICHIER\n\n");
     printf(BOLDWHITE "DESCRIPTION\n" RESET);
     printf("\tLit un fichier au format ELF et affiche les caractéristiques voulues à l'écran.\n\tSi aucun argument n'est spécifié, un menu apparait à l'écran pour choisir l'opération souhaitée.\n\n");
-    printf(BOLDWHITE "\t-a\n" RESET);
-    printf("\t\tÉquivalent à " BOLDWHITE "-hSsr" RESET ", " BOLDWHITE "-h-S-s-r" RESET " ou " BOLDWHITE "-h" RESET ", " BOLDWHITE "-S" RESET ", " BOLDWHITE "-s" RESET ", et " BOLDWHITE "-r" RESET ".\n\n");
-    printf(BOLDWHITE "\t-h\n" RESET);
+    printf(BOLDWHITE "\t-a\n\t--all\n" RESET);
+    printf("\t\tÉquivalent à " BOLDWHITE "-hSsr" RESET " ou " BOLDWHITE "-h" RESET ", " BOLDWHITE "-S" RESET ", " BOLDWHITE "-s" RESET ", et " BOLDWHITE "-r" RESET ".\n\n");
+    printf(BOLDWHITE "\t-h\n\t--header\n" RESET);
     printf("\t\tAffiche l'en-tête (header) du fichier ELF spécifié en entrée.\n\n");
-    printf(BOLDWHITE "\t-s\n" RESET);
+    printf(BOLDWHITE "\t-s\n\t--symbols\n" RESET);
     printf("\t\tAffiche la table des symboles du fichier ELF spécifié en entrée.\n\n");
-    printf(BOLDWHITE "\t-S\n" RESET);
+    printf(BOLDWHITE "\t-S\n\t--sections\n" RESET);
     printf("\t\tAffiche l'en-tête (header) des sections du fichier ELF spécifié en entrée.\n\n");
-    printf(BOLDWHITE "\t-x <nombre ou nom>\n" RESET);
-    printf("\t\tAffiche le contenu de la section donnée par son numéro ou son nom. Doit être spécifié en tant que dernière option.\n\n");
-    printf(BOLDWHITE "\t--help\n" RESET);
-    printf("\t\tAffiche cette aide.\n\n");
-    printf(BOLDWHITE "\t-r\n" RESET);
+    printf(BOLDWHITE "\t-x <nombre ou nom>\n\t--hex-dump=<nom ou numéro>\n" RESET);
+    printf("\t\tAffiche le contenu de la section donnée par son numéro ou son nom.\n\n");
+    printf(BOLDWHITE "\t-r\n\t--relocs\n" RESET);
     printf("\t\tAffiche la table de réimplantation statique.\n\n");
-//  printf(BOLDWHITE "\t-R\n" RESET);
-//  printf("\t\tAffiche la table de réimplantation dynamique.\n\n");
+    printf(BOLDWHITE "\t-H\n\t--help" RESET);
+    printf("\t\tAffiche cette aide.\n\n");
     printf(BOLDWHITE "    Valeurs de retour :\n" RESET);
     printf("\t0\tLe programme s'est terminé normalement.\n\n");
     printf("\t1\tLes nombres magiques sont erronés.\n\n");
@@ -207,7 +125,7 @@ void print_help() {
  * This function chek if the given string in a number ( @a isdigit extended to a string)
  * From http://rosettacode.org/wiki/Determine_if_a_string_is_numeric#C
  *
- * @param s     const char*, string containing (or not) the number
+ * @param s     string containing (or not) the number
  * @return 0 if the string is not a number, otherwise return non-zero value
  *
  */
