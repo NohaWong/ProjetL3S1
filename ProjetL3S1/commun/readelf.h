@@ -57,7 +57,7 @@ Elf32_Shdr *read_elf_section_header(FILE *file, Elf32_Ehdr *header, char** c);
  * @param symbols_count     uint16_t*, symbols count. The result is directly written in this variable
  * @return The structure that holds the symbol table
  */
-Elf32_Sym *read_symbol_table(FILE *file, Elf32_Shdr *section_headers, uint16_t *symbols_count);
+Elf32_Sym *read_symbol_table( Elf32_Ehdr header,FILE *file, Elf32_Shdr *section_headers, uint16_t *symbols_count);
 
 /**
  * @struct Table_rel_section
