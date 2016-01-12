@@ -26,7 +26,7 @@ int main(int argc, char **argv) {
 
     handle_errors(read_elf_header(file, &header));
     sections_headers_table = read_elf_section_header(file, &header, &sections_name_table);
-    Elf32_Sym *symbols = read_symbol_table(file, sections_headers_table, &symbols_count);
+    Elf32_Sym *symbols = read_symbol_table(header,file, sections_headers_table, &symbols_count);
     section_content = read_section_content(file, sections_headers_table, &header);
     Table_rel_set table_rel= read_rel_table(file, sections_headers_table, header.e_shnum);
 
