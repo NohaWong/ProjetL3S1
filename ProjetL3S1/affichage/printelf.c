@@ -202,8 +202,11 @@ void print_elf_symbol_table(Elf32_Sym *symbols, uint16_t symbols_count) {
                 strcpy(info, "OTHER");
                 break;
         }
+
+        // to print "ABS" in case the idx of the section is not set to an actual section
         char idx[15];
         (symbols[i].st_shndx == SHN_ABS) ? sprintf(idx, "ABS") : sprintf(idx, "%d", symbols[i].st_shndx);
+
         printf("%-7d%#-12x%#-12x%-10s%-10s%-5s", i, symbols[i].st_name, symbols[i].st_value, type, info, idx);
         printf("\n");
     }
@@ -278,12 +281,12 @@ void print_elf_section_content(uint8_t** sec_content, int number, Elf32_Shdr *se
 /**
  * Prints static relocation table
  *
- * @param relocations           Ensemble_table_rel, all relocations
+ * @param relocations           Table_rel_set, all relocations
  * @param symb_table            Elf32_Sym*, the table of all symbols
  * @param secname               char*, name of all sections
  * @param elf                   Elf32_Ehdr, all informations about ELF file header
  */
-void print_elf_rel_tab(Ensemble_table_rel relocations, Elf32_Sym* symb_table, Elf32_Shdr * section_headers, char *secname, Elf32_Ehdr header){
+void print_elf_rel_tab(Table_rel_set relocations, Elf32_Sym* symb_table, Elf32_Shdr * section_headers, char *secname, Elf32_Ehdr header){
     printf(BOLDWHITE "<TABLE DE RELOCATION STATIQUE>\n" RESET);
 
     if (relocations.section_count_rel == 0) {

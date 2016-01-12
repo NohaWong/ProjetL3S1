@@ -90,7 +90,7 @@ int compute_multiple_args (int argc, char **argv) {
     sections_headers_table = read_elf_section_header(file, &header, &sections_name_table);
     Elf32_Sym *symbols = read_symbol_table(file, sections_headers_table, &symbols_count);
     section_content = read_section_content(file, sections_headers_table, &header);
-    Ensemble_table_rel table_rel= read_rel_table(file, sections_headers_table, header.e_shnum);
+    Table_rel_set table_rel= read_rel_table(file, sections_headers_table, header.e_shnum);
 
     if (hflag == 1) {
         // print header

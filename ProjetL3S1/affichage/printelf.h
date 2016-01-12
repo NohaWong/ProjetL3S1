@@ -41,12 +41,12 @@ void print_elf_section_header(Elf32_Ehdr header, Elf32_Shdr *section_header_tabl
 /**
  * Prints static relocation table
  *
- * @param relocations           Ensemble_table_rel, all relocations
+ * @param relocations           Table_rel_set, all relocations
  * @param symb_table            Elf32_Sym*, the table of all symbols
  * @param secname               char*, name of all sections
  * @param elf                   Elf32_Ehdr, all informations about ELF file header
  */
-void print_elf_rel_tab(Ensemble_table_rel relocations, Elf32_Sym* symb_table, Elf32_Shdr * section_headers, char *secname, Elf32_Ehdr header);
+void print_elf_rel_tab(Table_rel_set relocations, Elf32_Sym* symb_table, Elf32_Shdr * section_headers, char *secname, Elf32_Ehdr header);
 
 /**
  * Prints a entire section content, with addresses and ASCII

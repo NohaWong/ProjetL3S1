@@ -170,12 +170,12 @@ Elf32_Sym *read_symbol_table(FILE *file, Elf32_Shdr *section_headers, uint16_t *
  * @param file              FILE*, the file to read, *already opened in "rb"*
  * @param section_header    ELF32_Shdr*, all sections headers
  * @param shnum             Elf32_Half, number of sections
- * @return The structure (Ensemble_table_rel) that holds the static relocations table.
+ * @return The structure (Table_rel_set) that holds the static relocations table.
  */
-Ensemble_table_rel read_rel_table(FILE *file, Elf32_Shdr *section_headers, Elf32_Half shnum){
+Table_rel_set read_rel_table(FILE *file, Elf32_Shdr *section_headers, Elf32_Half shnum){
 
     int i=0;
-    Ensemble_table_rel relocations;
+    Table_rel_set relocations;
 
     relocations.section_count_rel=0;
     relocations.section_count_rela=0;
@@ -249,7 +249,7 @@ Ensemble_table_rel read_rel_table(FILE *file, Elf32_Shdr *section_headers, Elf32
  * @param section_header    ELF32_Shdr*, all sections headers
  * @param names_table       char*, the table with all names
  * @param header            ELF32_Ehdr*, the structure to stock header informations
- * @return The structure (Ensemble_table_rel) that holds the static relocations table.
+ * @return The structure (Table_rel_set) that holds the static relocations table.
  */
 int section_name_to_number (char* name, Elf32_Shdr * section_headers, char* names_table, Elf32_Ehdr *header) {
     int i;
