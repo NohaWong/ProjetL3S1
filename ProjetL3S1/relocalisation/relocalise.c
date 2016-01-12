@@ -78,6 +78,8 @@ uint8_t** new_section_content (Ensemble_table_rel table_rel, char* sections_name
                             result_fusion32 += infos[k].section_new_addr;
                             break;
                         case R_ARM_JUMP24:
+                            result_fusion32 += infos[k].section_new_addr;
+                            result_fusion32 -= table_rel.rel_section_list[i].rel_list[j].r_offset;
                         case R_ARM_CALL:
                             result_fusion32 += infos[k].section_new_addr;
                             result_fusion32 -= table_rel.rel_section_list[i].rel_list[j].r_offset;
