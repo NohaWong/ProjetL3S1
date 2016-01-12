@@ -1,1 +1,0 @@
-relocalise.o: relocalise.c relocalise.h ../commun/readelf.h
