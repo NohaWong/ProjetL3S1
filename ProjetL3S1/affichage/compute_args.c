@@ -10,8 +10,8 @@
  * This function retrieve all arguments given in command line by the @a main
  * function.
  *
- * @param argc     integer, arguments count
- * @param argv     char**, arguments value represented by strings
+ * @param argc     arguments count
+ * @param argv     arguments value represented by strings
  * @return Return a code defined is the error enumeration in @a printfelf.h
  *
  */
@@ -94,22 +94,20 @@ void print_help() {
     printf("\tour_readelf [-hsSrx]" RESET " [<nom ou nombre> si l'option x est spécifiée] FICHIER\n\n");
     printf(BOLDWHITE "DESCRIPTION\n" RESET);
     printf("\tLit un fichier au format ELF et affiche les caractéristiques voulues à l'écran.\n\tSi aucun argument n'est spécifié, un menu apparait à l'écran pour choisir l'opération souhaitée.\n\n");
-    printf(BOLDWHITE "\t-a\n" RESET);
-    printf("\t\tÉquivalent à " BOLDWHITE "-hSsr" RESET ", " BOLDWHITE "-h-S-s-r" RESET " ou " BOLDWHITE "-h" RESET ", " BOLDWHITE "-S" RESET ", " BOLDWHITE "-s" RESET ", et " BOLDWHITE "-r" RESET ".\n\n");
-    printf(BOLDWHITE "\t-h\n" RESET);
+    printf(BOLDWHITE "\t-a\n\t--all\n" RESET);
+    printf("\t\tÉquivalent à " BOLDWHITE "-hSsr" RESET " ou " BOLDWHITE "-h" RESET ", " BOLDWHITE "-S" RESET ", " BOLDWHITE "-s" RESET ", et " BOLDWHITE "-r" RESET ".\n\n");
+    printf(BOLDWHITE "\t-h\n\t--header\n" RESET);
     printf("\t\tAffiche l'en-tête (header) du fichier ELF spécifié en entrée.\n\n");
-    printf(BOLDWHITE "\t-s\n" RESET);
+    printf(BOLDWHITE "\t-s\n\t--symbols\n" RESET);
     printf("\t\tAffiche la table des symboles du fichier ELF spécifié en entrée.\n\n");
-    printf(BOLDWHITE "\t-S\n" RESET);
+    printf(BOLDWHITE "\t-S\n\t--sections\n" RESET);
     printf("\t\tAffiche l'en-tête (header) des sections du fichier ELF spécifié en entrée.\n\n");
-    printf(BOLDWHITE "\t-x <nombre ou nom>\n" RESET);
-    printf("\t\tAffiche le contenu de la section donnée par son numéro ou son nom. Doit être spécifié en tant que dernière option.\n\n");
-    printf(BOLDWHITE "\t--help\n" RESET);
-    printf("\t\tAffiche cette aide.\n\n");
-    printf(BOLDWHITE "\t-r\n" RESET);
+    printf(BOLDWHITE "\t-x <nombre ou nom>\n\t--hex-dump=<nom ou numéro>\n" RESET);
+    printf("\t\tAffiche le contenu de la section donnée par son numéro ou son nom.\n\n");
+    printf(BOLDWHITE "\t-r\n\t--relocs\n" RESET);
     printf("\t\tAffiche la table de réimplantation statique.\n\n");
-//  printf(BOLDWHITE "\t-R\n" RESET);
-//  printf("\t\tAffiche la table de réimplantation dynamique.\n\n");
+    printf(BOLDWHITE "\t-H\n\t--help" RESET);
+    printf("\t\tAffiche cette aide.\n\n");
     printf(BOLDWHITE "    Valeurs de retour :\n" RESET);
     printf("\t0\tLe programme s'est terminé normalement.\n\n");
     printf("\t1\tLes nombres magiques sont erronés.\n\n");
@@ -127,7 +125,7 @@ void print_help() {
  * This function chek if the given string in a number ( @a isdigit extended to a string)
  * From http://rosettacode.org/wiki/Determine_if_a_string_is_numeric#C
  *
- * @param s     const char*, string containing (or not) the number
+ * @param s     string containing (or not) the number
  * @return 0 if the string is not a number, otherwise return non-zero value
  *
  */
