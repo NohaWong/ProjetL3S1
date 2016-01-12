@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <unistd.h>
+#include <getopt.h>
 #include "compute_args.h"
 
 
@@ -57,7 +58,8 @@ int compute_multiple_args (int argc, char **argv) {
             return ERROR_MAGIC_NUMBERS;
     }
 
-    table_entetes_section = read_elf_section_header(file, &header, &table_nom_sections);table_entetes_section = read_elf_section_header(file, &header, &table_nom_sections);
+    table_entetes_section = read_elf_section_header(file, &header, &table_nom_sections);
+    table_entetes_section = read_elf_section_header(file, &header, &table_nom_sections);
     Elf32_Sym *symbols = read_symbol_table(file, table_entetes_section, &symbols_count);
     section_content = read_section_content(file, table_entetes_section, &header);
     Ensemble_table_rel table_rel= read_rel_table(file, table_entetes_section, header.e_shnum);
@@ -122,6 +124,20 @@ int compute_multiple_args (int argc, char **argv) {
                         print_elf_section_content(section_content, secnum, table_entetes_section, argv[i], header);
                         break;
                     }
+                    case 'a':
+                    {
+                        // print all
+                        int value = 0;
+                        if (value) {
+                            printf("Le programme s'est terminé avec le code %d.\n", value);
+                            return value;
+                        }
+                        print_elf_header(header);
+                        print_elf_section_header(header, table_entetes_section, table_nom_sections);
+                        print_elf_symbol_table(symbols, symbols_count);
+                        print_elf_rel_tab(table_rel, symbols, table_entetes_section, table_nom_sections, header);
+                        break;
+                    }
                     default:
                         // unknown argument
                         break;
@@ -155,9 +171,11 @@ void print_help() {
     printf(BOLDWHITE "NOM\n" RESET);
     printf("\tour_readelf - lit un fichier au format ELF et affiche ses caractéristiques\n\n");
     printf(BOLDWHITE "SYNOPSIS\n");
-    printf("\tour_readelf [-hsSrRx]" RESET " FICHIER\n\n");
+    printf("\tour_readelf [-hsSrx]" RESET " [<nom ou nombre> si l'option x est spécifiée] FICHIER\n\n");
     printf(BOLDWHITE "DESCRIPTION\n" RESET);
     printf("\tLit un fichier au format ELF et affiche les caractéristiques voulues à l'écran.\n\tSi aucun argument n'est spécifié, un menu apparait à l'écran pour choisir l'opération souhaitée.\n\n");
+    printf(BOLDWHITE "\t-a\n" RESET);
+    printf("\t\tÉquivalent à " BOLDWHITE "-hSsr" RESET ", " BOLDWHITE "-h-S-s-r" RESET " ou " BOLDWHITE "-h" RESET ", " BOLDWHITE "-S" RESET ", " BOLDWHITE "-s" RESET ", et " BOLDWHITE "-r" RESET ".\n\n");
     printf(BOLDWHITE "\t-h\n" RESET);
     printf("\t\tAffiche l'en-tête (header) du fichier ELF spécifié en entrée.\n\n");
     printf(BOLDWHITE "\t-s\n" RESET);
@@ -165,13 +183,13 @@ void print_help() {
     printf(BOLDWHITE "\t-S\n" RESET);
     printf("\t\tAffiche l'en-tête (header) des sections du fichier ELF spécifié en entrée.\n\n");
     printf(BOLDWHITE "\t-x <nombre ou nom>\n" RESET);
-    printf("\t\tAffiche le contenu de la section donnée par son numéro ou son nom.\n\n");
+    printf("\t\tAffiche le contenu de la section donnée par son numéro ou son nom. Doit être spécifié en tant que dernière option.\n\n");
     printf(BOLDWHITE "\t--help\n" RESET);
     printf("\t\tAffiche cette aide.\n\n");
     printf(BOLDWHITE "\t-r\n" RESET);
     printf("\t\tAffiche la table de réimplantation statique.\n\n");
-    printf(BOLDWHITE "\t-R\n" RESET);
-    printf("\t\tAffiche la table de réimplantation dynamique.\n\n");
+//  printf(BOLDWHITE "\t-R\n" RESET);
+//  printf("\t\tAffiche la table de réimplantation dynamique.\n\n");
     printf(BOLDWHITE "    Valeurs de retour :\n" RESET);
     printf("\t0\tLe programme s'est terminé normalement.\n\n");
     printf("\t1\tLes nombres magiques sont erronés.\n\n");
