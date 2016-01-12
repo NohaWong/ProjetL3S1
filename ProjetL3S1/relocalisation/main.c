@@ -70,14 +70,14 @@ int main(int argc, char **argv) {
     // create new structs
     new_header = header;
     Elf32_Shdr *new_sections_header = new_section_header(section_header_table, section_header_name, table_rel_info, rel_count, header, &new_header);
-    uint8_t **new_section = new_section_content (table_rel, section_header_name, section_content, table_rel_info, section_header_table, header, rel_count, symbols);
     Elf32_Sym *new_symb_table= new_symbol_table(symbols, table_rel_info, symbols_count, rel_count, section_header_table, section_header_name);
+    uint8_t **new_section = new_section_content (table_rel, section_header_name, section_content, table_rel_info, section_header_table, header, rel_count, symbols);
 
 
 
     // display tests
 
-    /* display test symb_table (before modif)
+   // /* display test symb_table (before modif)
 
     #ifndef FIRST_SYMB_DISPLAY
     #define FIRST_SYMB_DISPLAY
