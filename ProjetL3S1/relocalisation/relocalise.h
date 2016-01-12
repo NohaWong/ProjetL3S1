@@ -19,5 +19,8 @@ uint8_t **new_section_content (Ensemble_table_rel table_rel, char* sections_name
 
 Elf32_Sym *new_symbol_table(Elf32_Sym *symb_table, rel_info *info, uint32_t symb_count, uint32_t rel_count, Elf32_Shdr *sections_header, char* section_name );
 
+char* new_section_header_name(char* section_header_name, Elf32_Shdr *new_sections_header, Elf32_Ehdr new_header);
+
+size_t my_strlen(const char *str);
 
 #endif // RELOCALISE_H_INCLUDED
