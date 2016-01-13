@@ -3,6 +3,8 @@
 #include "relocalise.h"
 #include "write_file.h"
 
+#define test 1 //0 pour aucun test,1 pour l'ecriture dans une fichier , (ect a compléter)
+
 
 // APPEL : relocalisation <nom_fichier> <nom_fichier_cible> <nom_section adresse_relocalisee> [nom_section_x adresse_relocalisee_x]
 
@@ -40,8 +42,7 @@ int main(int argc, char **argv) {
     // load everything before printing
     read_elf_header(file_source, &header);
 
- //   memcpy(new_header, &header, sizeof(Elf32_Ehdr));
-//    write_file_header(file_target, &new_header);
+
 
 
     section_header_table = read_elf_section_header(file_source, &header, &section_header_name);
@@ -49,6 +50,17 @@ int main(int argc, char **argv) {
     section_content = read_section_content(file_source, section_header_table, &header);
     Table_rel_set table_rel= read_rel_table(file_source, section_header_table, header.e_shnum);
 
+    if (test==1){
+        // memcpy(new_header, &header, sizeof(Elf32_Ehdr));
+        new_header=header;
+        write_file_header(file_target, new_header);
+
+        write_section_header(file_target,section_header_table,header);
+        write_symbole_table(file_target,symbols,header,section_header_table,symbols_count);
+        write_section_content(file_target,section_header_table,header,section_content);
+
+
+    }
 
     // get args
     if (!(argc%2)) {
@@ -72,6 +84,7 @@ int main(int argc, char **argv) {
     Elf32_Shdr *new_sections_header = new_section_header(section_header_table, section_header_name, table_rel_info, rel_count, header, &new_header);
     Elf32_Sym *new_symb_table= new_symbol_table(symbols, table_rel_info, symbols_count, rel_count, section_header_table, section_header_name);
     uint8_t **new_section = new_section_content (table_rel, section_header_name, section_content, table_rel_info, section_header_table, header, rel_count, symbols);
+
 
 
 
