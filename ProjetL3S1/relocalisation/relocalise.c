@@ -1,8 +1,10 @@
 #include "relocalise.h"
 
 
+
 Elf32_Shdr* new_section_header(Elf32_Shdr* section_headers, char* nom_sections, rel_info* infos, int rel_count, Elf32_Ehdr header,Elf32_Ehdr *new_header) {
     int i,k;
+
 
     *new_header = header;
 
@@ -21,7 +23,8 @@ Elf32_Shdr* new_section_header(Elf32_Shdr* section_headers, char* nom_sections, 
     for (j=0; j<rel_count; j++) {
         k=0;
         for (i=0; i<header.e_shnum;i++) {
-            if (section_headers[i].sh_type!=SHT_REL){
+            //we don't want the section if it's a NOBITS or a REL type section
+            if (section_headers[i].sh_type!=SHT_REL  && section_headers[i].sh_type != SHT_NOBITS ){
                 new_sections_header[k]=section_headers[i];
                 if (!strcmp(infos[j].section_name, &nom_sections[new_sections_header[k].sh_name])) {
                     // On a trouve la section a changer
@@ -106,7 +109,7 @@ uint8_t** new_section_content (Table_rel_set table_rel, char* sections_name, uin
         }
     }
 
-	///* display test section_content (after modif)
+	/* display test section_content (after modif)
     for (j = 0; j < section_headers[1].sh_size; ++j) {
         printf("%02x", section_cpy[1][j]);
 
@@ -140,6 +143,33 @@ Elf32_Sym *new_symbol_table(Elf32_Sym *symb_table, rel_info *info, uint32_t symb
 }
 
 
+char* new_section_header_name(char* section_header_name, Elf32_Shdr *new_sections_header, Elf32_Ehdr new_header){
+    char *new_sec_header_name;
+    uint32_t i,taille=0,current_pos = 0;
 
+    for (i=0; i<new_header.e_shnum; i++) {
+        taille += my_strlen(&section_header_name[new_sections_header[i].sh_name])+1;
+    }
+    new_sec_header_name = malloc(taille*sizeof(char));
+
+    for(i=0 ; i<new_header.e_shnum ; i++){
+        strcpy(&new_sec_header_name[current_pos], &section_header_name[new_sections_header[i].sh_name]);
+        new_sections_header[i].sh_name = current_pos;
+        current_pos += my_strlen(&new_sec_header_name[current_pos]);
+    }
+
+    return new_sec_header_name;
+}
+
+
+size_t my_strlen(const char* str) {
+    char c = 1;
+    size_t size = 0;
+    while (c != '\0') {
+        c = str[size++];
+    }
+
+    return size;
+}
 
 
