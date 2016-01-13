@@ -73,9 +73,9 @@ int main(int argc, char **argv) {
         new_header = header;
         Elf32_Shdr *new_sections_header = new_section_header(section_header_table, &new_sec_name, section_header_name, table_rel_info, rel_count, header, &new_header);
         Elf32_Sym *new_symb_table = new_symbol_table(symbols, table_rel_info, symbols_count, &new_symb_count, rel_count, section_header_table, new_sec_name, new_sections_header);
- //       char *new_sec_header_name=new_section_header_name(section_header_name, new_sections_header, new_header);
-        //uint8_t **new_section = new_section_content (table_rel, new_sec_header_name, section_content, table_rel_info, new_sections_header, new_header, rel_count, new_symb_table);
-
+		uint8_t **new_section = new_section_content (table_rel, section_header_name, section_content, table_rel_info, section_header_table, header, rel_count, symbols, new_symb_table);
+		(void)new_section;
+		(void)new_symb_table;
         // display tests
 
        /* display test symb_table (before modif)
@@ -167,7 +167,7 @@ int main(int argc, char **argv) {
         }
         //*/
 
-        //* display test symbol table (after modif)
+        /* display test symbol table (after modif)
 
         #ifndef FIRST_SYMB_DISPLAY
         #define FIRST_SYMB_DISPLAY
