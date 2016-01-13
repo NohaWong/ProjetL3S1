@@ -3,7 +3,11 @@
 #include "relocalise.h"
 #include "write_file.h"
 
+
+#define test 1 //0 pour aucun test,1 pour l'ecriture dans une fichier , (ect a compléter)
+
 extern int *old_sec_to_new_sec;
+
 
 // APPEL : relocalisation <nom_fichier> <nom_fichier_cible> <nom_section adresse_relocalisee> [nom_section_x adresse_relocalisee_x]
 
@@ -20,6 +24,7 @@ int main(int argc, char **argv) {
 
         FILE *file_source = fopen(argv[1], "rb");
         FILE *file_target = fopen(argv[2], "wb");
+
 
         if (file_source == NULL ) {
             printf("Le fichier source n'existe pas.\n");
@@ -52,6 +57,17 @@ int main(int argc, char **argv) {
         char * new_sec_name;
         (void)table_rel;
 
+        if (test==1){
+        // memcpy(new_header, &header, sizeof(Elf32_Ehdr));
+        new_header=header;
+        write_file_header(file_target, new_header);
+
+        write_section_header(file_target,section_header_table,header);
+        write_symbole_table(file_target,symbols,header,section_header_table,symbols_count);
+        write_section_content(file_target,section_header_table,header,section_content);
+    }
+
+
         // get args
         if (!(argc%2)) {
             printf("Nombre d'arguments incorrect. Veuillez veiller à donner une adresse de relocalisation a chaque section que vous souhaitez relocaliser.\n");
@@ -63,9 +79,11 @@ int main(int argc, char **argv) {
         table_rel_info = malloc(rel_count * sizeof(rel_info));
 
 
+
         for (i=0; i<rel_count; ++i) {
             table_rel_info[i].section_name = argv[(2*i)+3];
             table_rel_info[i].section_new_addr = strtol(argv[((2*i)+1)+3], NULL, 16);
+
         }
 
 

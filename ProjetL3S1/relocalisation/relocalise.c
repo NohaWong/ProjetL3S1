@@ -83,8 +83,6 @@ void change_idx_and_name_symb_table(Elf32_Sym* symbols, int symb_count, Elf32_Sh
 	}
 }
 
-
-
 uint8_t** new_section_content (	Table_rel_set table_rel,
 								char* sections_name,
 								uint8_t** section_content,
