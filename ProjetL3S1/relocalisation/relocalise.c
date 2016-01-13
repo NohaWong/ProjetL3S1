@@ -5,20 +5,17 @@
 Elf32_Shdr* new_section_header(Elf32_Shdr* section_headers, char* nom_sections, rel_info* infos, int rel_count, Elf32_Ehdr header,Elf32_Ehdr *new_header) {
     int i,k;
 
-
     *new_header = header;
 
     Elf32_Shdr * new_sections_header = NULL;
     int sections_count=0;
     int j;
     for(i=0;i<header.e_shnum;i++){
-        if (section_headers[i].sh_type!=SHT_REL){
+        if (section_headers[i].sh_type!=SHT_REL && section_headers[i].sh_type != SHT_NOBITS){
             sections_count++;
         }
     }
     new_sections_header = malloc(sections_count*(sizeof(Elf32_Shdr)));
-    k=0;
-
 
     for (j=0; j<rel_count; j++) {
         k=0;
