@@ -1,8 +1,8 @@
 #include "relocalise.h"
 
+int *old_sec_to_new_sec;
 
-
-Elf32_Shdr* new_section_header(Elf32_Shdr* section_headers, char* nom_sections, rel_info* infos, int rel_count, Elf32_Ehdr header,Elf32_Ehdr *new_header) {
+Elf32_Shdr* new_section_header(Elf32_Shdr* section_headers, char** new_sec_name, char* nom_sections, rel_info* infos, int rel_count, Elf32_Ehdr header,Elf32_Ehdr *new_header) {
     int i, j, k = 0;
     int last_size = 0, last_offset = 0;
 
@@ -20,13 +20,15 @@ Elf32_Shdr* new_section_header(Elf32_Shdr* section_headers, char* nom_sections, 
 
     for (i = 0; i < header.e_shnum; ++i) {
         if (section_headers[i].sh_type != SHT_REL && section_headers[i].sh_type != SHT_NOBITS) {
+
+			old_sec_to_new_sec[i] = k;
             memcpy(&new_sections_header[k], &section_headers[i], sizeof(Elf32_Shdr));
             for (j = 0; j < rel_count; ++j) {
                 if (strcmp(&nom_sections[new_sections_header[k].sh_name], infos[j].section_name) == 0) {
                     new_sections_header[k].sh_addr = infos[j].section_new_addr;
                 }
             }
-
+/*
             if (i == 1) {
                 new_sections_header[k].sh_offset = new_sections_header[k].sh_addr + last_size + last_offset + new_sections_header[k].sh_offset;
                 last_offset = section_headers[i].sh_offset;
@@ -37,17 +39,48 @@ Elf32_Shdr* new_section_header(Elf32_Shdr* section_headers, char* nom_sections, 
             }
 
             printf("AUFÇ7: %x, TAYE: %x, NON SEXION DASSO: %s\n", last_offset, last_size, &nom_sections[new_sections_header[k].sh_name]);
+*/
             ++k;
         }
     }
 
     *new_header = header;
+    new_header->e_shstrndx = old_sec_to_new_sec[new_header->e_shstrndx]; // changes the index...
     new_header->e_shnum=sections_count;
     new_header->e_type=ET_EXEC;
+
+    *new_sec_name = new_section_header_name(nom_sections, new_sections_header, *new_header);
+    // en théorie ici on doit faire la nouvelle table des symboles
+	// donc ici on peut faire change_idx_and_name_symb_table
+
+	// en enfin on peut changer les offsets des sections
+	for (i=0; i<new_header->e_shnum; ++i) {
+
+		if (i == 1) {
+			new_sections_header[i].sh_offset = new_sections_header[i].sh_addr + last_size + last_offset + new_sections_header[i].sh_offset;
+			last_offset = section_headers[i].sh_offset - section_headers[i].sh_addr;
+		} else {
+			new_sections_header[i].sh_offset = new_sections_header[i].sh_addr + last_size + last_offset;
+			last_size = new_sections_header[i].sh_size;
+			last_offset = new_sections_header[i].sh_offset;
+		}
+
+//		printf("AUFÇ7: %x, TAYE: %x, NON SEXION DASSO: %s\n", last_offset, last_size, &((*new_sec_name)[new_sections_header[i].sh_name]));
+
+	}
+
 
     return new_sections_header;
 }
 
+void change_idx_and_name_symb_table(Elf32_Sym* symbols, int symb_count, Elf32_Shdr* section_headers) {
+	int i;
+
+	for (i=0; i<symb_count; ++i) {
+        symbols[i].st_shndx = old_sec_to_new_sec[symbols[i].st_shndx];
+        symbols[i].st_name = section_headers[symbols[i].st_shndx].sh_name;
+	}
+}
 
 
 uint8_t** new_section_content (Table_rel_set table_rel, char* sections_name, uint8_t** section_content, rel_info* infos, Elf32_Shdr * section_headers,Elf32_Ehdr header, int rel_count, Elf32_Sym *symbols)
@@ -134,39 +167,49 @@ uint8_t** new_section_content (Table_rel_set table_rel, char* sections_name, uin
     return section_cpy;
 }
 
-Elf32_Sym *new_symbol_table(Elf32_Sym *symb_table, rel_info *info, uint32_t symb_count, uint32_t rel_count, Elf32_Shdr *sections_header, char* section_name, Elf32_Shdr *new_sections_header){
-    uint32_t i,j;
-    Elf32_Sym *new_symb_table=malloc(sizeof(Elf32_Sym)*symb_count);
-    memcpy(new_symb_table,symb_table,sizeof(Elf32_Sym)*symb_count);
-    for(i=0 ; i<symb_count ; i++){
-        for(j=0 ; j<rel_count ; j++){
-            /* display test symbol table ???
-            printf("%i\n",symb_table[i].st_shndx);
-            //*/
-            if(symb_table[i].st_shndx != SHN_ABS && !strcmp(info[j].section_name,&section_name[new_sections_header[symb_table[i].st_shndx].sh_name])){
-                new_symb_table[i].st_value += info[j].section_new_addr;
-            }
-        }
+Elf32_Sym *new_symbol_table(Elf32_Sym *symb_table, rel_info *info, uint32_t symb_count, uint32_t* new_symb_count, uint32_t rel_count, Elf32_Shdr *sections_header, char* section_name, Elf32_Shdr *new_sections_header){
+    uint32_t i, j;
 
+	*new_symb_count = 0;
+    // count number of useless symb
+    for (i=0; i<symb_count; i++) {
+		*new_symb_count += (sections_header[symb_table[i].st_shndx].sh_type!=SHT_NOBITS);
+    }
+
+    Elf32_Sym *new_symb_table=malloc(sizeof(Elf32_Sym)*(*new_symb_count));
+	j=0;
+    for (i=0; i<symb_count; i++) {
+		if (sections_header[symb_table[i].st_shndx].sh_type!=SHT_NOBITS) {
+			memcpy(&new_symb_table[j], &symb_table[i], sizeof(Elf32_Sym));
+			j++;
+		}
+    }
+	change_idx_and_name_symb_table(new_symb_table, *new_symb_count, new_sections_header);
+
+    for(i=0 ; i<*new_symb_count ; i++){
+        new_symb_table[i].st_value += new_sections_header[new_symb_table[i].st_shndx].sh_addr;
     }
     return new_symb_table;
 }
 
-
-char* new_section_header_name(char* section_header_name, Elf32_Shdr *new_sections_header, Elf32_Ehdr new_header){
+/** creates new char* section_name that contains the name of the sections in the EXEC file
+*/
+char* new_section_header_name(char* section_header_name, Elf32_Shdr *new_sections_header, Elf32_Ehdr new_header) {
     char *new_sec_header_name;
-    uint32_t i,taille=0,current_pos = 0;
+    uint32_t i,size=0,current_pos = 0;
 
     for (i=0; i<new_header.e_shnum; i++) {
-        taille += my_strlen(&section_header_name[new_sections_header[i].sh_name])+1;
+        size += my_strlen(&section_header_name[new_sections_header[i].sh_name])+1;
     }
-    new_sec_header_name = malloc(taille*sizeof(char));
+    new_sec_header_name = malloc(size*sizeof(char));
 
     for(i=0 ; i<new_header.e_shnum ; i++){
         strcpy(&new_sec_header_name[current_pos], &section_header_name[new_sections_header[i].sh_name]);
         new_sections_header[i].sh_name = current_pos;
         current_pos += my_strlen(&new_sec_header_name[current_pos]);
     }
+
+    new_sections_header[new_header.e_shstrndx].sh_size = size;
 
     return new_sec_header_name;
 }

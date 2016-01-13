@@ -3,6 +3,7 @@
 #include "relocalise.h"
 #include "write_file.h"
 
+extern int *old_sec_to_new_sec;
 
 // APPEL : relocalisation <nom_fichier> <nom_fichier_cible> <nom_section adresse_relocalisee> [nom_section_x adresse_relocalisee_x]
 
@@ -34,7 +35,7 @@ int main(int argc, char **argv) {
         Elf32_Ehdr header, new_header;
         Elf32_Shdr *section_header_table = NULL;
         char *section_header_name = NULL;
-        uint16_t symbols_count = 0;
+        uint32_t symbols_count = 0, new_symb_count = 0;
         uint8_t **section_content;
 
         // load everything before printing
@@ -42,12 +43,13 @@ int main(int argc, char **argv) {
 
      //   memcpy(new_header, &header, sizeof(Elf32_Ehdr));
     //    write_file_header(file_target, &new_header);
-
+		old_sec_to_new_sec = malloc(header.e_shnum*sizeof(int));
 
         section_header_table = read_elf_section_header(file_source, &header, &section_header_name);
         Elf32_Sym *symbols = read_symbol_table(header,file_source, section_header_table,/* header.e_shnum,*/ &symbols_count);
         section_content = read_section_content(file_source, section_header_table, &header);
         Table_rel_set table_rel= read_rel_table(file_source, section_header_table, header.e_shnum);
+        char * new_sec_name;
         (void)table_rel;
 
         // get args
@@ -69,8 +71,8 @@ int main(int argc, char **argv) {
 
         // create new structs
         new_header = header;
-        Elf32_Shdr *new_sections_header = new_section_header(section_header_table, section_header_name, table_rel_info, rel_count, header, &new_header);
- //       Elf32_Sym *new_symb_table = new_symbol_table(symbols, table_rel_info, symbols_count, rel_count, section_header_table, section_header_name);
+        Elf32_Shdr *new_sections_header = new_section_header(section_header_table, &new_sec_name, section_header_name, table_rel_info, rel_count, header, &new_header);
+        Elf32_Sym *new_symb_table = new_symbol_table(symbols, table_rel_info, symbols_count, &new_symb_count, rel_count, section_header_table, new_sec_name, new_sections_header);
  //       char *new_sec_header_name=new_section_header_name(section_header_name, new_sections_header, new_header);
         //uint8_t **new_section = new_section_content (table_rel, new_sec_header_name, section_content, table_rel_info, new_sections_header, new_header, rel_count, new_symb_table);
 
@@ -165,7 +167,7 @@ int main(int argc, char **argv) {
         }
         //*/
 
-        /* display test symbol table (after modif)
+        //* display test symbol table (after modif)
 
         #ifndef FIRST_SYMB_DISPLAY
         #define FIRST_SYMB_DISPLAY
@@ -174,7 +176,7 @@ int main(int argc, char **argv) {
 
         printf("#      Nom         Valeur      Type      Portée    Indice de section\n");
             printf("--------------------------------------------------------------------\n");
-            for (i = 0; i < symbols_count; ++i) {
+            for (i = 0; i < new_symb_count; ++i) {
                 switch (ELF32_ST_TYPE(new_symb_table[i].st_info)) {
                     case STT_NOTYPE:
                     default:
@@ -219,12 +221,12 @@ int main(int argc, char **argv) {
             printf("\n");
         //*/
 
-        //* display file header (after modif)
+        /* display file header (after modif)
         printf("#     Nom                 Type        Flags   Adresse              Taille  Link    Alignement Entsize \n");
         printf("------------------------------------------------------------------------------------------------------\n");
         for (i=0; i < new_header.e_shnum; i++) {
             printf("%-6d%-20s%#-12x%#-8x%#-8x(+ %#-8x) %#-8x%#-8x%#-11x%#-8x", i,
-                               &(section_header_name[new_sections_header[i].sh_name]),
+                               &(new_sec_name[new_sections_header[i].sh_name]),
                                new_sections_header[i].sh_type,
                                new_sections_header[i].sh_flags,
                                new_sections_header[i].sh_addr,
@@ -266,6 +268,7 @@ int main(int argc, char **argv) {
         free(section_header_table);
         free(new_sections_header);
         free(section_header_name);
+        free(old_sec_to_new_sec);
  //       free(new_sec_header_name);
         /*
         for (i = 0; i < header.e_shnum; ++i) {
