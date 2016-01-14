@@ -1,6 +1,6 @@
 CC=gcc
 CFLAGS=-Wall -Werror -g -I../commun
-SOURCES=$(wildcard *.c wildcard ../commun/*.c )
+SOURCES=$(wildcard *.c wildcard ../commun/*.c wildcard ../affichage/printelf.c)
 DEPS=$(patsubst %.c, %.dep, $(SOURCES))
 OBJ=$(patsubst %.c, %.o, $(SOURCES))
 NOM=our_relocalisation

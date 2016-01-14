@@ -91,195 +91,34 @@ int main(int argc, char **argv) {
         new_header = header;
         Elf32_Shdr *new_sections_header = new_section_header(section_header_table, &new_sec_name, section_header_name, table_rel_info, rel_count, header, &new_header);
         Elf32_Sym *new_symb_table = new_symbol_table(symbols, table_rel_info, symbols_count, &new_symb_count, rel_count, section_header_table, new_sec_name, new_sections_header);
-		uint8_t **new_section = new_section_content (table_rel, section_header_name, section_content, table_rel_info, section_header_table, header, rel_count, symbols, new_symb_table);
-		(void)new_section;
-		(void)new_symb_table;
+
         // display tests
 
-       /* display test symb_table (before modif)
+        // display header
+        printf(BOLDYELLOW "============================= AVANT =============================\n" RESET);
+        print_elf_header(header);
+        printf(BOLDYELLOW "============================= APRÈS =============================\n" RESET);
+        print_elf_header(new_header);
 
-        #ifndef FIRST_SYMB_DISPLAY
-        #define FIRST_SYMB_DISPLAY
-        char type[16],info[16];
-        #endif
 
-        printf("#      Nom         Valeur      Type      Portée    Indice de section\n");
-        printf("--------------------------------------------------------------------\n");
-        for (i = 0; i < symbols_count; ++i) {
-            switch (ELF32_ST_TYPE(symbols[i].st_info)) {
-                case STT_NOTYPE:
-                default:
-                    strcpy(type, "NOTYPE");
-                    break;
-                case STT_OBJECT:
-                    strcpy(type, "OBJECT");
-                    break;
-                case STT_FUNC:
-                    strcpy(type, "FUNC");
-                    break;
-                case STT_SECTION:
-                    strcpy(type, "SECTION");
-                    break;
-                case STT_FILE:
-                    strcpy(type, "FILE");
-                    break;
-            }
-            //bind
-            switch(ELF32_ST_BIND(symbols[i].st_info)) {
-                case STB_LOCAL:
-                    strcpy(info, "LOCAL");
-                    break;
-                case STB_GLOBAL:
-                    strcpy(info, "GLOBAL");
-                    break;
-                case STB_WEAK:
-                    strcpy(info, "WEAK");
-                    break;
-                case STB_NUM:
-                    strcpy(info, "NUM");
-                    break;
-                default:
-                    strcpy(info, "OTHER");
-                    break;
-            }
+       // display test symb_table (before modif)
+        printf(BOLDYELLOW "============================= AVANT =============================\n" RESET);
+        print_elf_symbol_table(symbols, symbols_count);
+        printf(BOLDYELLOW "============================= APRÈS =============================\n" RESET);
+        print_elf_symbol_table(new_symb_table, new_symb_count);
 
-            printf("%-7d%#-12x%#-12x%-10s%-10s%-2d", i, symbols[i].st_name, symbols[i].st_value, type, info, symbols[i].st_shndx);
-            printf("\n");
-        }
-        printf("\n");
-        //*/
+        // display test section header (before modif)
+        printf(BOLDYELLOW "============================= AVANT =============================\n" RESET);
+        print_elf_section_header(header, section_header_table, section_header_name);
+        printf(BOLDYELLOW "============================= APRÈS =============================\n" RESET);
+        print_elf_section_header(new_header, new_sections_header, new_sec_name);
 
-        /* display test section header (before modif)
-        for (i=0; i < header.e_shnum; i++) {
-            printf("%-6d%-20s%#-12x%#-8x%#-8x(+ %#-8x) %#-8x%#-8x%#-11x%#-8x", i,
-                               &(section_header_name[section_header_table[i].sh_name]),
-                               section_header_table[i].sh_type,
-                               section_header_table[i].sh_flags,
-                               section_header_table[i].sh_addr,
-                               section_header_table[i].sh_offset,
-                               section_header_table[i].sh_size,
-                               section_header_table[i].sh_link,
-                               section_header_table[i].sh_addralign,
-                               section_header_table[i].sh_entsize
-                  );
+        printf(BOLDYELLOW "============================= AVANT =============================\n" RESET);
+        print_elf_section_content(section_content, 1, section_header_table, section_header_name, header);
+        uint8_t **new_section = new_section_content (table_rel, section_header_name, section_content, table_rel_info, section_header_table, header, rel_count, symbols, new_symb_table);
+        printf(BOLDYELLOW "============================= APRÈS =============================\n" RESET);
+        print_elf_section_content(new_section, 1, new_sections_header, new_sec_name, new_header);
 
-            printf("\n");
-        }
-        //*/
-
-        /* display test section header (before modif)
-        for (i=0; i < new_header.e_shnum; i++) {
-            printf("%-6d%-20s%#-12x%#-8x%#-8x(+ %#-8x) %#-8x%#-8x%#-11x%#-8x", i,
-                               &(section_header_name[new_sections_header[i].sh_name]),
-                               new_sections_header[i].sh_type,
-                               new_sections_header[i].sh_flags,
-                               new_sections_header[i].sh_addr,
-                               new_sections_header[i].sh_offset,
-                               new_sections_header[i].sh_size,
-                               new_sections_header[i].sh_link,
-                               new_sections_header[i].sh_addralign,
-                               new_sections_header[i].sh_entsize
-                  );
-
-            printf("\n");
-        }
-        //*/
-
-        /* display test symbol table (after modif)
-
-        #ifndef FIRST_SYMB_DISPLAY
-        #define FIRST_SYMB_DISPLAY
-        char type[16], info[16];
-        #endif
-
-        printf("#      Nom         Valeur      Type      Portée    Indice de section\n");
-            printf("--------------------------------------------------------------------\n");
-            for (i = 0; i < new_symb_count; ++i) {
-                switch (ELF32_ST_TYPE(new_symb_table[i].st_info)) {
-                    case STT_NOTYPE:
-                    default:
-                        strcpy(type, "NOTYPE");
-                        break;
-                    case STT_OBJECT:
-                        strcpy(type, "OBJECT");
-                        break;
-                    case STT_FUNC:
-                        strcpy(type, "FUNC");
-                        break;
-                    case STT_SECTION:
-                        strcpy(type, "SECTION");
-                        break;
-                    case STT_FILE:
-                        strcpy(type, "FILE");
-                        break;
-                }
-
-                //bind
-                switch(ELF32_ST_BIND(new_symb_table[i].st_info)) {
-                    case STB_LOCAL:
-                        strcpy(info, "LOCAL");
-                        break;
-                    case STB_GLOBAL:
-                        strcpy(info, "GLOBAL");
-                        break;
-                    case STB_WEAK:
-                        strcpy(info, "WEAK");
-                        break;
-                    case STB_NUM:
-                        strcpy(info, "NUM");
-                        break;
-                    default:
-                        strcpy(info, "OTHER");
-                        break;
-                }
-
-                printf("%-7d%#-12x%#-12x%-10s%-10s%-2d", i, new_symb_table[i].st_name, new_symb_table[i].st_value, type, info, new_symb_table[i].st_shndx);
-                printf("\n");
-            }
-            printf("\n");
-        //*/
-
-        /* display file header (after modif)
-        printf("#     Nom                 Type        Flags   Adresse              Taille  Link    Alignement Entsize \n");
-        printf("------------------------------------------------------------------------------------------------------\n");
-        for (i=0; i < new_header.e_shnum; i++) {
-            printf("%-6d%-20s%#-12x%#-8x%#-8x(+ %#-8x) %#-8x%#-8x%#-11x%#-8x", i,
-                               &(new_sec_name[new_sections_header[i].sh_name]),
-                               new_sections_header[i].sh_type,
-                               new_sections_header[i].sh_flags,
-                               new_sections_header[i].sh_addr,
-                               new_sections_header[i].sh_offset,
-                               new_sections_header[i].sh_size,
-                               new_sections_header[i].sh_link,
-                               new_sections_header[i].sh_addralign,
-                               new_sections_header[i].sh_entsize
-                  );
-
-            printf("\n");
-        }
-        //*/
-
-        /* display test sections' headers (after modif)
-        printf("#     Nom                 Type        Flags   Adresse              Taille  Link    Alignement Entsize \n");
-        printf("------------------------------------------------------------------------------------------------------\n");
-
-        for (i=0; i < new_header.e_shnum; i++) {
-            printf("%-6d%-20s%#-12x%#-8x%#-8x(+ %#-8x) %#-8x%#-8x%#-11x%#-8x", i,
-                               &(new_sec_header_name[new_sections_header[i].sh_name]),
-                               new_sections_header[i].sh_type,
-                               new_sections_header[i].sh_flags,
-                               new_sections_header[i].sh_addr,
-                               new_sections_header[i].sh_offset,
-                               new_sections_header[i].sh_size,
-                               new_sections_header[i].sh_link,
-                               new_sections_header[i].sh_addralign,
-                               new_sections_header[i].sh_entsize
-                  );
-
-            printf("\n");
-        }
-
-        //*/
 
         free(symbols);
         //free(new_symb_table);
@@ -293,6 +132,7 @@ int main(int argc, char **argv) {
             free(new_section[i]);
         }
         free(new_section);*/
+
 
 
         fclose(file_source);

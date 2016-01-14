@@ -86,7 +86,6 @@ void write_symbole_table (FILE *f, Elf32_Sym *symb_table,Elf32_Ehdr header,Elf32
 
     Elf32_Half symtable_index = 0;
     int i = 0;
-    printf("NB SYMBOLE RECU : %d \n ", symbols_count);
 
     while (section_headers_table[symtable_index].sh_type != SHT_SYMTAB) {
         symtable_index++;
@@ -118,7 +117,6 @@ void write_section_content(FILE *f,Elf32_Shdr *section_header_table, Elf32_Ehdr 
     int i;
     for(i=0;i<header.e_shnum;i++){
         if (section_header_table[i].sh_size!=0 || section_header_table[i].sh_type != SHT_NOBITS || section_header_table[i].sh_type != SHT_NULL){
-            printf(" section %d  : taille %d\n",i,section_header_table[i].sh_size);
             fseek(f, section_header_table[i].sh_offset, SEEK_SET);
             fwrite(section_content[i],sizeof(uint8_t),section_header_table[i].sh_size,f);
        }

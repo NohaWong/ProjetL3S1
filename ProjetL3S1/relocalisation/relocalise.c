@@ -125,30 +125,45 @@ uint8_t** new_section_content (	Table_rel_set table_rel,
                  // Name's row is equal to argument
                  if(!strcmp(&sections_name[rel_info_to_symbol(table_rel.rel_section_list[i].rel_list[j].r_info, symbols, section_headers)], infos[k].section_name)) {
                      uint8_t *to_fuse = &section_cpy[section_name_to_number(&sections_name[table_rel.rel_section_list[i].section_name+4], section_headers, sections_name, &header)][table_rel.rel_section_list[i].rel_list[j].r_offset];
-                     uint32_t result_fusion32 = 0;
+                     int32_t result_fusion32 = 0;
                      // convert array of 4 bytes into one integer of 32 bits
-                     result_fusion32 = (to_fuse[0] << 24) | (to_fuse[1] << 16) | (to_fuse[2] << 8) | (to_fuse[3]);
                      uint32_t P;
                      Elf32_Sym S;
 					int symb_idx = old_sym_to_new_sym[((!(ELF32_R_SYM(table_rel.rel_section_list[i].rel_list[j].r_info)==STN_UNDEF)) * ELF32_R_SYM(table_rel.rel_section_list[i].rel_list[j].r_info))];
                      S = new_symbols[symb_idx];
                      //A = result_fusion32;
                      P = section_headers[S.st_shndx].sh_addr + table_rel.rel_section_list[i].rel_list[j].r_offset;
-
-					printf("%x\n", S.st_name);
-
                      switch (ELF32_R_TYPE(table_rel.rel_section_list[i].rel_list[j].r_info)) {
                          case R_ARM_ABS32:
-                             result_fusion32 += S.st_value;
-                             break;
+                            result_fusion32 = (to_fuse[0] << 24) | (to_fuse[1] << 16) | (to_fuse[2] << 8) | (to_fuse[3]);
+                            result_fusion32 += S.st_value;
+                        break;
+
+                         case R_ARM_ABS16:
+                            result_fusion32 = (to_fuse[2] << 8) | (to_fuse[3]);
+                            if (result_fusion32 & 0x8000) {
+                                result_fusion32 |= ~0xFFFF;
+                            }
+                            result_fusion32 += S.st_value;
+                        break;
+
+                        case R_ARM_ABS8:
+                            result_fusion32 = (to_fuse[3]);
+                            if (result_fusion32 & 0x80) {
+                                result_fusion32 |= ~0xFF;
+                            }
+                            result_fusion32 += S.st_value;
+                        break;
 
                          case R_ARM_JUMP24:
                          case R_ARM_CALL:
+                            result_fusion32 = (to_fuse[2] << 16) | (to_fuse[1] << 8) | (to_fuse[0]);
 							result_fusion32 <<= 2;
 							result_fusion32 += S.st_value;
 							result_fusion32 -= P;
                             result_fusion32 &= 0x03FFFFFE;
-
+                            result_fusion32 >>= 2;
+                            result_fusion32 = (result_fusion32 & 0x00FFFFFF) | to_fuse[3] << 24;
 							break;
 
                          default:
@@ -163,19 +178,7 @@ uint8_t** new_section_content (	Table_rel_set table_rel,
              }
          }
      }
-	//* display test section_content (after modif)
-     for (j = 0; j < section_headers[1].sh_size; ++j) {
-         printf("%02x", section_cpy[1][j]);
 
-         if ((j+1)%4 == 0 && j != 0) {
-             printf(" ");
-         }
-         if ((j+1)%16 == 0 && j != 0) {
-             printf("\n");
-         }
-     }
-     printf("\n");
-     //*/
      return section_cpy;
 }
 

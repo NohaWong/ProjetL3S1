@@ -61,8 +61,9 @@ void print_elf_rel_tab(Table_rel_set relocations, Elf32_Sym* symb_table, Elf32_S
  */
 void print_elf_section_content(uint8_t** sec_content, int number, Elf32_Shdr *section_headers, char *secname, Elf32_Ehdr elf_header);
 
-
+/* From http://stackoverflow.com/questions/9158150/colored-output-in-c */
 #define BOLDWHITE   "\033[1m\033[37m"      /* Bold White */
+#define BOLDYELLOW  "\033[1m\033[33m"      /* Bold Yellow */
 #define RESET       "\033[0m"
 
 
