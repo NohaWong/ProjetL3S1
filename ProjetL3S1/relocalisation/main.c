@@ -55,17 +55,9 @@ int main(int argc, char **argv) {
         section_content = read_section_content(file_source, section_header_table, &header);
         Table_rel_set table_rel= read_rel_table(file_source, section_header_table, header.e_shnum);
         char * new_sec_name;
-        (void)table_rel;
+        //(void)table_rel;
 
-        if (test==1){
-        // memcpy(new_header, &header, sizeof(Elf32_Ehdr));
-        new_header=header;
-        write_file_header(file_target, new_header);
 
-        write_section_header(file_target,section_header_table,header);
-        write_symbole_table(file_target,symbols,header,section_header_table,symbols_count);
-        write_section_content(file_target,section_header_table,header,section_content);
-    }
 
 
         // get args
@@ -126,13 +118,19 @@ int main(int argc, char **argv) {
         free(new_sections_header);
         free(section_header_name);
         free(old_sec_to_new_sec);
- //       free(new_sec_header_name);
-        /*
+        free(new_sec_name);
+
         for (i = 0; i < header.e_shnum; ++i) {
             free(new_section[i]);
         }
-        free(new_section);*/
+        free(new_section);
 
+        if (test==1){
+            write_file_header(file_target, header);
+            write_section_header(file_target,section_header_table,header);
+            write_symbole_table(file_target,symbols,header,section_header_table,symbols_count);
+            write_section_content(file_target,section_header_table,header,section_content);
+        }
 
 
         fclose(file_source);

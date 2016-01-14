@@ -118,7 +118,7 @@ void print_help() {
     printf("\t6\tAucun fichier n'a été spécifié en entrée, ou il n'est pas accessible.\n\n");
     printf("\tAutre\tUne erreur inconnue s'est produite.\n\n");
     printf(BOLDWHITE "AUTEURS\n" RESET);
-    printf("\tÉcrit par Alexandre Daubois, Maxence Ginet, Sylvain Marion, Hugo Serem et Noha Wong.\n\n");
+    printf("\tÉcrit par Alexandre Daubois, Maxence Ginet, Sylvain Marion, Hugo Sereni et Noha Wong.\n\n");
 }
 
 /**
