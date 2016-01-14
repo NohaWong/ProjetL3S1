@@ -21,7 +21,7 @@ int main(int argc, char **argv) {
     Elf32_Ehdr header;
     Elf32_Shdr *sections_headers_table = NULL;
     char *sections_name_table = NULL;
-    uint16_t symbols_count = 0;
+    uint32_t symbols_count = 0;
     uint8_t **section_content;
 
     handle_errors(read_elf_header(file, &header));
